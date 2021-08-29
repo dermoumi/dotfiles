@@ -1,0 +1,28 @@
+[submodule "zsh/p10k"]
+	path = zsh/p10k
+	url = https://github.com/romkatv/powerlevel10k.git
+	shallow = true
+[submodule "zsh/fzf"]
+	path = zsh/fzf
+	url = https://github.com/junegunn/fzf.git
+	shallow = true
+[submodule "zsh/zsh-abbr"]
+	path = zsh/zsh-abbr
+	url = https://github.com/olets/zsh-abbr.git
+	shallow = true
+[submodule "zsh/zsh-autosuggestions"]
+	path = zsh/zsh-autosuggestions
+	url = https://github.com/zsh-users/zsh-autosuggestions.git
+	shallow = true
+[submodule "zsh/zsh-completions"]
+	path = zsh/zsh-completions
+	url = https://github.com/zsh-users/zsh-completions.git
+	shallow = true
+[submodule "zsh/zsh-history-substring-search"]
+	path = zsh/zsh-history-substring-search
+	url = https://github.com/zsh-users/zsh-history-substring-search.git
+	shallow = true
+[submodule "zsh/zsh-syntax-highlighting"]
+	path = zsh/zsh-syntax-highlighting
+	url = https://github.com/zsh-users/zsh-syntax-highlighting.git
+	shallow = true

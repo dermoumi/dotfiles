@@ -1,0 +1,6 @@
+#!/bin/zsh
+
+# Attaches tmux session immediately after ssh'ing into a remote
+ssht() {
+    =ssh -t "$@" "bash -c 'tmux attach || tmux new'"
+}

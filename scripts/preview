@@ -1,0 +1,78 @@
+#!/bin/bash
+
+# Overengineered preview command
+
+set -e -o pipefail
+
+# Config
+: "${PREVIEW_MAX_LINES:=50}"
+
+# If given multiple files, run this screen on each of them and exit
+if (( $# > 1 )); then
+    for file in "$@"; do
+        "$0" "$file"
+    done
+
+    exit
+fi
+
+# Otherwise, use single file
+file="$1"
+cmd=()
+
+# If no file is given, exit with error
+if [[ ! "$file" ]]; then
+    exit 1
+fi
+
+# Try to open different kinds of files
+if [[ -L "$file" ]]; then
+    link_target=$(readlink -f "$file")
+    printf "\e[36mLink to: %s\e[0m\n\n" "$link_target"
+    "$0" "$link_target"
+
+elif [[ -d "$file" ]]; then
+    if command -v tree >/dev/null; then
+        cmd=( tree --dirsfirst )
+        [[ "$NO_COLOR" ]] || cmd+=( -C )
+    else
+        cmd=( ls -x --human-readable --recursive --group-directories-first )
+        [[ "$NO_COLOR" ]] || cmd+=( --color=always )
+    fi
+
+    cmd+=( "$file" )
+
+    # Execute cmd
+    if [[ "$PREVIEW_MAX_LINES" ]]; then
+        "${cmd[@]}" | head -n "$PREVIEW_MAX_LINES"
+    else
+        "${cmd[@]}"
+    fi
+
+elif [[ -f "$file" ]]; then
+    if command -v bat >/dev/null; then
+        cmd=( bat )
+
+        if [[ ! "$NO_COLOR" ]]; then
+            cmd+=( --color=always )
+        fi
+
+        # Execute cmd
+        if [[ "$PREVIEW_MAX_LINES" ]]; then
+            cmd+=( --line-range :"$PREVIEW_MAX_LINES" )
+        fi
+
+        cmd+=( "$file" )
+
+        # Execute cmd
+        "${cmd[@]}"
+    else
+        cmd=( cat )
+
+        cmd+=( "$file" )
+
+        # Execute cmd
+        "${cmd[@]}" | head -n "$PREVIEW_MAX_LINES"
+    fi
+
+fi

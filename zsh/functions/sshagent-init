@@ -1,0 +1,71 @@
+#!/bin/zsh
+
+# Initializes ssh-agent
+sshagent-init() {
+    local env=~/.ssh/agent.env
+    local auto=0
+
+    while (($#)); do
+        key="$1"
+        case "$key" in
+        --auto)
+            auto=1
+            shift
+        ;;
+        *)
+            break
+        ;;
+        esac
+    done
+
+    # Create an executable to be used as ASKPASS program by ssh-add
+    __create_askpass_file() {
+        printf 'echo %q' "$SSH_SECRET" > "$1"
+        chmod +x "$1"
+    }
+
+    # Remove the given askpass
+    __clear_askpass_file() {
+        [[ -f "$1" ]] && rm -f "$1"
+    }
+
+    # Wrapper over ssh-add that passes the passphrase
+    # through a dummy askpass program
+    __ssh_add() {
+        if ! ((auto)) || [[ ! "${SSH_SECRET+x}" ]]; then
+            ssh-add
+            return
+        fi
+
+        local retval=0
+        local askpass=$(mktemp)
+        __create_askpass_file "$askpass" &>/dev/null
+        (echo "-" | DISPLAY=:0 SSH_ASKPASS="$askpass" ssh-add "$@") || retval=$?
+        __clear_askpass_file "$askpass" &>/dev/null
+        return "$retval"
+    }
+
+    # Loads the agent's env string from file if it exists
+    if [[ -f "$env" ]]; then
+        . "$env" >| /dev/null
+    fi
+
+    # agent_run_state: 0=agent running w/ key; 1=agent w/o key; 2=agent not running
+    agent_run_state=$(__ssh_add -l &>/dev/null; echo $?)
+
+    if [[ ! "$SSH_AUTH_SOCK" ]] || [[ "$agent_run_state" == 2 ]]; then
+        # Makesure .ssh dir exists
+        mkdir -p ~/.ssh
+
+        # Starts the ssh agents and saves its env output into a file
+        # While instantly importing it to the current shell
+        (umask 077; ssh-agent >| "$env")
+        . "$env" >| /dev/null
+
+        # Add the keys to the newly started agent
+        __ssh_add &>/dev/null
+    elif [[ "$SSH_AUTH_SOCK" ]] && [[ "$agent_run_state" == 1 ]]; then
+        # The agent already exists, just add the keys to it
+        __ssh_add &>/dev/null
+    fi
+}

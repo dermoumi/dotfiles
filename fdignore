@@ -1,0 +1,7 @@
+__pycache__
+.git
+.vscode-server
+
+.undodir/
+.vim-workspace
+.nvim-workspace

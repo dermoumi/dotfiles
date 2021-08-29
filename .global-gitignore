@@ -1,0 +1,22 @@
+# Project/IDE files
+.venv
+.python-version
+.local.vimrc
+pyrightconfig.json
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+
+# Node
+node_modules
+
+# Python
+*.pyc
+
+# System
+._*
+Thumbs.db
+.Spotlight-V100
+.Trashes
+.DS_Store
+Desktop.ini

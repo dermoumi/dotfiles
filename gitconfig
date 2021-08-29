@@ -1,0 +1,60 @@
+[user]
+  email = hi@sdrm.me
+  name = S Dermoumi
+  signingkey = 8A24B0371B58404D
+
+[commit]
+	gpgsign = true
+
+[core]
+  excludesfile = ~/.dotfiles/.global.gitignore
+
+[color]
+	ui = true
+
+[log]
+	date = short
+
+[init]
+    defaultBranch = main
+
+[push]
+	default = simple
+
+[pull]
+	rebase = false
+
+[alias]
+  a = add --all
+  c = commit
+  cm = commit -m
+  st = status
+  co = checkout
+  m = merge
+  up = pull --rebase=preserve
+  g = grep --break --heading --line-number
+  fa = fetch --all
+  p = push
+  pp = push -o ci.skip
+  pf = push --force-with-lease
+  pl = pull
+  br = branch
+  lo = log --oneline
+  lg = log --graph --pretty=format:'%>|(26) %C(yellow)%h %C(cyan)%ad %C(reset)%s%C(green)%d %C(bold blue)<%an>%C(reset)'
+  cp = cherry-pick
+  ap = commit --amend --no-edit
+  # Better looking diff
+  df = diff --color --color-words --abbrev
+  # Compare logs to master
+  dfmastercm = log --no-merges master..
+  # Undo the commit but keep changes
+  undo = reset HEAD~
+  # Reset all files to last commit
+  hreset = reset --hard HEAD
+  # grep TODO and FIXME from staged changes
+  todo = grep --break --heading --line-number -e TODO -e FIXME
+  # Show the diff between the latest commit and the current state
+  d = !"git diff-index --quiet HEAD -- || clear; git --no-pager diff --patch-with-stat"
+
+[url "git@github.com:"]
+  insteadOf = "gh:"

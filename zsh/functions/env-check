@@ -1,0 +1,209 @@
+#!/bin/zsh
+
+env-check() {
+    local bin_path="$HOME/.local/bin"
+    mkdir -p "$bin_path"
+
+    local -a install_list=("$@")
+
+    # Check if the following commands are installed
+    command -v fzf fd dotfiles zoxide &>/dev/null && return
+
+    # Check and install each utility
+    command -v fzf &>/dev/null || install_list+=(fzf)
+    command -v fd &>/dev/null || install_list+=(fd)
+    command -v dotfiles &>/dev/null || install_list+=(dotfiles)
+    command -v zoxide &>/dev/null || install_list+=(zoxide)
+
+    pushd "$bin_path" &>/dev/null
+
+    local installed=0
+    local failed=0
+
+    __latest-url() {
+        local repo filename_pattern
+        repo=$1
+        filename_pattern=$2
+
+        curl -fsSL "https://api.github.com/repos/$repo/releases/latest" | grep -oE "https://.+/$filename_pattern"
+    }
+
+    __try-curl() {
+        command -v curl > /dev/null || return 1
+
+        local file=$1
+        shift
+
+        if [[ "$file" =~ tar.gz$ ]]; then
+            curl -fsSL "$file" | tar -xzf - "$@"
+        else
+            local tempdir
+            tempdir=$(mktemp -d)
+            local temp="$tempdir/target.zip"
+            if [[ "$tempdir" ]]; then
+                curl -fsSLo "$temp" "$file" && unzip -o "$temp"
+                rm -rf "$tempdir"
+            fi
+        fi
+    }
+
+    __try-wget() {
+        command -v wget > /dev/null || return 1
+
+        local file=$1
+        shift
+
+        if [[ "$file" =~ tar.gz$ ]]; then
+            wget -O - "$file" | tar -xzf - "$@"
+        else
+            local tempdir
+            tempdir=$(mktemp -d)
+            local temp="$tempdir/target.zip"
+            if [[ "$tempdir" ]]; then
+                wget -O "$temp" "$file" && unzip -o "$temp"
+                rm -rf "$tempdir"
+            fi
+        fi
+    }
+
+    __download() {
+        local retval=0
+
+        set -o pipefail
+        __try-curl "$@" || __try-wget "$@" || retval=$?
+        set +o pipefail
+
+        return "$retval"
+    }
+
+    if [[ " ${install_list[@]} " =~ " fzf " ]]; then
+        echo "Installing fzf..."
+
+        # Try to download binary executable
+        archi=$(uname -sm)
+        case "$archi" in
+            Darwin\ arm64)   file_pattern="fzf-[^-]+-darwin_arm64\.zip"      ;;
+            Darwin\ x86_64)  file_pattern="fzf-[^-]+-darwin_amd64\.zip"      ;;
+            Linux\ armv5*)   file_pattern="fzf-[^-]+-linux_armv5\.tar\.gz"   ;;
+            Linux\ armv6*)   file_pattern="fzf-[^-]+-linux_armv6\.tar\.gz"   ;;
+            Linux\ armv7*)   file_pattern="fzf-[^-]+-linux_armv7\.tar\.gz"   ;;
+            Linux\ armv8*)   file_pattern="fzf-[^-]+-linux_arm64\.tar\.gz"   ;;
+            Linux\ aarch64*) file_pattern="fzf-[^-]+-linux_arm64\.tar\.gz"   ;;
+            Linux\ *64)      file_pattern="fzf-[^-]+-linux_amd64\.tar\.gz"   ;;
+            FreeBSD\ *64)    file_pattern="fzf-[^-]+-freebsd_amd64\.tar\.gz" ;;
+            OpenBSD\ *64)    file_pattern="fzf-[^-]+-openbsd_amd64\.tar\.gz" ;;
+            CYGWIN*\ *64)    file_pattern="fzf-[^-]+-windows_amd64\.zip"     ;;
+            MINGW*\ *64)     file_pattern="fzf-[^-]+-windows_amd64\.zip"     ;;
+            MSYS*\ *64)      file_pattern="fzf-[^-]+-windows_amd64\.zip"     ;;
+            Windows*\ *64)   file_pattern="fzf-[^-]+-windows_amd64\.zip"     ;;
+            *)               file_pattern= binary_error=1 ;;
+        esac
+
+        __download "$(__latest-url "junegunn/fzf" "$file_pattern")"
+
+        if [ -f fzf ]; then
+            chmod +x fzf
+            installed=1
+        else
+            echo "Failed to download fzf" >&2
+            failed=1
+        fi
+    fi
+
+    if [[ " ${install_list[@]} " =~ " fd " ]]; then
+        echo "Installing fd..."
+        # TODO: Build this for mac os? install using brew?
+
+        # Try to download binary executable
+        archi=$(uname -sm)
+        case "$archi" in
+            Darwin\ x86_64)  file_pattern="fd-[^-]+-x86_64-apple-darwin\.tar\.gz"      ;;
+            Linux\ armv8*)   file_pattern="fd-[^-]+-arm-unknown-linux-musleabihf\.tar\.gz"   ;;
+            Linux\ aarch64*) file_pattern="fd-[^-]+-arm-unknown-linux-musleabihf\.tar\.gz"   ;;
+            Linux\ *64)      file_pattern="fd-[^-]+-x86_64-unknown-linux-musl\.tar\.gz"   ;;
+            CYGWIN*\ *64)    file_pattern="fd-[^-]+-i686-pc-windows-gnu\.zip"     ;;
+            MINGW*\ *64)     file_pattern="fd-[^-]+-i686-pc-windows-gnu\.zip"     ;;
+            MSYS*\ *64)      file_pattern="fd-[^-]+-i686-pc-windows-gnu\.zip"     ;;
+            Windows*\ *64)   file_pattern="fd-[^-]+-i686-pc-windows-gnu\.zip"     ;;
+            *)               file_pattern= binary_error=1 ;;
+        esac
+
+        __download "$(__latest-url "sharkdp/fd" "$file_pattern")" \
+            --wildcards '*/fd' --strip-components=1
+
+        if [ -f fd ]; then
+            chmod +x fd
+            installed=1
+        else
+            echo "Failed to download fd" >&2
+            failed=1
+        fi
+    fi
+
+    if [[ " ${install_list[@]} " =~ " zoxide " ]]; then
+        echo "Installing zoxide..."
+
+        # Try to download binary executable
+        archi=$(uname -sm)
+        case "$archi" in
+            Darwin\ x86_64)  file_pattern="zoxide-x86_64-apple-darwin\.tar\.gz"      ;;
+            Linux\ armv7*)   file_pattern="zoxide-armv7-unknown-linux-musleabihf\.tar\.gz"   ;;
+            Linux\ armv8*)   file_pattern="zoxide-aarch64-unknown-linux-musl\.tar\.gz"   ;;
+            Linux\ aarch64*) file_pattern="zoxide-aarch64-unknown-linux-musl\.tar\.gz"   ;;
+            Linux\ *64)      file_pattern="zoxide-x86_64-unknown-linux-musl\.tar\.gz"   ;;
+            CYGWIN*\ *64)    file_pattern="zoxide-x86_64-pc-windows-msvc\.zip"     ;;
+            MINGW*\ *64)     file_pattern="zoxide-x86_64-pc-windows-msvc\.zip"     ;;
+            MSYS*\ *64)      file_pattern="zoxide-x86_64-pc-windows-msvc\.zip"     ;;
+            Windows*\ *64)   file_pattern="zoxide-x86_64-pc-windows-msvc\.zip"     ;;
+            *)               file_pattern= binary_error=1 ;;
+        esac
+
+        __download "$(__latest-url "ajeetdsouza/zoxide" "$file_pattern")" \
+            --wildcards '*/zoxide' --strip-components=1
+
+        if [ -f zoxide ]; then
+            chmod +x zoxide
+            installed=1
+        else
+            echo "Failed to download zoxide" >&2
+            failed=1
+        fi
+    fi
+
+    if [[ " ${install_list[@]} " =~ " dotfiles " ]]; then
+        echo "Installing dotfiles..."
+
+        # Try to download binary executable
+        archi=$(uname -sm)
+        case "$archi" in
+            Darwin\ x86_64)  file_pattern="dotfiles_darwin_amd64\.zip"      ;;
+            Linux\ *64)      file_pattern="dotfiles_linux_amd64\.zip"   ;;
+            CYGWIN*\ *64)    file_pattern="dotfiles_windows_amd64\.exe\.zip"     ;;
+            MINGW*\ *64)     file_pattern="dotfiles_windows_amd64\.exe\.zip"     ;;
+            MSYS*\ *64)      file_pattern="dotfiles_windows_amd64\.exe\.zip"     ;;
+            Windows*\ *64)   file_pattern="dotfiles_windows_amd64\.exe\.zip"     ;;
+            *)               file_pattern= binary_error=1 ;;
+        esac
+
+        __download "$(__latest-url "rhysd/dotfiles" "$file_pattern")"
+
+        if [ -f dotfiles ]; then
+            chmod +x dotfiles
+            installed=1
+        else
+            echo "Failed to download dotfiles" >&2
+            failed=1
+        fi
+    fi
+
+    popd &>/dev/null
+
+    if ((installed)); then
+        echo "Restarting zsh..."
+        if [[ "$ZSH_EXECUTION_STRING" ]]; then
+            ((failed)) || exec zsh -c "$ZSH_EXECUTION_STRING"
+        else
+            exec zsh
+        fi
+    fi
+}

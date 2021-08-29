@@ -1,0 +1,107 @@
+#!/bin/zsh
+
+# Vi mode
+# KEYTIMEOUT=1
+# bindkey -v
+
+# use emacs keybindings even if our EDITOR is set to vi
+bindkey -e
+
+# widget to delete to the previous / (or any other delimiter)
+# https://unix.stackexchange.com/a/319854/439025
+backward-kill-dir() {
+    local WORDCHARS=${WORDCHARS/\//}
+    zle backward-kill-word
+}
+zle -N backward-kill-dir
+
+# widget to jump to the next / (or space)
+forward-word-dir()  {
+    local WORDCHARS=${WORDCHARS/\//}
+    zle forward-word
+}
+zle -N forward-word-dir
+
+# widget to jump to the previous / (or space)
+backward-word-dir()  {
+    local WORDCHARS=${WORDCHARS/\//}
+    zle backward-word
+}
+zle -N backward-word-dir
+
+# widget to remove current autosuggest line from history
+purge-from-history() {
+    # Escape buffer to match histfile
+    local buf="$BUFFER"
+    buf=$(echo "$buf" | sed ':a;N;$!ba;s/\n/\\\n/g')
+
+    # Replace line in histfile
+    local hist
+    hist=$(<"$HISTFILE")
+    echo "${hist/$buf/}" >"$HISTFILE"
+    fc -R
+
+    # Clear buffer
+    if [[ "$RBUFFER" ]]; then
+        RBUFFER=""
+    else
+        BUFFER=""
+    fi
+
+    # Fetch suggestion if any
+    zle autosuggest-fetch || :
+}
+zle -N purge-from-history
+
+# home to move to the beggingin of the line
+bindkey "^[[1~" beginning-of-line
+bindkey "^[[H"  beginning-of-line
+bindkey "^[OH"  beginning-of-line
+
+# end to move to the end of the line
+bindkey "^[[4~" end-of-line
+bindkey "^[[F"  end-of-line
+bindkey "^[OF"  end-of-line
+
+# ctrl+arraws to jump words
+bindkey "^[[1;5C" forward-word
+bindkey "^[[1;5D" backward-word
+
+# alt+array to jump to next/previous / (or space)
+bindkey "^[[1;3C" forward-word-dir
+bindkey "^[[1;3D" backward-word-dir
+
+# del to remove next character
+bindkey "^[[3~" delete-char
+
+# bspace to delete previous character
+# allows to go past start position
+# after switching from normal-mode in vi-mode
+bindkey "^?" backward-delete-char
+
+# ctrl+del to remove next word
+bindkey "5~" kill-word
+
+# ctrl+bspace to remove previous word
+bindkey "^H" backward-kill-word
+
+# alt+bspace to remove to the previous / (or space)
+bindkey "^[^?" backward-kill-dir
+
+# alt+enter to type a new line without sending command
+bindkey "^J" self-insert-unmeta
+
+# ctrl+x to remove the current line from history
+bindkey '^X' purge-from-history
+
+# alt+m to run main tmux session
+bindkey -s "^[m" "[ '$TMUX' ] && tmux switch -t main || tmux attach -t main || tmux new -s main^M"
+
+# ctrl+e to edit current line in nvim
+autoload -Uz edit-command-line
+nvim-command-line() {
+    local EDITOR="nvim +':set filetype=sh'"
+    edit-command-line
+}
+zle -N nvim-command-line
+bindkey "^E" nvim-command-line
