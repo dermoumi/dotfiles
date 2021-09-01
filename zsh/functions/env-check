@@ -41,7 +41,7 @@ env-check() {
             tempdir=$(mktemp -d)
             local temp="$tempdir/target.zip"
             if [[ "$tempdir" ]]; then
-                curl -fsSLo "$temp" "$file" && unzip -o "$temp"
+                curl -fsSLo "$temp" "$file" && unzip -o "$temp" >/dev/null
                 rm -rf "$tempdir"
             fi
         fi
@@ -60,7 +60,7 @@ env-check() {
             tempdir=$(mktemp -d)
             local temp="$tempdir/target.zip"
             if [[ "$tempdir" ]]; then
-                wget -O "$temp" "$file" && unzip -o "$temp"
+                wget -O "$temp" "$file" && unzip -o "$temp" >/dev/null
                 rm -rf "$tempdir"
             fi
         fi
