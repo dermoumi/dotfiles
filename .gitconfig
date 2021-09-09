@@ -58,5 +58,3 @@
 
 [url "git@github.com:"]
   insteadOf = "gh:"
-[credential]
-	helper = "!f() { /root/.vscode-server/bin/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa/node /tmp/vscode-remote-containers-40b471aa10c828816e41f96a9fe7a3da00fb8d08.js $*; }; f"
