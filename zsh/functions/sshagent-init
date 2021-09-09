@@ -2,6 +2,12 @@
 
 # Initializes ssh-agent
 sshagent-init() {
+    # Only run ssh agent explicitely in environments that request it
+    # Set this in .env.local so that .zshenv automatically reads it
+    if ! ((SSH_AGENT_AUTORUN)); then
+        return
+    fi
+
     local env=~/.ssh/agent.env
     local auto=0
 
