@@ -1,17 +1,17 @@
 #!/bin/zsh
 
-# Change the default zsh root
-ZDOTDIR=~/.dotfiles/zsh
-
-# Setup function autoload
-autoload -Uz "$ZDOTDIR/functions/"*
-
 #
 # General env vars
 #
 
 # import local env if any
 [[ -f ~/.env.local ]] && source ~/.env.local
+
+# Change the default zsh root
+: ${ZDOTDIR:=~/.dotfiles/zsh}
+
+# Setup function autoload
+autoload -Uz "$ZDOTDIR/functions/"*
 
 # default language to avoid unicode issues
 [[ "$LC_ALL" ]] || export LC_ALL="en_US.UTF-8"
@@ -38,6 +38,10 @@ fi
 if [[ -d ~/.pyenv && ! ("$PYENV_ROOT" && -d "$PYENV_ROOT") ]]; then
     export PYENV_ROOT=~/.pyenv
     path=($PYENV_ROOT/bin $path)
+fi
+
+if command -v pyenv &>/dev/null; then
+    eval "$(pyenv init --path)"
 fi
 
 # poetry
