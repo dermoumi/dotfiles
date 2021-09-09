@@ -7,13 +7,14 @@ env-check() {
     local -a install_list=("$@")
 
     # Check if the following commands are installed
-    command -v fzf fd dotfiles zoxide &>/dev/null && return
+    command -v fzf fd dotfiles zoxide rg &>/dev/null && return
 
     # Check and install each utility
     command -v fzf &>/dev/null || install_list+=(fzf)
     command -v fd &>/dev/null || install_list+=(fd)
     command -v dotfiles &>/dev/null || install_list+=(dotfiles)
     command -v zoxide &>/dev/null || install_list+=(zoxide)
+    command -v rg &>/dev/null || install_list+=(ripgrep)
 
     pushd "$bin_path" &>/dev/null
 
@@ -68,6 +69,8 @@ env-check() {
 
     __download() {
         local retval=0
+
+        echo "-> Downloading from: $1"
 
         set -o pipefail
         __try-curl "$@" || __try-wget "$@" || retval=$?
@@ -192,6 +195,35 @@ env-check() {
             installed=1
         else
             echo "Failed to download dotfiles" >&2
+            failed=1
+        fi
+    fi
+
+    if [[ " ${install_list[@]} " =~ " ripgrep " ]]; then
+        echo "Installing ripgrep..."
+
+        # Try to download binary executable
+        archi=$(uname -sm)
+        case "$archi" in
+            Darwin\ x86_64)  file_pattern="ripgrep-[^-]+-x86_64-apple-darwin\.tar\.gz"      ;;
+            Linux\ armv8*)   file_pattern="ripgrep-[^-]+-arm-unknown-linux-gnueabihf\.tar\.gz"   ;;
+            Linux\ aarch64*) file_pattern="ripgrep-[^-]+-arm-unknown-linux-gnueabihf\.tar\.gz"   ;;
+            Linux\ *64)      file_pattern="ripgrep-[^-]+-x86_64-unknown-linux-musl\.tar\.gz"   ;;
+            CYGWIN*\ *64)    file_pattern="ripgrep-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
+            MINGW*\ *64)     file_pattern="ripgrep-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
+            MSYS*\ *64)      file_pattern="ripgrep-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
+            Windows*\ *64)   file_pattern="ripgrep-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
+            *)               file_pattern= binary_error=1 ;;
+        esac
+
+        __download "$(__latest-url "BurntSushi/ripgrep" "$file_pattern")" \
+            --wildcards '*/rg' --strip-components=1
+
+        if [ -f rg ]; then
+            chmod +x rg
+            installed=1
+        else
+            echo "Failed to download ripgrep" >&2
             failed=1
         fi
     fi
