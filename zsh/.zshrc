@@ -107,8 +107,7 @@ if ! less --mouse |& grep "There is no" &>/dev/null; then
 fi
 
 # bat
-export BAT_THEME="gruvbox"
-export BAT_STYLE="header,changes,numbers,snip"
+export BAT_STYLE="changes,snip"
 
 # pyenv
 if command -v pyenv &>/dev/null; then

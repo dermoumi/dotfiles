@@ -7,7 +7,7 @@ env-check() {
     local -a install_list=("$@")
 
     # Check if the following commands are installed
-    command -v fzf fd dotfiles zoxide rg &>/dev/null && return
+    command -v fzf fd dotfiles zoxide rg bat &>/dev/null && return
 
     # Check and install each utility
     command -v fzf &>/dev/null || install_list+=(fzf)
@@ -15,6 +15,7 @@ env-check() {
     command -v dotfiles &>/dev/null || install_list+=(dotfiles)
     command -v zoxide &>/dev/null || install_list+=(zoxide)
     command -v rg &>/dev/null || install_list+=(ripgrep)
+    command -v bat &>/dev/null || install_list+=(bat)
 
     pushd "$bin_path" &>/dev/null
 
@@ -87,14 +88,7 @@ env-check() {
         case "$archi" in
             Darwin\ arm64)   file_pattern="fzf-[^-]+-darwin_arm64\.zip"      ;;
             Darwin\ x86_64)  file_pattern="fzf-[^-]+-darwin_amd64\.zip"      ;;
-            Linux\ armv5*)   file_pattern="fzf-[^-]+-linux_armv5\.tar\.gz"   ;;
-            Linux\ armv6*)   file_pattern="fzf-[^-]+-linux_armv6\.tar\.gz"   ;;
-            Linux\ armv7*)   file_pattern="fzf-[^-]+-linux_armv7\.tar\.gz"   ;;
-            Linux\ armv8*)   file_pattern="fzf-[^-]+-linux_arm64\.tar\.gz"   ;;
-            Linux\ aarch64*) file_pattern="fzf-[^-]+-linux_arm64\.tar\.gz"   ;;
             Linux\ *64)      file_pattern="fzf-[^-]+-linux_amd64\.tar\.gz"   ;;
-            FreeBSD\ *64)    file_pattern="fzf-[^-]+-freebsd_amd64\.tar\.gz" ;;
-            OpenBSD\ *64)    file_pattern="fzf-[^-]+-openbsd_amd64\.tar\.gz" ;;
             CYGWIN*\ *64)    file_pattern="fzf-[^-]+-windows_amd64\.zip"     ;;
             MINGW*\ *64)     file_pattern="fzf-[^-]+-windows_amd64\.zip"     ;;
             MSYS*\ *64)      file_pattern="fzf-[^-]+-windows_amd64\.zip"     ;;
@@ -121,8 +115,6 @@ env-check() {
         archi=$(uname -sm)
         case "$archi" in
             Darwin\ x86_64)  file_pattern="fd-[^-]+-x86_64-apple-darwin\.tar\.gz"      ;;
-            Linux\ armv8*)   file_pattern="fd-[^-]+-arm-unknown-linux-musleabihf\.tar\.gz"   ;;
-            Linux\ aarch64*) file_pattern="fd-[^-]+-arm-unknown-linux-musleabihf\.tar\.gz"   ;;
             Linux\ *64)      file_pattern="fd-[^-]+-x86_64-unknown-linux-musl\.tar\.gz"   ;;
             CYGWIN*\ *64)    file_pattern="fd-[^-]+-i686-pc-windows-gnu\.zip"     ;;
             MINGW*\ *64)     file_pattern="fd-[^-]+-i686-pc-windows-gnu\.zip"     ;;
@@ -150,9 +142,6 @@ env-check() {
         archi=$(uname -sm)
         case "$archi" in
             Darwin\ x86_64)  file_pattern="zoxide-x86_64-apple-darwin\.tar\.gz"      ;;
-            Linux\ armv7*)   file_pattern="zoxide-armv7-unknown-linux-musleabihf\.tar\.gz"   ;;
-            Linux\ armv8*)   file_pattern="zoxide-aarch64-unknown-linux-musl\.tar\.gz"   ;;
-            Linux\ aarch64*) file_pattern="zoxide-aarch64-unknown-linux-musl\.tar\.gz"   ;;
             Linux\ *64)      file_pattern="zoxide-x86_64-unknown-linux-musl\.tar\.gz"   ;;
             CYGWIN*\ *64)    file_pattern="zoxide-x86_64-pc-windows-msvc\.zip"     ;;
             MINGW*\ *64)     file_pattern="zoxide-x86_64-pc-windows-msvc\.zip"     ;;
@@ -206,8 +195,6 @@ env-check() {
         archi=$(uname -sm)
         case "$archi" in
             Darwin\ x86_64)  file_pattern="ripgrep-[^-]+-x86_64-apple-darwin\.tar\.gz"      ;;
-            Linux\ armv8*)   file_pattern="ripgrep-[^-]+-arm-unknown-linux-gnueabihf\.tar\.gz"   ;;
-            Linux\ aarch64*) file_pattern="ripgrep-[^-]+-arm-unknown-linux-gnueabihf\.tar\.gz"   ;;
             Linux\ *64)      file_pattern="ripgrep-[^-]+-x86_64-unknown-linux-musl\.tar\.gz"   ;;
             CYGWIN*\ *64)    file_pattern="ripgrep-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
             MINGW*\ *64)     file_pattern="ripgrep-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
@@ -224,6 +211,33 @@ env-check() {
             installed=1
         else
             echo "Failed to download ripgrep" >&2
+            failed=1
+        fi
+    fi
+
+    if [[ " ${install_list[@]} " =~ " bat " ]]; then
+        echo "Installing bat..."
+
+        # Try to download binary executable
+        archi=$(uname -sm)
+        case "$archi" in
+            Darwin\ x86_64)  file_pattern="bat-[^-]+-x86_64-apple-darwin\.tar\.gz"      ;;
+            Linux\ *64)      file_pattern="bat-[^-]+-x86_64-unknown-linux-musl\.tar\.gz"   ;;
+            CYGWIN*\ *64)    file_pattern="bat-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
+            MINGW*\ *64)     file_pattern="bat-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
+            MSYS*\ *64)      file_pattern="bat-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
+            Windows*\ *64)   file_pattern="bat-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
+            *)               file_pattern= binary_error=1 ;;
+        esac
+
+        __download "$(__latest-url "sharkdp/bat" "$file_pattern")" \
+            --wildcards '*/bat' --strip-components=1
+
+        if [ -f bat ]; then
+            chmod +x bat
+            installed=1
+        else
+            echo "Failed to download bat" >&2
             failed=1
         fi
     fi
