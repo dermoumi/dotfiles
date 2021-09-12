@@ -110,6 +110,10 @@ if ! less --mouse |& grep "There is no" &>/dev/null; then
     LESS+=" --mouse --wheel-lines=4"
 fi
 
+# A couple of keybindings and color config for less
+# Requires a fairly recent version of less
+export LESSKEYIN="$HOME/.dotfiles/.lesskey"
+
 # bat
 export BAT_STYLE="changes,snip"
 

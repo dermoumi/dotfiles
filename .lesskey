@@ -1,0 +1,28 @@
+# vim: set ft=conf
+
+#command
+
+# ctrl+jk to scroll 5rows at once
+^J noaction 4j
+^K noaction 4k
+
+#env
+
+# colors
+# begin blink
+LESS_TERMCAP_mb = \e[5;91m
+# begin bold
+LESS_TERMCAP_md = \e[1;32m
+# reset bold/blink
+LESS_TERMCAP_me = \e[0m
+# begin reverse video
+LESS_TERMCAP_so = \e[1;30;43m
+# reset reverse video
+LESS_TERMCAP_se = \e[0m
+# begin underline
+LESS_TERMCAP_us = \e[1;4;34m
+# reset underline
+LESS_TERMCAP_ue = \e[0m
+
+# Note: I don't want to put the LESS var because i generate it dynamically depending
+# on the installed less version (latest versions of less have mouse support)
