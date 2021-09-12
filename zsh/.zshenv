@@ -28,10 +28,15 @@ if [[ ! "$EDITOR" ]]; then
     fi
 fi
 
+# brew
+if [[ -d /opt/homebrew/bin ]]; then
+    path=(/opt/homebrew/bin $path)
+fi
+
 # go
-if [[ -d ~/.local/go/bin && ! "$GO_PATH" ]]; then
-    export GO_PATH=$HOME/.local/go/bin
-    path=($GO_PATH $path)
+if [[ -d ~/.local/go/bin && ! "$GOPATH" ]]; then
+    export GOPATH=$HOME/.local/go
+    path=($GOPATH/bin $path)
 fi
 
 # pyenv
@@ -117,7 +122,7 @@ sshagent-init --auto
 alias colortest="curl -s https://gist.githubusercontent.com/HaleTom/89ffe32783f89f403bba96bd7bcd1263/raw/ | bash"
 
 # ls aliases
-if [[ "$OSTYPE" =~ "darwin" ]]; then
+if [[ "$OSTYPE" =~ darwin.+ ]]; then
     alias ls="ls -G"
     alias ll="ls -lh"
     alias la="ls -a"

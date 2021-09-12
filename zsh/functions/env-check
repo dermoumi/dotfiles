@@ -6,6 +6,10 @@ env-check() {
 
     local -a install_list=("$@")
 
+    if [[ "$OSTYPE" =~ darwin.* ]]; then
+        command -v brew &>/dev/null || install_list+=(homebrew)
+    fi
+
     # Check if the following commands are installed
     command -v fzf fd dotfiles zoxide rg bat &>/dev/null && return
 
@@ -80,85 +84,106 @@ env-check() {
         return "$retval"
     }
 
+    if [[ " ${install_list[@]} " =~ " homebrew " ]]; then
+        echo "Installing homebrew..."
+
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+        # Add the newly created bin directory to path
+        if [[ -d /opt/homebrew/bin ]]; then
+            path=(/opt/homebrew/bin $path)
+        fi
+    fi
+
     if [[ " ${install_list[@]} " =~ " fzf " ]]; then
         echo "Installing fzf..."
 
-        # Try to download binary executable
-        archi=$(uname -sm)
-        case "$archi" in
-            Darwin\ arm64)   file_pattern="fzf-[^-]+-darwin_arm64\.zip"      ;;
-            Darwin\ x86_64)  file_pattern="fzf-[^-]+-darwin_amd64\.zip"      ;;
-            Linux\ *64)      file_pattern="fzf-[^-]+-linux_amd64\.tar\.gz"   ;;
-            CYGWIN*\ *64)    file_pattern="fzf-[^-]+-windows_amd64\.zip"     ;;
-            MINGW*\ *64)     file_pattern="fzf-[^-]+-windows_amd64\.zip"     ;;
-            MSYS*\ *64)      file_pattern="fzf-[^-]+-windows_amd64\.zip"     ;;
-            Windows*\ *64)   file_pattern="fzf-[^-]+-windows_amd64\.zip"     ;;
-            *)               file_pattern= binary_error=1 ;;
-        esac
-
-        __download "$(__latest-url "junegunn/fzf" "$file_pattern")"
-
-        if [ -f fzf ]; then
-            chmod +x fzf
-            installed=1
+        if command -v brew &>/dev/null; then
+            brew install fzf
         else
-            echo "Failed to download fzf" >&2
-            failed=1
+            # Try to download binary executable
+            archi=$(uname -sm)
+            case "$archi" in
+                Linux\ aarch64*) file_pattern="fzf-[^-]+-linux_arm64\.tar\.gz"   ;;
+                Linux\ *64)      file_pattern="fzf-[^-]+-linux_amd64\.tar\.gz"   ;;
+                CYGWIN*\ *64)    file_pattern="fzf-[^-]+-windows_amd64\.zip"     ;;
+                MINGW*\ *64)     file_pattern="fzf-[^-]+-windows_amd64\.zip"     ;;
+                MSYS*\ *64)      file_pattern="fzf-[^-]+-windows_amd64\.zip"     ;;
+                Windows*\ *64)   file_pattern="fzf-[^-]+-windows_amd64\.zip"     ;;
+                *)               file_pattern= binary_error=1 ;;
+            esac
+
+            __download "$(__latest-url "junegunn/fzf" "$file_pattern")"
+
+            if [ -f fzf ]; then
+                chmod +x fzf
+                installed=1
+            else
+                echo "Failed to download fzf" >&2
+                failed=1
+            fi
         fi
     fi
 
     if [[ " ${install_list[@]} " =~ " fd " ]]; then
         echo "Installing fd..."
-        # TODO: Build this for mac os? install using brew?
 
-        # Try to download binary executable
-        archi=$(uname -sm)
-        case "$archi" in
-            Darwin\ x86_64)  file_pattern="fd-[^-]+-x86_64-apple-darwin\.tar\.gz"      ;;
-            Linux\ *64)      file_pattern="fd-[^-]+-x86_64-unknown-linux-musl\.tar\.gz"   ;;
-            CYGWIN*\ *64)    file_pattern="fd-[^-]+-i686-pc-windows-gnu\.zip"     ;;
-            MINGW*\ *64)     file_pattern="fd-[^-]+-i686-pc-windows-gnu\.zip"     ;;
-            MSYS*\ *64)      file_pattern="fd-[^-]+-i686-pc-windows-gnu\.zip"     ;;
-            Windows*\ *64)   file_pattern="fd-[^-]+-i686-pc-windows-gnu\.zip"     ;;
-            *)               file_pattern= binary_error=1 ;;
-        esac
-
-        __download "$(__latest-url "sharkdp/fd" "$file_pattern")" \
-            --wildcards '*/fd' --strip-components=1
-
-        if [ -f fd ]; then
-            chmod +x fd
-            installed=1
+        if command -v brew &>/dev/null; then
+            brew install fd
         else
-            echo "Failed to download fd" >&2
-            failed=1
+            # Try to download binary executable
+            archi=$(uname -sm)
+            case "$archi" in
+                Linux\ aarch64*) file_pattern="fd-[^-]+-arm-unknown-linux-musleabihf\.tar\.gz"   ;;
+                Linux\ *64)      file_pattern="fd-[^-]+-x86_64-unknown-linux-musl\.tar\.gz"   ;;
+                CYGWIN*\ *64)    file_pattern="fd-[^-]+-i686-pc-windows-gnu\.zip"     ;;
+                MINGW*\ *64)     file_pattern="fd-[^-]+-i686-pc-windows-gnu\.zip"     ;;
+                MSYS*\ *64)      file_pattern="fd-[^-]+-i686-pc-windows-gnu\.zip"     ;;
+                Windows*\ *64)   file_pattern="fd-[^-]+-i686-pc-windows-gnu\.zip"     ;;
+                *)               file_pattern= binary_error=1 ;;
+            esac
+
+            __download "$(__latest-url "sharkdp/fd" "$file_pattern")" \
+                --wildcards '*/fd' --strip-components=1
+
+            if [ -f fd ]; then
+                chmod +x fd
+                installed=1
+            else
+                echo "Failed to download fd" >&2
+                failed=1
+            fi
         fi
     fi
 
     if [[ " ${install_list[@]} " =~ " zoxide " ]]; then
         echo "Installing zoxide..."
 
-        # Try to download binary executable
-        archi=$(uname -sm)
-        case "$archi" in
-            Darwin\ x86_64)  file_pattern="zoxide-x86_64-apple-darwin\.tar\.gz"      ;;
-            Linux\ *64)      file_pattern="zoxide-x86_64-unknown-linux-musl\.tar\.gz"   ;;
-            CYGWIN*\ *64)    file_pattern="zoxide-x86_64-pc-windows-msvc\.zip"     ;;
-            MINGW*\ *64)     file_pattern="zoxide-x86_64-pc-windows-msvc\.zip"     ;;
-            MSYS*\ *64)      file_pattern="zoxide-x86_64-pc-windows-msvc\.zip"     ;;
-            Windows*\ *64)   file_pattern="zoxide-x86_64-pc-windows-msvc\.zip"     ;;
-            *)               file_pattern= binary_error=1 ;;
-        esac
-
-        __download "$(__latest-url "ajeetdsouza/zoxide" "$file_pattern")" \
-            --wildcards '*/zoxide' --strip-components=1
-
-        if [ -f zoxide ]; then
-            chmod +x zoxide
-            installed=1
+        if command -v brew &>/dev/null; then
+            brew install zoxide
         else
-            echo "Failed to download zoxide" >&2
-            failed=1
+            # Try to download binary executable
+            archi=$(uname -sm)
+            case "$archi" in
+                Linux\ aarch64*) file_pattern="zoxide-aarch64-unknown-linux-musl\.tar\.gz"   ;;
+                Linux\ *64)      file_pattern="zoxide-x86_64-unknown-linux-musl\.tar\.gz"   ;;
+                CYGWIN*\ *64)    file_pattern="zoxide-x86_64-pc-windows-msvc\.zip"     ;;
+                MINGW*\ *64)     file_pattern="zoxide-x86_64-pc-windows-msvc\.zip"     ;;
+                MSYS*\ *64)      file_pattern="zoxide-x86_64-pc-windows-msvc\.zip"     ;;
+                Windows*\ *64)   file_pattern="zoxide-x86_64-pc-windows-msvc\.zip"     ;;
+                *)               file_pattern= binary_error=1 ;;
+            esac
+
+            __download "$(__latest-url "ajeetdsouza/zoxide" "$file_pattern")" \
+                --wildcards '*/zoxide' --strip-components=1
+
+            if [ -f zoxide ]; then
+                chmod +x zoxide
+                installed=1
+            else
+                echo "Failed to download zoxide" >&2
+                failed=1
+            fi
         fi
     fi
 
@@ -167,78 +192,96 @@ env-check() {
 
         # Try to download binary executable
         archi=$(uname -sm)
-        case "$archi" in
-            Darwin\ x86_64)  file_pattern="dotfiles_darwin_amd64\.zip"      ;;
-            Linux\ *64)      file_pattern="dotfiles_linux_amd64\.zip"   ;;
-            CYGWIN*\ *64)    file_pattern="dotfiles_windows_amd64\.exe\.zip"     ;;
-            MINGW*\ *64)     file_pattern="dotfiles_windows_amd64\.exe\.zip"     ;;
-            MSYS*\ *64)      file_pattern="dotfiles_windows_amd64\.exe\.zip"     ;;
-            Windows*\ *64)   file_pattern="dotfiles_windows_amd64\.exe\.zip"     ;;
-            *)               file_pattern= binary_error=1 ;;
-        esac
-
-        __download "$(__latest-url "rhysd/dotfiles" "$file_pattern")"
-
-        if [ -f dotfiles ]; then
-            chmod +x dotfiles
-            installed=1
+        if [[ "$archi" == "Darwin arm64" ]]; then
+            if [[ ! "$GOPATH" ]]; then
+                export GOPATH=$HOME/.local/go
+                mkdir -p "$GOPATH"
+                path=($GOPATH/bin $path)
+            fi
+            command -v go &>/dev/null || brew install go
+            go install github.com/rhysd/dotfiles@latest
         else
-            echo "Failed to download dotfiles" >&2
-            failed=1
+            case "$archi" in
+                Linux\ aarch64*) file_pattern="dotfiles_linux_arm\.zip"   ;;
+                Linux\ *64)      file_pattern="dotfiles_linux_amd64\.zip"   ;;
+                CYGWIN*\ *64)    file_pattern="dotfiles_windows_amd64\.exe\.zip"     ;;
+                MINGW*\ *64)     file_pattern="dotfiles_windows_amd64\.exe\.zip"     ;;
+                MSYS*\ *64)      file_pattern="dotfiles_windows_amd64\.exe\.zip"     ;;
+                Windows*\ *64)   file_pattern="dotfiles_windows_amd64\.exe\.zip"     ;;
+                *)               file_pattern= binary_error=1 ;;
+            esac
+
+            __download "$(__latest-url "rhysd/dotfiles" "$file_pattern")"
+
+            if [ -f dotfiles ]; then
+                chmod +x dotfiles
+                installed=1
+            else
+                echo "Failed to download dotfiles" >&2
+                failed=1
+            fi
         fi
     fi
 
     if [[ " ${install_list[@]} " =~ " ripgrep " ]]; then
         echo "Installing ripgrep..."
 
-        # Try to download binary executable
-        archi=$(uname -sm)
-        case "$archi" in
-            Darwin\ x86_64)  file_pattern="ripgrep-[^-]+-x86_64-apple-darwin\.tar\.gz"      ;;
-            Linux\ *64)      file_pattern="ripgrep-[^-]+-x86_64-unknown-linux-musl\.tar\.gz"   ;;
-            CYGWIN*\ *64)    file_pattern="ripgrep-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
-            MINGW*\ *64)     file_pattern="ripgrep-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
-            MSYS*\ *64)      file_pattern="ripgrep-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
-            Windows*\ *64)   file_pattern="ripgrep-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
-            *)               file_pattern= binary_error=1 ;;
-        esac
-
-        __download "$(__latest-url "BurntSushi/ripgrep" "$file_pattern")" \
-            --wildcards '*/rg' --strip-components=1
-
-        if [ -f rg ]; then
-            chmod +x rg
-            installed=1
+        if command -v brew &>/dev/null; then
+            brew install ripgrep
         else
-            echo "Failed to download ripgrep" >&2
-            failed=1
+            # Try to download binary executable
+            archi=$(uname -sm)
+            case "$archi" in
+                Linux\ aarch64*) file_pattern="ripgrep-[^-]+-arm-unknown-linux-gnueabihf\.tar\.gz"   ;;
+                Linux\ *64)      file_pattern="ripgrep-[^-]+-x86_64-unknown-linux-musl\.tar\.gz"   ;;
+                CYGWIN*\ *64)    file_pattern="ripgrep-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
+                MINGW*\ *64)     file_pattern="ripgrep-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
+                MSYS*\ *64)      file_pattern="ripgrep-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
+                Windows*\ *64)   file_pattern="ripgrep-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
+                *)               file_pattern= binary_error=1 ;;
+            esac
+
+            __download "$(__latest-url "BurntSushi/ripgrep" "$file_pattern")" \
+                --wildcards '*/rg' --strip-components=1
+
+            if [ -f rg ]; then
+                chmod +x rg
+                installed=1
+            else
+                echo "Failed to download ripgrep" >&2
+                failed=1
+            fi
         fi
     fi
 
     if [[ " ${install_list[@]} " =~ " bat " ]]; then
         echo "Installing bat..."
 
-        # Try to download binary executable
-        archi=$(uname -sm)
-        case "$archi" in
-            Darwin\ x86_64)  file_pattern="bat-[^-]+-x86_64-apple-darwin\.tar\.gz"      ;;
-            Linux\ *64)      file_pattern="bat-[^-]+-x86_64-unknown-linux-musl\.tar\.gz"   ;;
-            CYGWIN*\ *64)    file_pattern="bat-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
-            MINGW*\ *64)     file_pattern="bat-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
-            MSYS*\ *64)      file_pattern="bat-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
-            Windows*\ *64)   file_pattern="bat-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
-            *)               file_pattern= binary_error=1 ;;
-        esac
-
-        __download "$(__latest-url "sharkdp/bat" "$file_pattern")" \
-            --wildcards '*/bat' --strip-components=1
-
-        if [ -f bat ]; then
-            chmod +x bat
-            installed=1
+        if command -v brew &>/dev/null; then
+            brew install bat
         else
-            echo "Failed to download bat" >&2
-            failed=1
+            # Try to download binary executable
+            archi=$(uname -sm)
+            case "$archi" in
+                Linux\ aarch64*) file_pattern="bat-[^-]+-aarch64-unknown-linux-gnu\.tar\.gz"   ;;
+                Linux\ *64)      file_pattern="bat-[^-]+-x86_64-unknown-linux-musl\.tar\.gz"   ;;
+                CYGWIN*\ *64)    file_pattern="bat-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
+                MINGW*\ *64)     file_pattern="bat-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
+                MSYS*\ *64)      file_pattern="bat-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
+                Windows*\ *64)   file_pattern="bat-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
+                *)               file_pattern= binary_error=1 ;;
+            esac
+
+            __download "$(__latest-url "sharkdp/bat" "$file_pattern")" \
+                --wildcards '*/bat' --strip-components=1
+
+            if [ -f bat ]; then
+                chmod +x bat
+                installed=1
+            else
+                echo "Failed to download bat" >&2
+                failed=1
+            fi
         fi
     fi
 
