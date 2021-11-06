@@ -28,9 +28,17 @@ if [[ ! "$EDITOR" ]]; then
     fi
 fi
 
-# brew
+# homebrew
 if [[ -d /opt/homebrew/bin ]]; then
     path=(/opt/homebrew/bin $path)
+fi
+
+# linuxbrew
+if [[ -d ~/.linuxbrew ]]; then
+    eval "$(~/.linuxbrew/bin/brew shellenv)"
+fi
+if [[ -d /home/linuxbrew/.linuxbrew ]]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fi
 
 # go
