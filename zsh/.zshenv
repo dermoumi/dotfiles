@@ -56,6 +56,11 @@ if command -v pyenv &>/dev/null; then
     eval "$(pyenv init --path)"
 fi
 
+# fnm
+if command -v fnm &>/dev/null; then
+    eval "$(fnm env)"
+fi
+
 # poetry
 if [[ -d ~/.poetry && ! ("$POETRY_ROOT" && -d "$POETRY_ROOT") ]]; then
     export POETRY_ROOT=~/.poetry
