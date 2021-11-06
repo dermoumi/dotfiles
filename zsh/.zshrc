@@ -95,6 +95,9 @@ zstyle ':completion:*' verbose true
 zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
 zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
 
+# ssht is a function that automatically spawns tmux on remote machines
+compdef ssht=ssh
+
 # Import powerlevel10k
 source "$ZDOTDIR/p10k/powerlevel10k.zsh-theme"
 [[ ! -f "$ZDOTDIR/p10k.zsh" ]] || source "$ZDOTDIR/p10k.zsh"
