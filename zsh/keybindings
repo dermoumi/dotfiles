@@ -53,6 +53,9 @@ purge-from-history() {
 }
 zle -N purge-from-history
 
+# ctrl+x to remove the current line from history
+bindkey '^X' purge-from-history
+
 # home to move to the beggingin of the line
 bindkey "^[[1~" beginning-of-line
 bindkey "^[[H"  beginning-of-line
@@ -90,9 +93,6 @@ bindkey "^[^?" backward-kill-dir
 
 # alt+enter to type a new line without sending command
 bindkey "^J" self-insert-unmeta
-
-# ctrl+x to remove the current line from history
-bindkey '^X' purge-from-history
 
 # alt+m to run main tmux session
 bindkey -s "^[m" "[ '$TMUX' ] && tmux switch -t main || tmux attach -t main || tmux new -s main^M"
