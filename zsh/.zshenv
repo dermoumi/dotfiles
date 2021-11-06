@@ -52,7 +52,6 @@ if [[ -d ~/.pyenv && ! ("$PYENV_ROOT" && -d "$PYENV_ROOT") ]]; then
     export PYENV_ROOT=~/.pyenv
     path=($PYENV_ROOT/bin $path)
 fi
-
 if command -v pyenv &>/dev/null; then
     eval "$(pyenv init --path)"
 fi
@@ -67,6 +66,12 @@ fi
 if [[ -d ~/.cargo && ! "$CARGO_HOME" ]]; then
     export CARGO_HOME=$HOME/.cargo
     path=($CARGO_HOME/bin $path)
+fi
+
+# nvm
+if [[ -d ~/.nvm ]]; then
+    export NVM_DIR="$HOME/.nvm"
+    source "$NVM_DIR/nvm.sh"
 fi
 
 # fzf
