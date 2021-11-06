@@ -39,6 +39,18 @@ setopt hist_ignore_all_dups hist_find_no_dups append_history share_history \
 # keybindings
 source "$ZDOTDIR/keybindings"
 
+if [[ -o interactive ]]; then
+    # some alias for when in interactive mode
+    if command -v exa &>/dev/null; then
+        alias ls=exa
+        alias lt='ll --tree'
+    fi
+
+    if command -v bat &>/dev/null; then
+        alias cat=bat
+    fi
+fi
+
 # additional zsh autocompletion
 if [[ -d "$ZDOTDIR/zsh-completions/src" ]]; then
     fpath=("$ZDOTDIR/zsh-completions/src" $fpath)
@@ -115,7 +127,7 @@ fi
 export LESSKEYIN="$HOME/.dotfiles/.lesskey"
 
 # bat
-export BAT_STYLE="changes,snip"
+export BAT_STYLE="snip"
 
 # pyenv
 if command -v pyenv &>/dev/null; then
