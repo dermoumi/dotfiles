@@ -165,12 +165,12 @@ env-check() {
             # Try to download binary executable
             archi=$(uname -sm)
             case "$archi" in
-                Linux\ aarch64*) file_pattern="zoxide-aarch64-unknown-linux-musl\.tar\.gz"   ;;
-                Linux\ *64)      file_pattern="zoxide-x86_64-unknown-linux-musl\.tar\.gz"   ;;
-                CYGWIN*\ *64)    file_pattern="zoxide-x86_64-pc-windows-msvc\.zip"     ;;
-                MINGW*\ *64)     file_pattern="zoxide-x86_64-pc-windows-msvc\.zip"     ;;
-                MSYS*\ *64)      file_pattern="zoxide-x86_64-pc-windows-msvc\.zip"     ;;
-                Windows*\ *64)   file_pattern="zoxide-x86_64-pc-windows-msvc\.zip"     ;;
+                Linux\ aarch64*) file_pattern="zoxide(-.+)?-aarch64-unknown-linux-musl\.tar\.gz"   ;;
+                Linux\ *64)      file_pattern="zoxide(-.+)?-x86_64-unknown-linux-musl\.tar\.gz"   ;;
+                CYGWIN*\ *64)    file_pattern="zoxide(-.+)?-x86_64-pc-windows-msvc\.zip"     ;;
+                MINGW*\ *64)     file_pattern="zoxide(-.+)?-x86_64-pc-windows-msvc\.zip"     ;;
+                MSYS*\ *64)      file_pattern="zoxide(-.+)?-x86_64-pc-windows-msvc\.zip"     ;;
+                Windows*\ *64)   file_pattern="zoxide(-.+)?-x86_64-pc-windows-msvc\.zip"     ;;
                 *)               file_pattern= binary_error=1 ;;
             esac
 
