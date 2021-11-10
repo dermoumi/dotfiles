@@ -729,7 +729,7 @@
           },
           "to": [
             {
-              "consumer_key_code": "dictation"
+              "shell_command": "osascript ~/.dotfiles/karabiner/scripts/togglemic.applescript"
             }
           ]
         },

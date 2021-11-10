@@ -1,3 +1,5 @@
 *
 !.gitignore
 !karabiner.json
+!scripts
+!scripts/*
