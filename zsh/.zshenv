@@ -28,6 +28,11 @@ if [[ ! "$EDITOR" ]]; then
     fi
 fi
 
+# zplug
+if [[ -d ~/.zplug ]]; then
+    export ZPLUG_HOME="$HOME/.zplug"
+fi
+
 # homebrew
 if [[ -d /opt/homebrew/bin ]]; then
     path=(/opt/homebrew/bin $path)
@@ -71,18 +76,13 @@ fi
 if [[ -d ~/.cargo && ! "$CARGO_HOME" ]]; then
     export CARGO_HOME=$HOME/.cargo
     path=($CARGO_HOME/bin $path)
+    source "$CARGO_HOME/env"
 fi
 
 # nvm
 if [[ -d ~/.nvm ]]; then
     export NVM_DIR="$HOME/.nvm"
     source "$NVM_DIR/nvm.sh"
-fi
-
-# fzf
-if ! [[ "$FZF_HOME" && -d "$FZF_HOME" ]]; then
-    export FZF_HOME="$ZDOTDIR/fzf"
-    path=("$FZF_HOME/bin" $path)
 fi
 
 # local scripts directory

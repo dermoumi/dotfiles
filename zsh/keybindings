@@ -29,33 +29,6 @@ backward-word-dir()  {
 }
 zle -N backward-word-dir
 
-# widget to remove current autosuggest line from history
-purge-from-history() {
-    # Escape buffer to match histfile
-    local buf="$BUFFER"
-    buf=$(echo "$buf" | sed ':a;N;$!ba;s/\n/\\\n/g')
-
-    # Replace line in histfile
-    local hist
-    hist=$(<"$HISTFILE")
-    echo "${hist/$buf/}" >"$HISTFILE"
-    fc -R
-
-    # Clear buffer
-    if [[ "$RBUFFER" ]]; then
-        RBUFFER=""
-    else
-        BUFFER=""
-    fi
-
-    # Fetch suggestion if any
-    zle autosuggest-fetch || :
-}
-zle -N purge-from-history
-
-# ctrl+x to remove the current line from history
-bindkey '^X' purge-from-history
-
 # home to move to the beggingin of the line
 bindkey "^[[1~" beginning-of-line
 bindkey "^[[H"  beginning-of-line

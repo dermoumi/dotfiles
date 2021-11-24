@@ -23,9 +23,28 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+# plugins
+if [[ -d "$ZPLUG_HOME" ]]; then
+  source $ZPLUG_HOME/init.zsh
+fi
+
+zplug "zplug/zplug", hook-build:"zplug --self-manage", depth:1
+zplug "zsh-users/zsh-completions", depth:1
+zplug "olets/zsh-abbr", depth:1
+zplug "zsh-users/zsh-syntax-highlighting", defer:2, depth:1
+zplug "zsh-users/zsh-history-substring-search", depth:1
+zplug "romkatv/powerlevel10k", as:theme, depth:1
+zplug "junegunn/fzf", depth:1
+
+# zplug check returns true if all packages are installed
+# Therefore, when it returns false, run zplug install
+if ! zplug check; then
+  zplug install
+fi
+
 # Force 256-color mode when inside containers
 if grep -sq 'docker\|lxc' /proc/1/cgroup; then
-   export TERM=xterm-256color
+  export TERM=xterm-256color
 fi
 
 # zsh options
@@ -49,11 +68,6 @@ if [[ -o interactive ]]; then
     if command -v bat &>/dev/null; then
         alias cat=bat
     fi
-fi
-
-# additional zsh autocompletion
-if [[ -d "$ZDOTDIR/zsh-completions/src" ]]; then
-    fpath=("$ZDOTDIR/zsh-completions/src" $fpath)
 fi
 
 # custom functions and completions
@@ -99,7 +113,6 @@ zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
 compdef ssht=ssh
 
 # Import powerlevel10k
-source "$ZDOTDIR/p10k/powerlevel10k.zsh-theme"
 [[ ! -f "$ZDOTDIR/p10k.zsh" ]] || source "$ZDOTDIR/p10k.zsh"
 
 # zoxide
@@ -200,20 +213,19 @@ reconfigure_fzf_preview() {
     export FZF_ALT_C_OPTS="$fzf_alt_c_ops_base --preview-window=${preview_window}${nohidden}"
 }
 
-source "$FZF_HOME/shell/completion.zsh" 2>/dev/null
-source "$FZF_HOME/shell/key-bindings.zsh"
-
 # reconfigure preview options whenever the terminal resizes
 trap reconfigure_fzf_preview SIGWINCH
 # set initial fzf preview window options
 reconfigure_fzf_preview
+
+source $ZPLUG_REPOS/junegunn/fzf/shell/completion.zsh 2>/dev/null
+source $ZPLUG_REPOS/junegunn/fzf/shell/key-bindings.zsh
 
 # fish-like abbreviations
 ABBR_USER_ABBREVIATIONS_FILE="$ZDOTDIR/abbreviations"
 ABBR_AUTOLOAD=0
 ABBR_PRECMD_LOGS=0
 ABBR_DEFAULT_BINDINGS=0
-source "$ZDOTDIR/zsh-abbr/zsh-abbr.zsh"
 bindkey " " _abbr_widget_expand_and_space # space to expand abbr
 bindkey "^ " magic-space # ctrl+space to insert normal space
 bindkey -M isearch " " magic-space # normal space is normal in incremental search
@@ -233,13 +245,7 @@ _expand_abbr_and_accept() {
 zle -N _expand_abbr_and_accept
 bindkey "^M" _expand_abbr_and_accept
 
-# fish-like syntax highlighting
-# must stay at the bottom
-source "$ZDOTDIR/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-
 # fish-like history navigation
-# must come AFTER syntax highlighting
-source "$ZDOTDIR/zsh-history-substring-search/zsh-history-substring-search.zsh"
 HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND=underline
 HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND=fg=8,underline
 HISTORY_SUBSTRING_SEARCH_FUZZY=1
@@ -247,3 +253,6 @@ bindkey '^[[A' history-substring-search-up # up
 bindkey '^[OA' history-substring-search-up
 bindkey '^[[B' history-substring-search-down # down
 bindkey '^[OB' history-substring-search-down
+
+# source plugins and add commands to the PATH
+zplug load
