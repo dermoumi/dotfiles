@@ -7,7 +7,7 @@
 	gpgsign = true
 
 [core]
-  excludesfile = ~/.dotfiles/.global.gitignore
+  excludesfile = ~/.dotfiles/.global-gitignore
 
 [color]
 	ui = true
