@@ -11,7 +11,7 @@ env-check() {
     fi
 
     # Check if the following commands are installed
-    command -v fzf fd dotfiles zoxide rg bat &>/dev/null && return
+    command -v zplug fzf fd dotfiles zoxide rg bat &>/dev/null && return
 
     # Check and install each utility
     command -v fzf &>/dev/null || install_list+=(fzf)
@@ -20,6 +20,7 @@ env-check() {
     command -v zoxide &>/dev/null || install_list+=(zoxide)
     command -v rg &>/dev/null || install_list+=(ripgrep)
     command -v bat &>/dev/null || install_list+=(bat)
+    [[ -d "$ZPLUG_HOME" ]] || install_list+=(zplug)
 
     pushd "$bin_path" &>/dev/null
 
@@ -174,8 +175,7 @@ env-check() {
                 *)               file_pattern= binary_error=1 ;;
             esac
 
-            __download "$(__latest-url "ajeetdsouza/zoxide" "$file_pattern")" \
-                --wildcards '*/zoxide' --strip-components=1
+            __download "$(__latest-url "ajeetdsouza/zoxide" "$file_pattern")" --wildcards zoxide
 
             if [ -f zoxide ]; then
                 chmod +x zoxide
@@ -192,13 +192,21 @@ env-check() {
 
         # Try to download binary executable
         archi=$(uname -sm)
-        if [[ "$archi" == "Darwin arm64" ]]; then
+        if [[ "$archi" == "Darwin arm64" ]] ; then
             if [[ ! "$GOPATH" ]]; then
                 export GOPATH=$HOME/.local/go
                 mkdir -p "$GOPATH"
                 path=($GOPATH/bin $path)
             fi
             command -v go &>/dev/null || brew install go
+            go install github.com/rhysd/dotfiles@latest
+        elif [[ "$archi" == "Linux aarch64" ]] ; then
+            if [[ ! "$GOPATH" ]]; then
+                export GOPATH=$HOME/.local/go
+                mkdir -p "$GOPATH"
+                path=($GOPATH/bin $path)
+            fi
+            command -v go &>/dev/null || (curl -fsSL "https://golang.org/dl/go1.17.3.linux-arm64.tar.gz" | tar -C $HOME/.local -xzf-)
             go install github.com/rhysd/dotfiles@latest
         else
             case "$archi" in
@@ -283,6 +291,29 @@ env-check() {
                 failed=1
             fi
         fi
+    fi
+
+    if [[ " ${install_list[@]} " =~ " fzy " ]]; then
+        echo "Installing fzy..."
+
+        if command -v brew &>/dev/null; then
+            brew install fzy
+        else
+            # build from source
+            local tempdir
+            tempdir=$(mktemp -d)
+            pushd "$tempdir" &>/dev/null
+            wget -O target.zip "https://github.com/jhawthorn/fzy/archive/refs/heads/master.zip"
+            unzip target.zip
+            cd fzy-*
+            make
+            PREFIX="$HOME/.local" make install
+            popd &>/dev/null
+        fi
+    fi
+
+    if [[ " ${install_list[@]} " =~ " zplug " ]]; then
+        curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh
     fi
 
     popd &>/dev/null
