@@ -2,5 +2,7 @@
     "zsh/.zshenv": "~/.zshenv",
     ".gitconfig": "~/.gitconfig",
     ".fdignore": "~/.fdignore",
-    ".tmux.conf": "~/.tmux.conf"
+    ".tmux.conf": "~/.tmux.conf",
+    "kitty": "~/.config/kitty",
+    "nvim": "~/.config/nvim"
 }
