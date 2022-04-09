@@ -128,9 +128,9 @@ export LESS=" \
 "
 
 # less mouse support in versions that support it
-if ! less --mouse |& grep "There is no" &>/dev/null; then
-    LESS+=" --mouse --wheel-lines=4"
-fi
+# if ! less --mouse | grep "There is no" &>/dev/null; then
+#     LESS+=" --mouse --wheel-lines=4"
+# fi
 
 # A couple of keybindings and color config for less
 # Requires a fairly recent version of less
