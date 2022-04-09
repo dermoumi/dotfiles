@@ -83,6 +83,12 @@ if [[ -d ~/.nvm ]]; then
     source "$NVM_DIR/nvm.sh"
 fi
 
+# deno
+if [[ -d ~/.deno ]]; then
+    export DENO_DIR="$HOME/.deno"
+    path=($DENO_DIR/bin $path)
+fi
+
 # local scripts directory
 if [[ -d ~/.dotfiles/scripts/ ]]; then
     export SCRIPTS_DIR=$HOME/.dotfiles/scripts/
