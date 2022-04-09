@@ -11,7 +11,7 @@ env-check() {
     fi
 
     # Check if the following commands are installed
-    command -v zplug fzf fd dotfiles zoxide rg bat &>/dev/null && return
+    command -v fzf fd dotfiles zoxide rg bat &>/dev/null && return
 
     # Check and install each utility
     command -v fzf &>/dev/null || install_list+=(fzf)
@@ -20,7 +20,6 @@ env-check() {
     command -v zoxide &>/dev/null || install_list+=(zoxide)
     command -v rg &>/dev/null || install_list+=(ripgrep)
     command -v bat &>/dev/null || install_list+=(bat)
-    [[ -d "$ZPLUG_HOME" ]] || install_list+=(zplug)
 
     pushd "$bin_path" &>/dev/null
 
@@ -310,10 +309,6 @@ env-check() {
             PREFIX="$HOME/.local" make install
             popd &>/dev/null
         fi
-    fi
-
-    if [[ " ${install_list[@]} " =~ " zplug " ]]; then
-        curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh
     fi
 
     popd &>/dev/null

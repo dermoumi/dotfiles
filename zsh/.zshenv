@@ -28,10 +28,8 @@ if [[ ! "$EDITOR" ]]; then
     fi
 fi
 
-# zplug
-if [[ -d ~/.zplug ]]; then
-    export ZPLUG_HOME="$HOME/.zplug"
-fi
+# zinit
+export ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 
 # homebrew
 if [[ -d /opt/homebrew/bin ]]; then
@@ -120,11 +118,6 @@ export PIPENV_VERBOSITY=-1
 # disable marking untracked files on git as dirty.
 # makes git status much faster on large repositories
 export DISABLE_UNTRACKED_FILES_DIRTY="true"
-
-# activate right virtual env when python binary is ran through zsh
-if [[ -n "$VIRTUAL_ENV" && -e "$VIRTUAL_ENV/bin/activate" ]]; then
-    source "$VIRTUAL_ENV/bin/activate"
-fi
 
 # dotfiles utility
 export DOTFILES_REPO_PATH=~/.dotfiles

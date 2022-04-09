@@ -16,6 +16,17 @@ fi
 
 env-check
 
+# Load zinit the plugin manager
+if [[ ! -d "$ZINIT_HOME" ]]; then
+    ZINIT_HOME="$(dirname "$ZINIT_HOME")" \
+    NO_EMOJI=1 \
+    NO_INPUT=1 \
+    NO_TUTORIAL=1 \
+    NO_ANNEXES=1 \
+    NO_EDIT=1 \
+    sh -c "$(curl -fsSL https://git.io/zinit-install)"
+fi
+
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.dotfiles/zsh/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -23,27 +34,8 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# plugins
-if [[ -d "$ZPLUG_HOME" ]]; then
-  source $ZPLUG_HOME/init.zsh
-fi
-
-zplug "zplug/zplug", hook-build:"zplug --self-manage", depth:1
-zplug "zsh-users/zsh-completions", depth:1
-zplug "olets/zsh-abbr", depth:1
-zplug "zsh-users/zsh-syntax-highlighting", defer:2, depth:1
-zplug "zsh-users/zsh-history-substring-search", depth:1
-zplug "romkatv/powerlevel10k", as:theme, depth:1
-zplug "junegunn/fzf", depth:1
-
-# zplug check returns true if all packages are installed
-# Therefore, when it returns false, run zplug install
-if ! zplug check; then
-  zplug install
-fi
-
 # Force 256-color mode when inside containers
-if grep -sq 'docker\|lxc' /proc/1/cgroup; then
+if grep -sq "docker\|lxc" /proc/1/cgroup; then
   export TERM=xterm-256color
 fi
 
@@ -76,6 +68,8 @@ fpath=(
     "$ZDOTDIR/completions"
     $fpath
 )
+
+source "$ZINIT_HOME/zinit.zsh"
 
 # use modern completion system
 autoload -Uz compinit
@@ -147,112 +141,132 @@ export BAT_STYLE="snip"
 
 # pyenv
 if command -v pyenv &>/dev/null; then
-    eval "$(pyenv init -)"
     eval "$(pyenv virtualenv-init -)"
 fi
 
-# fzf
-export FZF_DEFAULT_COMMAND="fd --type f --type l --color=never --no-ignore-vcs --hidden"
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-export FZF_ALT_C_COMMAND="fd --type d --color=never --no-ignore-vcs --hidden"
+# Fish-like abbreviations, aliases that auto-expand when pressing space
+init_abbr() {
+    ABBR_USER_ABBREVIATIONS_FILE="$ZDOTDIR/abbreviations"
+    ABBR_AUTOLOAD=0
+    ABBR_PRECMD_LOGS=0
+    ABBR_DEFAULT_BINDINGS=0
+    bindkey " " _abbr_widget_expand_and_space # space to expand abbr
+    bindkey "^ " magic-space # ctrl+space to insert space without expanding abbr
+    bindkey -M isearch " " magic-space # normal space is normal in incremental search
+    bindkey -M isearch "^ " _abbr_widget_expand_and_space # ctrl+space expands abbr in isearch
 
-# configure the preview window
-reconfigure_fzf_preview() {
-    local fzf_default_ops_base="
-        --ansi
-        --cycle
-        --reverse
-        --info=inline
-        --height=30%
-        --border=rounded
-        --preview='preview {}'
-        --pointer=·
-        --marker=→
-        --color=fg:246,fg+:4,bg+:0,gutter:16,pointer:14,info:2,header:11,hl:7,hl+:7
-        --bind='ctrl-space:toggle-down'
-        --bind='ctrl-/:toggle-preview'
-        --bind='ctrl-o:execute-silent(code {} &)'
-        --bind='ctrl-p:execute-silent(code {} &)+abort'
-        --bind='ctrl-k:preview-up+preview-up+preview-up+preview-up+preview-up'
-        --bind='ctrl-j:preview-down+preview-down+preview-down+preview-down+preview-down'
-        --bind='ctrl-r:toggle-all'
-        --bind='ctrl-s:toggle-sort'
-        --bind='ctrl-w:toggle-preview-wrap'
-        --bind='home:first'
-        --bind='end:last'
-    "
-    local fzf_ctrl_t_ops_base="--no-height --no-border"
-    local fzf_alt_c_ops_base="--no-height --no-border"
+    # Allows abbreviation to be expanded on enter if they're the only command to execute
+    _expand_abbr_and_accept() {
+        emulate -LR zsh
 
-    # sets fzf preview position and status (no/hidden) depending on terminal size
-    local hide_threshold_columns=74
-    local hide_threshold_lines=36
-    local lines_factor=2.3 # assume that a cell is n times a tall as it wide
-
-    local preview_window="default"
-    local nohidden=",nohidden"
-
-    if ((COLUMNS > LINES * lines_factor)); then   # screen is wider than it is tall
-        preview_window="right,50%,border-left"
-
-        # force hide the preview window if the screen is not wide enough
-        if ((COLUMNS < hide_threshold_columns)); then
-            nohidden=",hidden"
+        # make sure the rbuffer doesn't start with a space
+        if [[ ! "$RBUFFER" || "$RBUFFER" =~ ^[[:space:]].+ ]]; then
+            _abbr_widget_expand_and_accept
+        else
+            zle accept-line
         fi
-    else # screen is taller than it is wide
-        preview_window="bottom,50%,border-top"
+    }
+    zle -N _expand_abbr_and_accept
+    bindkey "^M" _expand_abbr_and_accept
+}
+zinit ice depth=1 atinit=init_abbr
+zinit light "olets/zsh-abbr"
 
-        # force hide the preview window if the screen is not tall enough
-        if ((LINES < hide_threshold_lines)); then
-            nohidden=",hidden"
+# Fish like substring search
+init_substring_search() {
+    HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND=underline
+    HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND=fg=8,underline
+    HISTORY_SUBSTRING_SEARCH_FUZZY=1
+    bindkey '^[[A' history-substring-search-up # up
+    bindkey '^[OA' history-substring-search-up
+    bindkey '^[[B' history-substring-search-down # down
+    bindkey '^[OB' history-substring-search-down
+}
+zinit ice depth=1 atinit=init_substring_search
+zinit light "zsh-users/zsh-history-substring-search"
+
+# Some useful completions
+zinit ice depth=1
+zinit light "zsh-users/zsh-completions"
+
+# Fast syntax highlighting
+zinit ice depth=1
+zinit light "zdharma-continuum/fast-syntax-highlighting"
+
+# Powerlevel10k theme
+zinit ice depth=1
+zinit light "romkatv/powerlevel10k"
+
+# FZF
+init_fzf() {
+    export FZF_DEFAULT_COMMAND="fd --type f --type l --color=never --no-ignore-vcs --hidden"
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    export FZF_ALT_C_COMMAND="fd --type d --color=never --no-ignore-vcs --hidden"
+
+    # configure the preview window
+    reconfigure_fzf_preview() {
+        local fzf_default_ops_base="
+            --ansi
+            --cycle
+            --reverse
+            --info=inline
+            --height=30%
+            --border=rounded
+            --preview='preview {}'
+            --pointer=·
+            --marker=→
+            --color=fg:246,fg+:4,bg+:0,gutter:16,pointer:14,info:2,header:11,hl:7,hl+:7
+            --bind='ctrl-space:toggle-down'
+            --bind='ctrl-/:toggle-preview'
+            --bind='ctrl-o:execute-silent(code {} &)'
+            --bind='ctrl-p:execute-silent(code {} &)+abort'
+            --bind='ctrl-k:preview-up+preview-up+preview-up+preview-up+preview-up'
+            --bind='ctrl-j:preview-down+preview-down+preview-down+preview-down+preview-down'
+            --bind='ctrl-r:toggle-all'
+            --bind='ctrl-s:toggle-sort'
+            --bind='ctrl-w:toggle-preview-wrap'
+            --bind='home:first'
+            --bind='end:last'
+        "
+        local fzf_ctrl_t_ops_base="--no-height --no-border"
+        local fzf_alt_c_ops_base="--no-height --no-border"
+
+        # sets fzf preview position and status (no/hidden) depending on terminal size
+        local hide_threshold_columns=74
+        local hide_threshold_lines=36
+        local lines_factor=2.3 # assume that a cell is n times a tall as it wide
+
+        local preview_window="default"
+        local nohidden=",nohidden"
+
+        if ((COLUMNS > LINES * lines_factor)); then   # screen is wider than it is tall
+            preview_window="right,50%,border-left"
+
+            # force hide the preview window if the screen is not wide enough
+            if ((COLUMNS < hide_threshold_columns)); then
+                nohidden=",hidden"
+            fi
+        else # screen is taller than it is wide
+            preview_window="bottom,50%,border-top"
+
+            # force hide the preview window if the screen is not tall enough
+            if ((LINES < hide_threshold_lines)); then
+                nohidden=",hidden"
+            fi
         fi
-    fi
 
-    export FZF_DEFAULT_OPTS="$fzf_default_ops_base --preview-window=${preview_window},hidden"
-    export FZF_CTRL_T_OPTS="$fzf_ctrl_t_ops_base --preview-window=${preview_window}${nohidden}"
-    export FZF_ALT_C_OPTS="$fzf_alt_c_ops_base --preview-window=${preview_window}${nohidden}"
+        export FZF_DEFAULT_OPTS="$fzf_default_ops_base --preview-window=${preview_window},hidden"
+        export FZF_CTRL_T_OPTS="$fzf_ctrl_t_ops_base --preview-window=${preview_window}${nohidden}"
+        export FZF_ALT_C_OPTS="$fzf_alt_c_ops_base --preview-window=${preview_window}${nohidden}"
+    }
+
+    # reconfigure preview options whenever the terminal resizes
+    trap reconfigure_fzf_preview SIGWINCH
+    # set initial fzf preview window options
+    reconfigure_fzf_preview
+
+    zinit run junegunn/fzf source shell/completion.zsh 2>/dev/null
+    zinit run junegunn/fzf source shell/key-bindings.zsh
 }
-
-# reconfigure preview options whenever the terminal resizes
-trap reconfigure_fzf_preview SIGWINCH
-# set initial fzf preview window options
-reconfigure_fzf_preview
-
-source $ZPLUG_REPOS/junegunn/fzf/shell/completion.zsh 2>/dev/null
-source $ZPLUG_REPOS/junegunn/fzf/shell/key-bindings.zsh
-
-# fish-like abbreviations
-ABBR_USER_ABBREVIATIONS_FILE="$ZDOTDIR/abbreviations"
-ABBR_AUTOLOAD=0
-ABBR_PRECMD_LOGS=0
-ABBR_DEFAULT_BINDINGS=0
-bindkey " " _abbr_widget_expand_and_space # space to expand abbr
-bindkey "^ " magic-space # ctrl+space to insert normal space
-bindkey -M isearch " " magic-space # normal space is normal in incremental search
-bindkey -M isearch "^ " _abbr_widget_expand_and_space # ctrl+space expands abbr in isearch
-
-_expand_abbr_and_accept() {
-    emulate -LR zsh
-
-    # make sure the rbuffer doesn't start with a space
-    if [[ ! "$RBUFFER" || "$RBUFFER" =~ ^[[:space:]].+ ]]; then
-        _abbr_widget_expand_and_accept
-    else
-        builtin command -v _zsh_autosuggest_clear &>/dev/null && _zsh_autosuggest_clear
-        zle accept-line
-    fi
-}
-zle -N _expand_abbr_and_accept
-bindkey "^M" _expand_abbr_and_accept
-
-# fish-like history navigation
-HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND=underline
-HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND=fg=8,underline
-HISTORY_SUBSTRING_SEARCH_FUZZY=1
-bindkey '^[[A' history-substring-search-up # up
-bindkey '^[OA' history-substring-search-up
-bindkey '^[[B' history-substring-search-down # down
-bindkey '^[OB' history-substring-search-down
-
-# source plugins and add commands to the PATH
-zplug load
+zinit ice depth=1 atinit=init_fzf
+zinit light "junegunn/fzf"
