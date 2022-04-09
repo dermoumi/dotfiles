@@ -2,7 +2,7 @@
 #Warn  All ; Enable warnings to assist with detecting common errors.
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-#NoTrayIcon
+; #NoTrayIcon
 
 #singleinstance force
 
@@ -76,22 +76,51 @@ $#!space::media_play_pause
 $#+z::media_prev
 $#+x::media_next
 
-#if capslock_down
-    ; caps+win+del to set dark theme
-    $#d::
+; change virtual desktops
+$#h::
+    if (capslock_down) {
+        sendinput #^{left}
+    } else {
+        sendinput #{left}
+    }
+return
+
+$#l::
+    if (capslock_down) {
+        send, {ctrl up}
+        sendinput #^{right}
+    } else {
+        sendinput #{right}
+    }
+return
+
+
+$#j::sendinput #{down}
+$#k::sendinput #{up}
+
+$#+h::sendinput ^#!{left}
+$#+l::sendinput ^#!{right}
+$#+j::sendinput ^#!{down}
+$#+k::sendinput ^#!{up}
+
+; caps+win+del to set dark theme
+$#d::
+    if (capslock_down) {
         ; run, colctl.exe -accent_color 104C66
         ; set_wallpaper("wallpapers\mysteryshack_night.jpg")
         regwrite, REG_DWORD, HKEY_CURRENT_USER
             , Software\Microsoft\Windows\CurrentVersion\Themes\Personalize, AppsUseLightTheme, 0
-    return
+    }
+return
 
-    ; caps+alt+printscr to set light theme
-    $#f::
+; caps+alt+printscr to set light theme
+$#f::
+    if (capslock_down) {
         ; run, colctl.exe -accent_color E6E6E6
         ; set_wallpaper("wallpapers\mysteryshack_day.jpg")
         regwrite, REG_DWORD, HKEY_CURRENT_USER
             , Software\Microsoft\Windows\CurrentVersion\Themes\Personalize, AppsUseLightTheme, 1
-    return
-#if ; capslock_down
+    }
+return
 
 #if ; enable
