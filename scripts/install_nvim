@@ -1,0 +1,259 @@
+#!/usr/bin/env bash
+
+set -e
+
+VERSION=v0.7.0
+
+TARGET_DIR=$1
+
+# Make sure that the path to target dir is absolute
+if [[ -n "$TARGET_DIR" ]]; then
+  TARGET_DIR="$(cd "$(dirname "$TARGET_DIR")"; pwd)/$(basename "$TARGET_DIR")"
+  echo "Target dir: $TARGET_DIR"
+fi
+
+sudo_wrapper() {
+  local SUDO
+  if command -v sudo >/dev/null; then
+    SUDO=sudo
+  fi
+
+  "$SUDO" $@
+}
+
+check_version() {
+  local NVIM_BIN
+  local REPORTED_VERSION
+
+  if [[ -n "$TARGET_DIR" ]]; then
+    NVIM_BIN="$TARGET_DIR/nvim"
+
+    if ! [[ -x "$NVIM_BIN" ]]; then
+      return 1
+    fi
+  else
+    NVIM_BIN=nvim
+
+    if ! command -v "$NVIM_BIN" >/dev/null; then
+      return 1
+    fi
+  fi
+
+  REPORTED_VERSION=$("$NVIM_BIN" --version | head -n1)
+  [[ $REPORTED_VERSION == "NVIM $VERSION" ]]
+}
+
+download_file() {
+  local URL=$1
+  local TARGET=$2
+
+  if command -v curl >/dev/null; then
+    curl -fsSL "$URL" -o "$TARGET"
+  elif command -v wget >/dev/null; then
+    wget "$URL" -O "$TARGET"
+  else
+    echo "Both curl and wget are missing. Unable to download files..." >&2
+    return 1
+  fi
+}
+
+install_with_homebrew() {
+  # Check if brew is installed
+  if ! command -v brew >/dev/null; then
+    return 1;
+  fi
+
+  # Check if the version in homebrew matches
+  if ! brew info neovim | head -n1 | grep -q "${VERSION//v}"; then
+    return 1;
+  fi
+
+  echo "Homebrew is available and the version on it matches..."
+  echo "Attempting installation using homebrew"
+  brew install neovim
+}
+
+install_prebuilt() {
+  if install_with_homebrew && false; then
+    return 0
+  fi
+
+  local OS
+  OS=$(uname)
+  local ARCH
+  ARCH=$(uname -m)
+
+  echo "Checking if there are pre-built binaries for $OS $ARCH..."
+
+  local URL
+  if [[ "$OS" == "Darwin" && "$ARCH" == "x86_64" ]]; then
+    URL="https://github.com/neovim/neovim/releases/download/$VERSION/nvim-macos.tar.gz"
+  elif [[ "$OS" == "Linux" && "$ARCH" == "x86_64" ]]; then
+    URL="https://github.com/neovim/neovim/releases/download/$VERSION/nvim-linux64.tar.gz"
+  else
+    return 1
+  fi
+
+  if ! command -v tar >/dev/null; then
+    echo "Tar utility is not available" >&1
+    return 1
+  fi
+
+  local TEMP_DIR
+  TEMP_DIR=$(mktemp -d)
+
+  pushd $TEMP_DIR >/dev/null
+
+  if download_file "$URL" - | tar -xz; then
+    local OUT_DIR=${TARGET_DIR:-/usr/local/bin}
+    local SUDO_PREFIX
+
+    if ! [[ -w "$OUT_DIR" ]]; then
+      SUDO_PREFIX=sudo_wrapper
+    fi
+
+    if $SUDO_PREFIX cp -p "$PWD"/*/bin/nvim "$OUT_DIR"; then
+      echo "Done 🎉"
+    fi
+  fi
+
+  popd >/dev/null
+
+  # Clean up
+  rm -rf "$TEMP_DIR"
+}
+
+download_source_files() {
+  local URL
+
+  if command -v tar >/dev/null; then
+    URL="https://github.com/neovim/neovim/archive/refs/tags/$VERSION.tar.gz"
+    download_file "$URL" - | tar -xz
+    mv neovim-* source
+  elif command -v unzip >/dev/null; then
+    URL="https://github.com/neovim/neovim/archive/refs/tags/$VERSION.zip"
+    download_file "$URL" "source.zip"
+    unzip -q "source.zip"
+    rm source.zip
+    mv neovim-* source
+  elif command -v git >/dev/null; then
+    git clone https://github.com/neovim/neovim.git --depth=1 source
+  fi
+
+  return 1
+}
+
+install_debian_prerequisites() {
+  sudo_wrapper apt-get -yqq install ninja-build gettext libtool \
+    libtool-bin autoconf automake cmake g++ pkg-config unzip curl doxygen
+}
+
+install_rhel_prerequisites() {
+  # TODO: Test this and prevent interruptions
+  sudo_wrapper yum -y install ninja-build libtool autoconf \
+    automake cmake gcc gcc-c++ make pkgconfig unzip patch gettext curl
+}
+
+install_opensuse_prerequisites() {
+  # TODO: Test this and prevent interruptions
+  sudo_wrapper zypper install ninja libtool autoconf automake \
+    cmake gcc-c++ gettext-tools curl
+}
+
+install_arch_prerequisites() {
+  # TODO: Test this and prevent interruptions
+  sudo_wrapper pacman -S base-devel cmake unzip ninja \
+    tree-sitter curl
+}
+
+install_alpine_prerequisites() {
+  # TODO: Test this and prevent interruptions
+  sudo_wrapper apk add build-base cmake automake autoconf \
+    libtool pkgconf coreutils curl unzip gettext-tiny-dev
+}
+
+install_void_prerequisites() {
+  # TODO: Test this and prevent interruptions
+  sudo_wrapper xbps-install base-devel cmake curl git
+}
+
+install_prerequisites() {
+  if command -v apt-get >/dev/null; then
+    install_debian_prerequisites || return $?
+  elif command -v yum >/dev/null; then
+    install_rhel_prerequisites || return $?
+  elif command -v zypper >/dev/null; then
+    install_opensuse_prerequisites || return $?
+  elif command -v pacman >/dev/null; then
+    install_arch_prerequisites || return $?
+  elif command -v apk >/dev/null; then
+    install_alpine_prerequisites || return $?
+  elif command -v xbps-install >/dev/null; then
+    install_void_prerequisites || return $?
+  else
+    echo "System is not supported" >&2
+    return 1
+  fi
+}
+
+build_from_source() {
+  echo "Installing prerequisites"
+  install_prerequisites || return $?
+
+  pushd "source" >/dev/null
+
+  if make; then
+    if [[ -n "$TARGET_DIR" ]]; then
+      if mkdir -p "$TARGET_DIR"; then
+        cp -p build/bin/nvim "$TARGET_DIR/nvim"
+      else
+        echo "Unable to create target dir: $TARGET_DIR" >&2
+      fi
+    else
+      sudo_wrapper make install
+    fi
+  fi
+
+  popd >/dev/null
+}
+
+install_from_source() {
+  local TEMP_DIR
+  TEMP_DIR=$(mktemp -d)
+
+  pushd $TEMP_DIR >/dev/null
+
+  echo "Downloading source files"
+  if download_source_files; then
+    echo "Building from source..."
+    if build_from_source; then
+      if check_version; then
+        echo "Done 🎉"
+      else
+        echo "Error: binary missing or version mismatch" >&2
+      fi
+    fi
+  fi
+
+  # Return to the original directory
+  popd >/dev/null
+
+  # Clean up
+  rm -rf "$TEMP_DIR"
+}
+
+if check_version && false; then
+  echo "Neovim version is up to date"
+  exit 0
+fi
+
+echo "Neovim version is missing or outdated, installing $VERSION..."
+
+echo "Attempting to install prebuilt binary"
+if install_prebuilt; then
+  exit 0
+fi
+
+echo "Prebuilt binary is not available."
+echo "Attempting to install from source"
+install_from_source
