@@ -270,3 +270,7 @@ init_fzf() {
 }
 zinit ice depth=1 atinit=init_fzf
 zinit light "junegunn/fzf"
+
+# Forgit
+zinit ice depth=1
+zinit light "wfxr/forgit"
