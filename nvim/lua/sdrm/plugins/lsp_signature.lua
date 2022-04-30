@@ -1,8 +1,6 @@
-local M = {}
+local LspSignature = {}
 
-function M.setup()
-  local map = require("sdrm.map")
-
+function LspSignature.setup()
   local ok, lsp_signature = pcall(require, "lsp_signature")
   if not ok then
     vim.notify("Cannot load plugin: lsp_signature")
@@ -23,4 +21,4 @@ function M.setup()
   })
 end
 
-return M
+return LspSignature

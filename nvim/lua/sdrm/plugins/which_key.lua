@@ -1,13 +1,13 @@
-local M = {}
+local WhichKey = {}
 
-function M.setup()
+function WhichKey.setup()
   require("sdrm.map")
 
   local wk = require("which-key")
   wk.setup({})
 
   -- timeout for whichkey
-  vim.opt.timeoutlen = 250
+  vim.opt.timeoutlen = 500
 
   wk.register({
     ["<leader>f"] = { name = "+Find" },
@@ -75,4 +75,4 @@ function M.setup()
   ]]
 end
 
-return M
+return WhichKey

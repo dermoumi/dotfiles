@@ -1,29 +1,21 @@
---[[
-  Config file for the telescope.nvim plugin
-]]
+local Telescope = {}
 
-local telescope = require("telescope")
-local telescope_builtin = require("telescope.builtin")
-
-local M = {}
-
-function M.setup()
+function Telescope.setup()
+  local telescope = require("telescope")
+  local telescope_builtin = require("telescope.builtin")
   local map = require("sdrm.map")
 
-  local extensions = {}
-
-  local has_fzf, _ = pcall(telescope.load_extension, "fzf")
-  if has_fzf then
-    extensions["fzf"] = {
-      fuzzy = true,
-      override_generic_sorter = true,
-      override_file_sorter = true,
-      case_mode = "smart_case",
-    }
-  end
+  pcall(telescope.load_extension, "fzf")
 
   telescope.setup({
-    extensions = extensions,
+    extensions = {
+      fzf = {
+        fuzzy = true,
+        override_generic_sorter = true,
+        override_file_sorter = true,
+        case_mode = "smart_case",
+      },
+    },
     defaults = {
       show_line = false,
       prompt_title = "",
@@ -58,12 +50,29 @@ function M.setup()
     },
   })
 
+  -- Load extensions
+  local extensions = {
+    "fzf",
+    "ui-select",
+    "file_browser",
+  }
+
+  for _, extension in ipairs(extensions) do
+    local loaded, _ = pcall(telescope.load_extension, extension)
+
+    if not loaded then
+      vim.notify("Failed to load telescope extension: " .. extension)
+    end
+  end
+
   -- map keys
   map("n", "<leader>ff", function()
     local ok = pcall(telescope_builtin.git_files)
 
     if not ok then
-      telescope_builtin.fd()
+      telescope_builtin.fd({
+        hidden = true,
+      })
     end
   end, {
     name = "Find file…",
@@ -80,9 +89,6 @@ function M.setup()
 
   map("n", "<leader>fr", telescope_builtin.oldfiles, {
     name = "Find recent file…",
-  })
-  map("n", "<leader>fe", telescope_builtin.file_browser, {
-    name = "File explorer…",
   })
   map("n", "<leader>fh", telescope_builtin.help_tags, {
     name = "Find help…",
@@ -109,11 +115,16 @@ function M.setup()
   map("n", "gs", telescope_builtin.lsp_document_symbols, {
     name = "Find symbols…",
   })
-  map("n", "gS", telescope_builtin.lsp_dynamic_workspace_symbols, {
+  map("n", "gj", function()
+    telescope_builtin.lsp_dynamic_workspace_symbols({
+      ignore_symbols = { "variable" },
+    })
+  end, {
     name = "Find workspace symbols…",
   })
-  map("n", "ga", telescope_builtin.lsp_code_actions, {
-    name = "Code actions…",
+  map("n", "gJ", telescope_builtin.lsp_dynamic_workspace_symbols, {
+    name = "which_key_ignore",
+
   })
   map("n", "gd", telescope_builtin.lsp_definitions, {
     name = "Go to definition…",
@@ -127,6 +138,16 @@ function M.setup()
   map("v", "ga", ":'<,'>lua vim.lsp.buf.range_code_action()<CR>", {
     name = "Code actions…",
   })
+
+  if telescope.extensions.file_browser then
+    map("n", "<leader>fe", function()
+      telescope.extensions.file_browser.file_browser({
+        path = "%:p:h",
+      })
+    end, {
+      name = "File explorer…",
+    })
+  end
 end
 
-return M
+return Telescope

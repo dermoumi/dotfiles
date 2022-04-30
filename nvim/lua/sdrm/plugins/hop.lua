@@ -1,14 +1,10 @@
---[[
-  Config file for hop.nvim plugin
-]]
+local Hop = {}
 
-local M = {}
-
-function M.setup()
+function Hop.setup()
   local map = require("sdrm.map")
 
   require("hop").setup({
-    keys = "asdfghjklweruioxcvm"
+    keys = "asdfghjklweruioxcvm;"
   })
 
   -- colors
@@ -19,12 +15,12 @@ function M.setup()
   ]]
 
   map("nov", "<leader>/", "<cmd>HopPattern<cr>", { name = "Hop pattern" })
-  map("nov", "<leader>s", "<cmd>HopChar1AC<cr>", { name = "Hop next char" })
-  map("nov", "<leader>S", "<cmd>HopChar1BC<cr>", { name = "Hop previous char" })
+  map("nov", "<leader>s", "<cmd>HopChar1<cr>", { name = "Hop to char" })
+  -- map("nov", "<leader>S", "<cmd>HopChar1BC<cr>", { name = "Hop previous char" })
   map("nov", "<leader>w", "<cmd>HopWordAC<cr>", { name = "Hop next word" })
   map("nov", "<leader>b", "<cmd>HopWordBC<cr>", { name = "Hop previous word" })
   map("nov", "<leader>t", "<cmd>HopWordCurrentLineAC<cr>", { name = "Hop next word in line" })
   map("nov", "<leader>T", "<cmd>HopWordCurrentLineBC<cr>", { name = "Hop previous word in line" })
 end
 
-return M
+return Hop

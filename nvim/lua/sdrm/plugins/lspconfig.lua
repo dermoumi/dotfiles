@@ -1,4 +1,4 @@
-local M = {}
+local LspConfig = {}
 
 local function on_attach(_, bufnr)
   local map = require("sdrm.map")
@@ -75,7 +75,7 @@ local servers = {
   eslint = {},
 }
 
-function M.setup()
+function LspConfig.setup()
   local ok, lsp_installer_servers = pcall(require, "nvim-lsp-installer.servers")
   if not ok then
     return
@@ -110,4 +110,4 @@ function M.setup()
   end
 end
 
-return M
+return LspConfig

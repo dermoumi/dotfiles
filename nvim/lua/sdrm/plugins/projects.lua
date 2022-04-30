@@ -1,11 +1,7 @@
---[[
-  Config file for projects.nvim plugin
-]]
-
-local M = {}
+local Projects = {}
 
 -- Sets up default config
-function M.setup()
+function Projects.setup()
   local map = require("sdrm.map")
 
   require("project_nvim").setup {
@@ -28,4 +24,4 @@ function M.setup()
   end
 end
 
-return M
+return Projects

@@ -1,8 +1,19 @@
-local M = {}
+local Treesitter = {}
 
-function M.setup()
+function Treesitter.setup()
   -- Treesitter configuration
   require("nvim-treesitter.configs").setup {
+    ensure_installed = {
+      "lua",
+      "python",
+      "javascript",
+      "typescript",
+      "bash",
+      "json",
+      "css",
+      "rust",
+      "yaml",
+    },
     highlight = {
       enable = true, -- false will disable the whole extension
     },
@@ -51,18 +62,7 @@ function M.setup()
         },
       },
     },
-    ensure_installed = {
-      "lua",
-      "python",
-      "javascript",
-      "typescript",
-      "bash",
-      "json",
-      "css",
-      "rust",
-      "yaml",
-    },
   }
 end
 
-return M
+return Treesitter

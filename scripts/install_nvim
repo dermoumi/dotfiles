@@ -18,7 +18,7 @@ sudo_wrapper() {
     SUDO=sudo
   fi
 
-  "$SUDO" $@
+  $SUDO $@
 }
 
 check_version() {
@@ -138,9 +138,9 @@ download_source_files() {
     mv neovim-* source
   elif command -v git >/dev/null; then
     git clone https://github.com/neovim/neovim.git --depth=1 source
+  else
+    return 1
   fi
-
-  return 1
 }
 
 install_debian_prerequisites() {
@@ -197,12 +197,15 @@ install_prerequisites() {
 }
 
 build_from_source() {
-  echo "Installing prerequisites"
+  echo -n "Installing prerequisites... "
   install_prerequisites || return $?
+  echo "Done"
 
   pushd "source" >/dev/null
 
+  echo -n "Building... "
   if make; then
+    echo "Done"
     if [[ -n "$TARGET_DIR" ]]; then
       if mkdir -p "$TARGET_DIR"; then
         cp -p build/bin/nvim "$TARGET_DIR/nvim"
@@ -212,6 +215,8 @@ build_from_source() {
     else
       sudo_wrapper make install
     fi
+  else
+    echo
   fi
 
   popd >/dev/null

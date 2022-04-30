@@ -1,20 +1,22 @@
 _G._SdrmWhichKeys = {}
 _G._SdrmBoundFuncs = {}
 
--- Adds silent and noremap to given options,
--- but only if they're not defined
+--- Adds silent and noremap to given options,
+--- but only if they're not defined
+--- @param options table?: Options to add silent and noremap to
+--- @return table: Options with silent and noremap added
 local function set_silent_noremap(options)
-  options = options and vim.deepcopy(options) or {}
+  local opts = options ~= nil and vim.deepcopy(options) or {}
 
-  if options["silent"] == nil then
-    options["silent"] = true
+  if opts["silent"] == nil then
+    opts["silent"] = true
   end
 
-  if options["noremap"] == nil then
-    options["noremap"] = true
+  if opts["noremap"] == nil then
+    opts["noremap"] = true
   end
 
-  return options
+  return opts
 end
 
 local function register_whichkey(mode, key, name)
@@ -26,13 +28,14 @@ local function register_whichkey(mode, key, name)
     _SdrmWhichKeys[mode] = vim.tbl_deep_extend("force", _SdrmWhichKeys[mode] or {}, { [key] = name })
   end
 end
+_G.register_whichkey = register_whichkey
 
----Maps a key on one or many modes.
----options default to silent and noremap.
----@param modes string: Modes to apply the mapping to
----@param lhs string: Key(s) to trigger the mapping
----@param cmd string|function: Command or function to run when the keys are pressed
----@param options table: Extra options
+--- Maps a key on one or many modes.
+--- options default to silent and noremap.
+--- @param modes string: Modes to apply the mapping to
+--- @param lhs string: Key(s) to trigger the mapping
+--- @param cmd string|function: Command or function to run when the keys are pressed
+--- @param options table?: Extra options
 return function(modes, lhs, cmd, options)
   local rhs = cmd
   if type(cmd) == "function" then
@@ -42,11 +45,11 @@ return function(modes, lhs, cmd, options)
   end
 
   -- Add default options if they're not set
-  options = set_silent_noremap(options)
+  local opts = set_silent_noremap(options)
 
   -- Extract buffer_nr if there's any
-  local buffer_nr = options["buffer_nr"]
-  options["buffer_nr"] = nil
+  local buffer_nr = opts["buffer_nr"]
+  opts["buffer_nr"] = nil
 
   -- Use a different keymap func depending on whether buffer_nr is set or not
   local map_func = buffer_nr == nil
@@ -56,19 +59,19 @@ return function(modes, lhs, cmd, options)
     end
 
   -- Extract the which key name if any
-  local name = options["name"]
-  options["name"] = nil
+  local name = opts["name"]
+  opts["name"] = nil
 
   -- Register the key for each mode in the modes string
   if #modes <= 1 then
-    map_func(modes, lhs, rhs, options)
+    map_func(modes, lhs, rhs, opts)
     if name ~= nil then
       register_whichkey(modes, lhs, name)
     end
   else
     for i = 1, #modes do
       local mode = modes:sub(i,i)
-      map_func(mode, lhs, rhs, options)
+      map_func(mode, lhs, rhs, opts)
       if name ~= nil then
         register_whichkey(mode, lhs, name)
       end

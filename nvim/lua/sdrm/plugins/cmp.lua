@@ -1,8 +1,8 @@
-local M = {}
+local Cmp = {}
 
----when inside a snippet, seeks to the nearest luasnip field if possible, and checks if it is jumpable
----@param dir number 1 for forward, -1 for backward; defaults to 1
----@return boolean true if a jumpable luasnip field is found while inside a snippet
+--- when inside a snippet, seeks to the nearest luasnip field if possible, and checks if it is jumpable
+--- @param dir number 1 for forward, -1 for backward; defaults to 1
+--- @return boolean true if a jumpable luasnip field is found while inside a snippet
 local function jumpable(dir)
   local luasnip_ok, luasnip = pcall(require, "luasnip")
   if not luasnip_ok then
@@ -29,8 +29,8 @@ local function jumpable(dir)
     return pos[1] >= snip_begin_pos[1] and pos[1] <= snip_end_pos[1]
   end
 
-  ---sets the current buffer's luasnip to the one nearest the cursor
-  ---@return boolean true if a node is found, false otherwise
+  --- sets the current buffer's luasnip to the one nearest the cursor
+  --- @return boolean true if a node is found, false otherwise
   local function seek_luasnip_cursor_node()
     -- for outdated versions of luasnip
     if not luasnip.session.current_nodes then
@@ -113,8 +113,8 @@ local function has_space_before()
   return col == 0 or vim.fn.getline("."):sub(col, col):match "%s"
 end
 
----checks if emmet_ls is available and active in the buffer
----@return boolean true if available, false otherwise
+--- checks if emmet_ls is available and active in the buffer
+--- @return boolean true if available, false otherwise
 local function is_emmet_active()
   local clients = vim.lsp.buf_get_clients()
 
@@ -126,7 +126,7 @@ local function is_emmet_active()
   return false
 end
 
-function M.setup()
+function Cmp.setup()
   local cmp_ok, cmp = pcall(require, "cmp")
   if not cmp_ok then
     vim.notify("Could not load cmp")
@@ -148,6 +148,16 @@ function M.setup()
       end,
     },
     mapping = {
+      ["<Up>"] = cmp.mapping(function(fallback)
+        if not cmp.select_prev_item() then
+          fallback()
+        end
+      end),
+      ["<Down>"] = cmp.mapping(function(fallback)
+        if not cmp.select_next_item() then
+          fallback()
+        end
+      end),
       ["<C-k>"] = cmp.mapping(cmp.mapping.scroll_docs(-5), { "i", "c" }),
       ["<C-j>"] = cmp.mapping(cmp.mapping.scroll_docs(5), { "i", "c" }),
       ["<C-Space>"] = cmp.mapping(cmp.mapping.complete(), { "i", "c" }),
@@ -157,12 +167,23 @@ function M.setup()
         i = cmp.mapping.abort(),
         c = cmp.mapping.close(),
       }),
-      ["<tab>"] = cmp.mapping(function(fallback)
-        if cmp.visible() then
+      ["<Tab>"] = cmp.mapping(function(fallback)
+        local entry = cmp.get_selected_entry()
+        if not entry and vim.b._copilot and vim.b._copilot.suggestions ~= nil then
+          -- Make sure the suggestion exists and it does not start with whitespace
+          -- This is to prevent the user from accidentally selecting a suggestion
+          -- when trying to indent
+          local suggestion = vim.b._copilot.suggestions[1].displayText
+          if suggestion == nil or (suggestion:find("^%s") ~= nil and suggestion:find("^\n") == nil) then
+            fallback()
+          else
+            vim.fn.feedkeys(vim.fn['copilot#Accept'](), '')
+          end
+        elseif cmp.visible() then
           cmp.confirm({ select = true })
         elseif luasnip.expandable() then
           luasnip.expand()
-        elseif jumpable() then
+        elseif jumpable(1) then
           luasnip.jump(1)
         elseif has_space_before() then
           fallback()
@@ -230,4 +251,4 @@ function M.setup()
   ]]
 end
 
-return M
+return Cmp

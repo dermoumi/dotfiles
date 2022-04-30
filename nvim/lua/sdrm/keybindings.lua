@@ -27,9 +27,9 @@ end, {
 })
 
 -- delete words with ctrl+backspace (habits die hard)
-map("i", "<M-BS>", "<C-W>")
-map("i", "<C-BS>", "<C-W>")
-map("i", "<C-H>", "<C-W>")
+map("ic", "<M-BS>", "<C-w>", { silent = false })
+map("ic", "<C-BS>", "<C-w>", { silent = false })
+map("ic", "<C-H>", "<C-w>", { silent = false })
 
 -- deal with line wraps
 map("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true })
@@ -109,5 +109,21 @@ end, {
 -- Close current window/buffer
 map("n", "<leader>x", "<cmd>close<cr>", {
   name = "Close current buffer",
+})
+
+-- Show code actions window
+map("n", "ga", vim.lsp.buf.code_action, {
+  name = "Code actions",
+})
+
+-- Disable some annoying keys i keep pressing
+-- accidentally all the time
+map("n", "q:", "<Nop>", {
+  name = "which_key_ignore",
+  silent = false,
+})
+map("n", "Q", "<Nop>", {
+  name = "which_key_ignore",
+  silent = false,
 })
 
