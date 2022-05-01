@@ -173,7 +173,10 @@ function Cmp.setup()
           -- Make sure the suggestion exists and it does not start with whitespace
           -- This is to prevent the user from accidentally selecting a suggestion
           -- when trying to indent
-          local suggestion = vim.b._copilot.suggestions[1].displayText
+          local suggestion = vim.b._copilot.suggestions[1]
+          if suggestion ~= nil then
+            suggestion = suggestion.displayText
+          end
           if suggestion == nil or (suggestion:find("^%s") ~= nil and suggestion:find("^\n") == nil) then
             fallback()
           else
