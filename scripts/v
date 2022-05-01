@@ -1,0 +1,139 @@
+#!/usr/bin/env bash
+
+set -eEo pipefail
+
+: "${NVIM_REMOTE_DIR:=/tmp/nvim-remote}"
+: "${NVR_COMMAND:=}"
+
+if ! [[ "$NVR_COMMAND" ]]; then
+  NVR_COMMAND=$(command -v nvr)
+fi
+
+if ! [[ "$NVR_COMMAND" ]]; then
+  echo "nvr not found, please install it with: \`pip install neovim-remote\`"
+  exit 1
+fi
+
+get_latest_pid() {
+  local tmux=${1:-}
+  local tsession=${2:-}
+  local twindow=${3:-}
+
+  local name_pattern=""
+  if [[ "$twindow" ]]; then
+    name_pattern="w${twindow}_${name_pattern}"
+  fi
+  if [[ "$tsession" ]]; then
+    name_pattern="s${tsession}_${name_pattern}"
+  fi
+  if ((tmux)); then
+    name_pattern="T_${name_pattern}"
+  fi
+
+  local pid_file
+  local latest_pid
+  while true; do
+    pid_file=$(
+      command ls -1Art $NVIM_REMOTE_DIR | grep -E "^$name_pattern" | tail -n 1
+    )
+    latest_pid=$([[ "$pid_file" =~ ([0-9]+)$ ]] && echo "ERR ${BASH_REMATCH[1]}")
+
+    # Check if the pid file is valid
+    if [[ "$pid_file" =~ ([0-9]+)$ ]]; then
+      latest_pid=${BASH_REMATCH[1]}
+    else
+      return 1
+    fi
+
+    # PID found and is running, return it
+    if ps -p "$latest_pid" > /dev/null; then
+      echo "$NVIM_REMOTE_DIR/$pid_file"
+      return
+    fi
+
+    # PID no longer exists, just remove the file
+    rm "$NVIM_REMOTE_DIR/$pid_file"
+  done
+}
+
+open_with_nvim() {
+  local parsed_args=()
+  local scope="session"
+  local no_switch=0
+
+  while (($#)); do
+    case "$1" in
+      -tserver)
+        scope="server"
+        shift
+        ;;
+      -tsession)
+        scope="session"
+        shift
+        ;;
+      -twindow)
+        scope="window"
+        shift
+        ;;
+      -s|--scope)
+        scope="$2"
+        shift 2
+        ;;
+      -n|--no-switch|--noswitch)
+        no_switch=1
+        shift
+        ;;
+      --)
+        shift
+        parsed_args+=("$@")
+        break
+        ;;
+      *)
+        parsed_args+=("$1")
+        shift
+        ;;
+    esac
+  done
+
+  local tmux=0
+  local tsession=""
+  local twindow=""
+  if [[ "$TMUX" && "$scope" == "server" ]]; then
+    tmux=1
+
+    if [[ "$scope" == "session" ]]; then
+      : $(tmux display-message -p '#{session_id}')
+      tsession=${_//$}
+
+      if [[ "$scope" == "window" ]]; then
+        : $(tmux display-message -p '#{window_id}')
+        twindow=${_//@}
+      fi
+    fi
+  fi
+
+  local pane_id
+  local pid_file
+  if pid_file=$(get_latest_pid "$tmux" "$tsession" "$twindow"); then
+    if [[ "$pid_file" =~ p([0-9]+)_[0-9]+$ ]]; then
+      pane_id="%${BASH_REMATCH[1]}"
+    fi
+
+    local nvim_server_uri
+    nvim_server_uri=$(cat $pid_file)
+
+    export NVIM_LISTEN_ADDRESS="$nvim_server_uri"
+  fi
+
+  # Open the file using nvr
+  $NVR_COMMAND -s ${parsed_args[@]}
+
+  # If it's in tmux, switch to the pane
+  if [[ "$TMUX" ]] && [[ "$pane_id" ]] && ! ((no_switch)); then
+    tmux switch-client -t "$pane_id"
+    tmux select-window -t "$pane_id"
+    tmux select-pane -t "$pane_id"
+  fi
+}
+
+open_with_nvim "$@"

@@ -98,3 +98,4 @@ vim.cmd [[
 
 require("sdrm.keybindings")
 require("sdrm.plugins")
+require("sdrm.remote")
