@@ -205,6 +205,14 @@ packer.startup(function(use)
     end,
   })
 
+  -- JS Sort imports
+  use({
+    "ruanyl/vim-sort-imports",
+    run = function()
+      os.execute("npm install --global import-sort-cli import-sort-parser-babylon import-sort-parser-typescript import-sort-style-eslint")
+    end,
+  })
+
   -- sync packer config
   if packer_bootstrap then
     packer.sync()
