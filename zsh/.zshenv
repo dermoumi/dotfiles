@@ -89,6 +89,12 @@ if [[ -d ~/.deno ]]; then
     path=($DENO_DIR/bin $path)
 fi
 
+# pnpm
+if [[ -d ~/.local/share/pnpm ]]; then
+    export PNPM_HOME="$HOME/.local/share/pnpm"
+    path=($PNPM_HOME $path)
+fi
+
 # local scripts directory
 if [[ -d ~/.dotfiles/scripts/ ]]; then
     export SCRIPTS_DIR=$HOME/.dotfiles/scripts/
