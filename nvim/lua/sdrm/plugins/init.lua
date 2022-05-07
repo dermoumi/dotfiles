@@ -197,7 +197,7 @@ packer.startup(function(use)
     run = "npm install",
   })
 
-  -- Gitgutter
+  -- Gitsigns
   use({
     "lewis6991/gitsigns.nvim",
     tag = "release",
@@ -211,6 +211,20 @@ packer.startup(function(use)
     "ruanyl/vim-sort-imports",
     run = function()
       os.execute("npm install --global import-sort-cli import-sort-parser-babylon import-sort-parser-typescript import-sort-style-eslint")
+    end,
+  })
+
+  -- TODO: Add feline.nvim
+  -- TODO: Add trouble.nvim
+  -- TODO: Improve auto-completion
+  -- TODO: Add visual mode bindings to gitsigns
+  -- TODO: Add 0.7.0 native keybindings supports
+
+  -- Themes
+  use({
+    "projekt0n/github-nvim-theme",
+    config = function()
+      require("sdrm.plugins.themes").setup()
     end,
   })
 
