@@ -199,9 +199,10 @@ packer.startup(function(use)
 
   -- Gitgutter
   use({
-    "airblade/vim-gitgutter",
+    "lewis6991/gitsigns.nvim",
+    tag = "release",
     config = function()
-      require("sdrm.plugins.gitgutter").setup()
+      require("sdrm.plugins.gitsigns").setup()
     end,
   })
 
