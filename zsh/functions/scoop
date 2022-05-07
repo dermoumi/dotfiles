@@ -1,0 +1,8 @@
+#!/bin/zsh
+
+scoop() {
+    (
+        cd /mnt/c/
+        =scoop "$@"
+    )
+}
