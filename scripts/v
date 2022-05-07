@@ -6,7 +6,7 @@ set -eEo pipefail
 : "${NVR_COMMAND:=}"
 
 if ! [[ "$NVR_COMMAND" ]]; then
-  NVR_COMMAND=$(command -v nvr)
+  NVR_COMMAND=$(command -v nvr || true)
 fi
 
 if ! [[ "$NVR_COMMAND" ]]; then
@@ -126,7 +126,7 @@ open_with_nvim() {
   fi
 
   # Open the file using nvr
-  $NVR_COMMAND -s ${parsed_args[@]}
+  $NVR_COMMAND -s --remote ${parsed_args[@]}
 
   # If it's in tmux, switch to the pane
   if [[ "$TMUX" ]] && [[ "$pane_id" ]] && ! ((no_switch)); then
