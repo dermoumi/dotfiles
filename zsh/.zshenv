@@ -93,6 +93,9 @@ fi
 if [[ -d ~/.local/share/pnpm ]]; then
     export PNPM_HOME="$HOME/.local/share/pnpm"
     path=($PNPM_HOME $path)
+elif [[ -d ~/Library/pnpm ]]; then
+    export PNPM_HOME="$HOME/Library/pnpm"
+    path=($PNPM_HOME $path)
 fi
 
 # local scripts directory
