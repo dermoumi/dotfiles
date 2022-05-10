@@ -195,6 +195,11 @@ packer.startup(function(use)
   use({
     "prettier/vim-prettier",
     run = "npm install",
+    config = function()
+      vim.g["prettier#quickfix_enabled"] = false
+      vim.g["prettier#autoformat"] = true
+      vim.g["prettier#autoformat_require_pragma"] = false
+    end,
   })
 
   -- Gitsigns
@@ -211,6 +216,10 @@ packer.startup(function(use)
     "ruanyl/vim-sort-imports",
     run = function()
       os.execute("npm install --global import-sort-cli import-sort-parser-babylon import-sort-parser-typescript import-sort-style-eslint")
+    end,
+    config = function()
+      local map = require("sdrm.map")
+      map("n", "<leader>I", "<cmd>SortImport<cr>")
     end,
   })
 

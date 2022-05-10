@@ -26,6 +26,9 @@ end, {
   name = "Reload config",
 })
 
+-- save with ctrl+s (habits, you know)
+map("in", "<C-s>", "<cmd>w<cr>")
+
 -- delete words with ctrl+backspace (habits die hard)
 map("ic", "<M-BS>", "<C-w>", { silent = false })
 map("ic", "<C-BS>", "<C-w>", { silent = false })
@@ -115,6 +118,10 @@ map("n", "<leader>x", "<cmd>close<cr>", {
 map("n", "ga", vim.lsp.buf.code_action, {
   name = "Code actions",
 })
+map("n", "", vim.lsp.buf.code_action, {
+  name = "Code actions",
+})
+
 
 -- Disable some annoying keys i keep pressing
 -- accidentally all the time

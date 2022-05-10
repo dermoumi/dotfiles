@@ -169,15 +169,21 @@ function Cmp.setup()
       }),
       ["<Tab>"] = cmp.mapping(function(fallback)
         local entry = cmp.get_selected_entry()
-        if not entry and vim.b._copilot and vim.b._copilot.suggestions ~= nil then
+
+        local copilot_suggestion = nil
+        if not  entry and vim.b._copilot and vim.b._copilot.suggestions ~= nil then
+          local first_suggestion = vim.b._copilot.suggestions[1]
+          if first_suggestion ~= nil then
+            copilot_suggestion = first_suggestion.displayText
+          end
+        end
+
+        if copilot_suggestion ~= nil then
           -- Make sure the suggestion exists and it does not start with whitespace
           -- This is to prevent the user from accidentally selecting a suggestion
           -- when trying to indent
-          local suggestion = vim.b._copilot.suggestions[1]
-          if suggestion ~= nil then
-            suggestion = suggestion.displayText
-          end
-          if suggestion == nil or (suggestion:find("^%s") ~= nil and suggestion:find("^\n") == nil) then
+
+          if copilot_suggestion == nil or (copilot_suggestion:find("^%s") ~= nil and copilot_suggestion:find("^\n") == nil) then
             fallback()
           else
             vim.fn.feedkeys(vim.fn['copilot#Accept'](), '')
