@@ -98,6 +98,22 @@ elif [[ -d ~/Library/pnpm ]]; then
     path=($PNPM_HOME $path)
 fi
 
+# SDK man
+if [[ -d ~/.sdkman ]]; then
+    export SDKMAN_DIR="$HOME/.sdkman"
+
+    if [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]]; then
+        source "$SDKMAN_DIR/bin/sdkman-init.sh"
+    fi
+fi
+
+# android sdk (macos)
+if [[ -d ~/Library/Android/sdk ]]; then
+    export ANDROID_HOME="$HOME/Library/Android/sdk"
+    export ANDROID_SDK_ROOT=$ANDROID_HOME
+    path=($ANDROID_HOME/tools/bin $ANDROID_HOME/platform-tools $ANDROID_HOME/build-tools/* $ANDROID_HOME/emulator $path)
+fi
+
 # local scripts directory
 if [[ -d ~/.dotfiles/scripts/ ]]; then
     export SCRIPTS_DIR=$HOME/.dotfiles/scripts/
