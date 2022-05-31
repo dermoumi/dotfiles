@@ -28,6 +28,7 @@ function Treesitter.setup()
     },
     indent = {
       enable = true,
+      disable = { "yaml" },
     },
     textobjects = {
       select = {
