@@ -60,16 +60,10 @@ if [[ -d ~/.cargo && ! "$CARGO_HOME" ]]; then
     source "$CARGO_HOME/env"
 fi
 
-# nvm
-if [[ -d ~/.nvm ]]; then
-    export NVM_DIR="$HOME/.nvm"
-    source "$NVM_DIR/nvm.sh"
-fi
-
-# deno
-if [[ -d ~/.deno ]]; then
-    export DENO_DIR="$HOME/.deno"
-    path=($DENO_DIR/bin $path)
+# volta
+if [[ -d ~/.volta ]]; then
+    export VOLTA_HOME=$HOME/.volta
+    path=($VOLTA_HOME/bin $path)
 fi
 
 # pnpm
