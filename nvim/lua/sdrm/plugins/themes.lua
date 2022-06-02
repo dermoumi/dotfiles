@@ -5,26 +5,28 @@ function Themes.setup()
 
   vim.o.termguicolors = true
 
-  local LIGHT_THEME = "github_light"
-  local DARK_THEME = "github_dark"
+  local catppuccin = require("catppuccin")
+  catppuccin.setup({
+    integrations = {
+      hop = true
+    },
+  })
 
   local set_dark_theme = function()
-    vim.o.background = "dark"
-    vim.cmd("color " .. DARK_THEME)
+    vim.g.catppuccin_flavour = "mocha"
+    vim.cmd("colorscheme catppuccin")
     -- vim.cmd("hi Normal ctermbg=none guibg=none")
   end
 
   local set_light_theme = function()
-    vim.o.background = "light"
-    vim.cmd("color " .. LIGHT_THEME)
+    vim.g.catppuccin_flavour = "latte"
+    vim.cmd("colorscheme catppuccin")
   end
 
   set_dark_theme()
 
   map("n", "<leader>\\", function()
-    local theme = vim.api.nvim_exec("color", true)
-
-    if theme ~= LIGHT_THEME then
+    if vim.g.catppuccin_flavour == "mocha" then
       set_light_theme()
     else
       set_dark_theme()
