@@ -82,8 +82,15 @@ elif [[ -d ~/Library/pnpm ]]; then
 fi
 
 # android sdk (macos)
-if [[ -d ~/Library/Android/sdk ]]; then
+if [[ -d ~/Library/Android/Sdk ]]; then
     export ANDROID_HOME="$HOME/Library/Android/sdk"
+    export ANDROID_SDK_ROOT=$ANDROID_HOME
+    path=($ANDROID_HOME/tools/bin $ANDROID_HOME/platform-tools $ANDROID_HOME/build-tools/* $ANDROID_HOME/emulator $path)
+fi
+
+# android sdk (linux/custom)
+if [[ -d ~/Android/Sdk ]]; then
+    export ANDROID_HOME="$HOME/Android/Sdk"
     export ANDROID_SDK_ROOT=$ANDROID_HOME
     path=($ANDROID_HOME/tools/bin $ANDROID_HOME/platform-tools $ANDROID_HOME/build-tools/* $ANDROID_HOME/emulator $path)
 fi
