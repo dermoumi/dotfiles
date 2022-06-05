@@ -54,7 +54,16 @@ pip install neovim-remote
 ### Install sdkman
 
 ```bash
+# For android sdk 30 development
+
 curl -s "https://get.sdkman.io" | bash
+sdk install java 8.0.332-zulu
+sdk install gradle
+
+export ANDROID_SDK_ROOT=$HOME/.android/sdk
+mkdir -p "$ANDROID_SDK_ROOT"
+sudo apt-get install sdkmanager # Ubuntu 22.04+
+sudo sdkmanager --sdk_root=~/.android/sdk --install 'platforms;android-30' 'build-tools;30.0.3' platform-tools tools
 ```
 
 ### Install rustup

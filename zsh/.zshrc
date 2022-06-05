@@ -92,8 +92,8 @@ fi
 # android sdk
 if [[ -d ~/Library/Android/Sdk ]]; then
     export ANDROID_HOME="$HOME/Library/Android/sdk"
-elif [[ -d ~/Android/Sdk ]]; then
-    export ANDROID_HOME="$HOME/Android/Sdk"
+elif [[ -d ~/.android/sdk ]]; then
+    export ANDROID_HOME="$HOME/.android/sdk"
 elif [[ -d /opt/android-sdk ]]; then
     export ANDROID_HOME="/opt/android-sdk"
 fi
