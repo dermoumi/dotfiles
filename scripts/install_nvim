@@ -74,9 +74,13 @@ install_with_homebrew() {
 }
 
 install_prebuilt() {
-  if install_with_homebrew && false; then
+  if install_with_homebrew; then
     return 0
   fi
+
+  # TODO: Fix prebuilt install
+  echo "Installing pre-built binaries is currently broken..."
+  return 1
 
   local OS
   OS=$(uname)
@@ -247,7 +251,7 @@ install_from_source() {
   rm -rf "$TEMP_DIR"
 }
 
-if check_version && false; then
+if check_version; then
   echo "Neovim version is up to date"
   exit 0
 fi

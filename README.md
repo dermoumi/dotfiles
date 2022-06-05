@@ -25,17 +25,10 @@ chsh -s $(which zsh)
 sudo apt install build-essential
 ```
 
-### Install homebrew on linux
-
-```bash
-sudo -k # To preemptively input sudo password for this session
-curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | bash
-```
-
 ### Install neovim
 
 ```bash
-brew install neovim
+install_nvim
 ```
 
 ### Install pyenv and python
