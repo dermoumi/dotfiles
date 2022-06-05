@@ -19,6 +19,27 @@ if [[ -d /opt/homebrew/bin ]]; then
     path=(/opt/homebrew/bin $path)
 fi
 
+# Check for missing required tools in the env, and install them
+env-check
+
+# Load zinit the plugin manager
+if [[ ! -d "$ZINIT_HOME" ]]; then
+    ZINIT_HOME="$(dirname "$ZINIT_HOME")" \
+    NO_EMOJI=1 \
+    NO_INPUT=1 \
+    NO_TUTORIAL=1 \
+    NO_ANNEXES=1 \
+    NO_EDIT=1 \
+    sh -c "$(curl -fsSL https://git.io/zinit-install)"
+fi
+
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.dotfiles/zsh/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 # linuxbrew
 if [[ -d ~/.linuxbrew ]]; then
     eval "$(~/.linuxbrew/bin/brew shellenv)"
@@ -42,11 +63,6 @@ if command -v pyenv &>/dev/null; then
     eval "$(pyenv init --path)"
 fi
 
-# fnm
-if command -v fnm &>/dev/null; then
-    eval "$(fnm env)"
-fi
-
 # poetry
 if [[ -d ~/.poetry && ! ("$POETRY_ROOT" && -d "$POETRY_ROOT") ]]; then
     export POETRY_ROOT=~/.poetry
@@ -63,11 +79,9 @@ fi
 # volta
 if [[ -d ~/.volta ]]; then
     export VOLTA_HOME=$HOME/.volta
-    path=($VOLTA_HOME/bin $path)
-fi
-
-# pnpm
-if [[ -d ~/.local/share/pnpm ]]; then
+    export PNPM_HOME=$(npm bin -g 2>/dev/null)
+    path=($VOLTA_HOME/bin $PNPM_HOME $path)
+elif [[ -d ~/.local/share/pnpm ]]; then
     export PNPM_HOME="$HOME/.local/share/pnpm"
     path=($PNPM_HOME $path)
 elif [[ -d ~/Library/pnpm ]]; then
@@ -75,18 +89,18 @@ elif [[ -d ~/Library/pnpm ]]; then
     path=($PNPM_HOME $path)
 fi
 
-# android sdk (macos)
+# android sdk
 if [[ -d ~/Library/Android/Sdk ]]; then
     export ANDROID_HOME="$HOME/Library/Android/sdk"
-    export ANDROID_SDK_ROOT=$ANDROID_HOME
-    path=($ANDROID_HOME/tools/bin $ANDROID_HOME/platform-tools $ANDROID_HOME/build-tools/* $ANDROID_HOME/emulator $path)
+elif [[ -d ~/Android/Sdk ]]; then
+    export ANDROID_HOME="$HOME/Android/Sdk"
+elif [[ -d /opt/android-sdk ]]; then
+    export ANDROID_HOME="/opt/android-sdk"
 fi
 
-# android sdk (linux/custom)
-if [[ -d ~/Android/Sdk ]]; then
-    export ANDROID_HOME="$HOME/Android/Sdk"
+if [[ "$ANDROID_HOME" ]]; then
     export ANDROID_SDK_ROOT=$ANDROID_HOME
-    path=($ANDROID_HOME/tools/bin $ANDROID_HOME/platform-tools $ANDROID_HOME/build-tools/* $ANDROID_HOME/emulator $path)
+    path=($ANDROID_HOME/tools/bin $ANDROID_HOME/platform-tools $ANDROID_HOME/emulator $path)
 fi
 
 # SDK man
@@ -96,27 +110,6 @@ if [[ -d ~/.sdkman ]]; then
     if [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]]; then
         source "$SDKMAN_DIR/bin/sdkman-init.sh"
     fi
-fi
-
-# Check for missing required tools in the env, and install them
-env-check
-
-# Load zinit the plugin manager
-if [[ ! -d "$ZINIT_HOME" ]]; then
-    ZINIT_HOME="$(dirname "$ZINIT_HOME")" \
-    NO_EMOJI=1 \
-    NO_INPUT=1 \
-    NO_TUTORIAL=1 \
-    NO_ANNEXES=1 \
-    NO_EDIT=1 \
-    sh -c "$(curl -fsSL https://git.io/zinit-install)"
-fi
-
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.dotfiles/zsh/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
 # Force 256-color mode when inside containers
