@@ -73,7 +73,10 @@ fi
 if [[ -d ~/.cargo && ! "$CARGO_HOME" ]]; then
     export CARGO_HOME=$HOME/.cargo
     path=($CARGO_HOME/bin $path)
-    source "$CARGO_HOME/env"
+
+    if [[ -e "$CARGO_HOME/env" ]]; then
+        source "$CARGO_HOME/env"
+    fi
 fi
 
 # volta
