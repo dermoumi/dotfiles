@@ -19,6 +19,12 @@ if [[ -d /opt/homebrew/bin ]]; then
     path=(/opt/homebrew/bin $path)
 fi
 
+# go
+if [[ -d ~/.local/go/bin && ! "$GOPATH" ]]; then
+    export GOPATH=$HOME/.local/go
+    path=($GOPATH/bin $path)
+fi
+
 # Check for missing required tools in the env, and install them
 env-check
 
@@ -46,12 +52,6 @@ if [[ -d ~/.linuxbrew ]]; then
 fi
 if [[ -d /home/linuxbrew/.linuxbrew ]]; then
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-fi
-
-# go
-if [[ -d ~/.local/go/bin && ! "$GOPATH" ]]; then
-    export GOPATH=$HOME/.local/go
-    path=($GOPATH/bin $path)
 fi
 
 # pyenv
@@ -231,10 +231,10 @@ init_abbr() {
     ABBR_AUTOLOAD=0
     ABBR_PRECMD_LOGS=0
     ABBR_DEFAULT_BINDINGS=0
-    bindkey " " _abbr_widget_expand_and_space # space to expand abbr
+    bindkey " " abbr-expand-and-space # space to expand abbr
     bindkey "^ " magic-space # ctrl+space to insert space without expanding abbr
     bindkey -M isearch " " magic-space # normal space is normal in incremental search
-    bindkey -M isearch "^ " _abbr_widget_expand_and_space # ctrl+space expands abbr in isearch
+    bindkey -M isearch "^ " abbr-expand-and-space # ctrl+space expands abbr in isearch
 
     # Allows abbreviation to be expanded on enter if they're the only command to execute
     _expand_abbr_and_accept() {
@@ -242,7 +242,7 @@ init_abbr() {
 
         # make sure the rbuffer doesn't start with a space
         if [[ ! "$RBUFFER" || "$RBUFFER" =~ ^[[:space:]].+ ]]; then
-            _abbr_widget_expand_and_accept
+            abbr-expand-and-accept
         else
             zle accept-line
         fi
