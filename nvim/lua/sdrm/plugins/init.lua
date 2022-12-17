@@ -212,7 +212,7 @@ packer.startup(function(use)
   })
 
   -- JS Sort imports
-  use({
+  --[[ use({
     "ruanyl/vim-sort-imports",
     run = function()
       os.execute("npm install --global import-sort-cli import-sort-parser-babylon import-sort-parser-typescript import-sort-style-eslint")
@@ -221,7 +221,7 @@ packer.startup(function(use)
       local map = require("sdrm.map")
       map("n", "<leader>I", "<cmd>SortImport<cr>")
     end,
-  })
+  }) ]]
 
   -- TODO: Add feline.nvim
   -- TODO: Add trouble.nvim
