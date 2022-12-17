@@ -46,6 +46,8 @@ vim.opt.inccommand = "nosplit"
 vim.opt.undofile = true
 -- decrease update time
 vim.opt.updatetime = 250
+-- Color column
+vim.opt.colorcolumn = "80"
 
 -- highlight on yank
 vim.cmd [[
