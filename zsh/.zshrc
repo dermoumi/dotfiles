@@ -82,8 +82,10 @@ fi
 # volta
 if [[ -d ~/.volta ]]; then
     export VOLTA_HOME=$HOME/.volta
-    export PNPM_HOME=$(npm bin -g 2>/dev/null)
-    path=($VOLTA_HOME/bin $PNPM_HOME $path)
+    path=($VOLTA_HOME/bin $path)
+
+    export PNPM_HOME="$(npm config get prefix 2>/dev/null)/bin"
+    path=($PNPM_HOME $path)
 elif [[ -d ~/.local/share/pnpm ]]; then
     export PNPM_HOME="$HOME/.local/share/pnpm"
     path=($PNPM_HOME $path)
