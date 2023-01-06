@@ -1,8 +1,8 @@
 {
-    "zsh/.zshenv": "~/.zshenv",
-    ".gitconfig": "~/.gitconfig",
-    ".fdignore": "~/.fdignore",
-    ".tmux.conf": "~/.tmux.conf",
-    "kitty": "~/.config/kitty",
-    "nvim": "~/.config/nvim"
+  "zsh/.zshenv": "~/.zshenv",
+  ".gitconfig": "~/.gitconfig",
+  ".fdignore": "~/.fdignore",
+  ".tmux.conf": "~/.tmux.conf",
+  "wezterm": "~/.config/wezterm",
+  "nvim": "~/.config/nvim"
 }
