@@ -15,6 +15,9 @@ if ((AUTO_TMUX)) && [[ -o interactive && ! "$TMUX" ]]; then
 fi
 
 # homebrew
+if [[ -d /opt/homebrew/sbin ]]; then
+    path=(/opt/homebrew/sbin $path)
+fi
 if [[ -d /opt/homebrew/bin ]]; then
     path=(/opt/homebrew/bin $path)
 fi
