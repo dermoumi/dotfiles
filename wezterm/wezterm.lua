@@ -1,5 +1,23 @@
 local wezterm = require("wezterm")
 
+local gruvbox = wezterm.color.get_builtin_schemes()["Gruvbox dark, hard (base16)"]
+gruvbox.background = "#171717"
+gruvbox.cursor_bg = "#fabc2e"
+gruvbox.cursor_border = "#fabc2e"
+gruvbox.cursor_fg = "#171717"
+
+local ayu_light = wezterm.color.get_builtin_schemes()["ayu_light"]
+ayu_light.ansi[8] = "#A9A9A9"
+ayu_light.brights[8] = "#D9D9D9"
+
+function scheme_for_appearance(appearance)
+  if appearance:find "Dark" then
+    return "gruvbox_custom"
+  else
+    return "ayu_light_custom"
+  end
+end
+
 local config = {
     font = wezterm.font_with_fallback({
         "JetBrainsMono Nerd Font Mono",
@@ -18,35 +36,11 @@ local config = {
         bottom = 10,
     },
 
-    colors = {
-        foreground = "#ebdbb2",
-        background = "#171717",
-        selection_fg = "#655b53",
-        selection_bg = "#ebdbb2",
-        cursor_bg = "#fabc2e",
-        cursor_border = "#fabc2e",
-        cursor_fg = "#171717",
-        ansi = {
-            "#272727", -- black
-            "#cc231c", -- red
-            "#989719", -- green
-            "#d79920", -- yellow
-            "#448488", -- blue
-            "#b16185", -- magenta
-            "#689d69", -- cyan
-            "#f8e9e3", -- white
-        },
-        brights = {
-            "#b2a393", -- black
-            "#fb4833", -- red
-            "#b8ba25", -- green
-            "#fabc2e", -- yellow
-            "#83a597", -- blue
-            "#d3859a", -- magenta
-            "#8ec07b", -- cyan
-            "#ebdbb2", -- white
-        },
-    }
+    color_scheme = scheme_for_appearance(wezterm.gui.get_appearance()),
+    color_schemes = {
+        ["gruvbox_custom"] = gruvbox,
+        ["ayu_light_custom"] = ayu_light,
+    },
 }
 
 return config
