@@ -74,7 +74,7 @@ local save_file = function(tmux_prefix)
   vim.g.remote_file = filename
 end
 
-_G.write_nvim_serverfile = function()
+local write_nvim_serverfile = function()
   if vim.v.servername == nil then
     -- Neovim build does not support remote, abort silently...
     return
@@ -102,7 +102,7 @@ _G.write_nvim_serverfile = function()
   end
 end
 
-_G.delete_nvim_serverfile = function()
+local delete_nvim_serverfile = function()
   local filename = vim.g.remote_file
 
   if filename ~= nil then
@@ -111,10 +111,17 @@ _G.delete_nvim_serverfile = function()
   end
 end
 
-vim.cmd [[
-  augroup remote_autogroup
-    autocmd!
+-- Create a group to scope autocommands in
+vim.api.nvim_create_augroup("RemoteAutogroup", {
+    clear = true
+})
 
-    autocmd VimEnter,FocusGained * lua write_nvim_serverfile()
-    autocmd VimLeave * lua delete_nvim_serverfile()
-]]
+vim.api.nvim_create_autocmd({"VimEnter", "FocusGained"}, {
+  group = "RemoteAutogroup",
+  callback = write_nvim_serverfile,
+})
+
+vim.api.nvim_create_autocmd({"VimLeave"}, {
+  group = "RemoteAutogroup",
+  callback = delete_nvim_serverfile,
+})
