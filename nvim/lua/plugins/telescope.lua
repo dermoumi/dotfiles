@@ -8,6 +8,7 @@ return {
     dependencies = {
       "nvim-lua/plenary.nvim",
       "telescope-fzf-native.nvim",
+      "project.nvim",
     },
     keys = {
       {
@@ -81,6 +82,13 @@ return {
         end,
         desc = "Resume find…",
       },
+      {
+        "<leader>fp",
+        function()
+          require("telescope").extensions.projects.projects()
+        end,
+        desc = "Open project…",
+      },
     },
     opts = {
       fzf = {
@@ -127,6 +135,7 @@ return {
       local telescope = require("telescope")
       telescope.setup(opts)
       telescope.load_extension("fzf")
+      telescope.load_extension("projects")
     end,
   },
   {
