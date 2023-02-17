@@ -160,8 +160,7 @@
                 },
                 "to": [
                   {
-                    "key_code": "right_arrow",
-                    "modifiers": ["command"]
+                    "key_code": "end"
                   }
                 ],
                 "type": "basic"
@@ -176,8 +175,7 @@
                 },
                 "to": [
                   {
-                    "key_code": "left_arrow",
-                    "modifiers": ["command"]
+                    "key_code": "home"
                   }
                 ],
                 "type": "basic"
