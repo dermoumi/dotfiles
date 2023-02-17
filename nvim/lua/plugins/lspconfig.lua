@@ -1,39 +1,4 @@
-local util = require("lazy.core.util")
-
-local autoformat = true
-
-local function toggle_autoformat()
-  autoformat = not autoformat
-
-  if autoformat then
-    util.info("Enabled format on save", { title = "Format" })
-  else
-    util.warn("Disabled format on save", { title = "Format" })
-  end
-end
-
-local function format(bufnr)
-  if not autoformat then
-    return
-  end
-
-  local ft = vim.bo[bufnr].filetype
-  local sources = require("null-ls.sources")
-  local have_nls = #sources.get_available(ft, "NULL_LS_FORMATTING") > 0
-
-  local format_opts = vim.tbl_deep_extend("force", {
-    bufnr = bufnr,
-    filter = function(client)
-      if have_nls then
-        return client.name == "null-ls"
-      end
-
-      return client.name ~= "null-ls"
-    end,
-  }, {})
-
-  vim.lsp.buf.format(format_opts)
-end
+local format = require("lib.format")
 
 local function on_attach(client, bufnr)
   -- Setup auto formatting
@@ -42,7 +7,7 @@ local function on_attach(client, bufnr)
       group = vim.api.nvim_create_augroup("LspFormat." .. bufnr, {}),
       buffer = bufnr,
       callback = function()
-        format(bufnr)
+        format.format(bufnr)
       end,
     })
   end
@@ -85,35 +50,6 @@ return {
     "williamboman/mason.nvim",
     config = function(_, opts)
       require("mason").setup(opts)
-    end,
-  },
-
-  -- Formatting
-  {
-    "jose-elias-alvarez/null-ls.nvim",
-    event = "BufReadPre",
-    keys = {
-      {
-        "<leader>=",
-        toggle_autoformat,
-        desc = "Toggle autoformat",
-        silent = true,
-      },
-    },
-    dependencies = {
-      "mason.nvim",
-    },
-    opts = function()
-      local nls = require("null-ls")
-      return {
-        sources = {
-          -- nls.builtins.formatting.prettierd,
-          nls.builtins.formatting.stylua,
-          nls.builtins.formatting.black,
-          nls.builtins.code_actions.eslint,
-          -- nls.builtins.diagnostics.flake8,
-        },
-      }
     end,
   },
 

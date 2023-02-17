@@ -33,7 +33,7 @@ return {
   },
   {
     "lewis6991/gitsigns.nvim",
-    event = "BufRead",
+    event = "BufReadPost",
     tag = "release",
     opts = {
       on_attach = function(buf_nr)

@@ -15,7 +15,6 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup("plugins", {
   defaults = {
     lazy = true,
-    version = false,
   },
   install = {
     colorscheme = { "ayu" },
