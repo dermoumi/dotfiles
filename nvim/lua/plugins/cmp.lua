@@ -1,5 +1,45 @@
 return {
   {
+    "L3MON4D3/LuaSnip",
+    dependencies = {
+      "rafamadriz/friendly-snippets",
+    },
+    opts = {
+      history = true,
+      delete_check_events = "TextChanged",
+    },
+    config = function(_, opts)
+      require("luasnip.loaders.from_vscode").lazy_load()
+      require("luasnip").setup(opts)
+    end,
+    keys = {
+      {
+        "<tab>",
+        function()
+          return require("luasnip").jumpable(1) and "<Plug>luasnip-jump-next"
+            or "<tab>"
+        end,
+        expr = true,
+        silent = true,
+        mode = "i",
+      },
+      {
+        "<tab>",
+        function()
+          require("luasnip").jump(1)
+        end,
+        mode = "s",
+      },
+      {
+        "<s-tab>",
+        function()
+          require("luasnip").jump(-1)
+        end,
+        mode = { "i", "s" },
+      },
+    },
+  },
+  {
     "hrsh7th/nvim-cmp",
     event = { "InsertEnter", "CmdlineEnter" },
     dependencies = {
@@ -8,7 +48,6 @@ return {
       "hrsh7th/cmp-buffer",
       "hrsh7th/cmp-nvim-lsp",
       "hrsh7th/cmp-path",
-      "hrsh7th/cmp-cmdline",
       "hrsh7th/cmp-emoji",
       "hrsh7th/cmp-calc",
     },
@@ -25,7 +64,8 @@ return {
           return false
         end
 
-        local text = vim.api.nvim_buf_get_text(0, line-1, 0, line-1, col, {})
+        local text =
+          vim.api.nvim_buf_get_text(0, line - 1, 0, line - 1, col, {})
         return text[1]:match("^%s*$") == nil
       end
 
@@ -39,7 +79,7 @@ return {
         format = require("lspkind").cmp_format({
           mode = "symbol",
           symbol_map = { Copilot = "" },
-        })
+        }),
       }
 
       opts.mapping = {
@@ -86,7 +126,6 @@ return {
         { name = "treesitter" },
         { name = "crates" },
       }
-
     end,
     config = function(_, opts)
       vim.opt.completeopt = { "menu", "menuone", "noselect" }
@@ -100,15 +139,6 @@ return {
           { name = "buffer" },
         },
       })
-
-      -- Autocompletion for paths
-      cmp.setup.cmdline(":", {
-        sources = {
-          { name = "path" },
-          { name = "cmdline" },
-        },
-      })
-
 
       -- Visual aspect
       vim.api.nvim_set_hl(0, "Pmenu", {

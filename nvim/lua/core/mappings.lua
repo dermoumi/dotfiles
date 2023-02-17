@@ -1,8 +1,5 @@
--- Space as leader
-vim.g.mapleader = " "
-
 -- Save with ctrl+s (habits, you know)
-vim.keymap.set({"i", "n"}, "<C-s>", "<cmd>w<cr>")
+vim.keymap.set({ "i", "n" }, "<C-s>", "<cmd>w<cr>")
 
 -- Easily navigate through wrapped lines
 vim.keymap.set("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true })
@@ -43,7 +40,7 @@ end
 local function highlight_selection_occurences()
   local original_value = vim.fn.getreg("a") -- save the original @a value
 
-  vim.fn.feedkeys("\"ay", "x")
+  vim.fn.feedkeys('"ay', "x")
   local selected_text = vim.fn.getreg("a")
 
   vim.fn.setreg("a", original_value) -- restore the @a value
@@ -80,7 +77,10 @@ end, {
 })
 
 -- Close current window/buffer
-vim.keymap.set("n", "<leader>x", "<cmd>close<cr>", {
+vim.keymap.set("n", "<leader>d", "<cmd>close<cr>", {
+  desc = "Close current window",
+})
+vim.keymap.set("n", "<leader>x", "<cmd>bd<cr>", {
   desc = "Close current buffer",
 })
 
@@ -92,3 +92,15 @@ vim.keymap.set("n", "", vim.lsp.buf.code_action, {
   desc = "Code actions",
 })
 
+-- Navigate through diagnostics
+vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, {
+  desc = "Previous diagnostic",
+})
+vim.keymap.set("n", "]d", vim.diagnostic.goto_next, {
+  desc = "Next diagnostic",
+})
+
+-- Toggle text wrap
+vim.keymap.set("n", "<leader>w", "<cmd>set wrap!<cr>", {
+  desc = "Toggle text wrap",
+})

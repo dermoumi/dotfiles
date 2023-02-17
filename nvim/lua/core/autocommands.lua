@@ -1,18 +1,19 @@
 -- Create a group to scope autocommands in
 vim.api.nvim_create_augroup("GeneralSettings", {
-    clear = true
+  clear = true,
 })
 
 -- Enable numbers even for help buffers
-vim.api.nvim_create_autocmd("BufWinEnter", {
+vim.api.nvim_create_autocmd("FileType", {
   group = "GeneralSettings",
+  pattern = { "help", "man" },
   callback = function()
     vim.opt_local.number = true
   end,
 })
 
 -- Disable automattic comment insertion on new line from Normal mode
-vim.api.nvim_create_autocmd({"BufWinEnter", "BufNewFile"}, {
+vim.api.nvim_create_autocmd({ "BufWinEnter", "BufNewFile" }, {
   group = "GeneralSettings",
   callback = function()
     vim.opt_local.formatoptions:remove("o")
@@ -22,9 +23,11 @@ vim.api.nvim_create_autocmd({"BufWinEnter", "BufNewFile"}, {
 -- Set different tab stops for some specific file types
 vim.api.nvim_create_autocmd("FileType", {
   group = "GeneralSettings",
-  pattern = "python,zsh",
+  pattern = { "python", "zsh" },
   callback = function()
-    vim.opt_local.tabstop = 4
+    local tab_width = 4
+    vim.opt_local.tabstop = tab_width
+    vim.opt_local.shiftwidth = tab_width
   end,
 })
 
@@ -42,7 +45,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 vim.api.nvim_create_autocmd("BufReadPost", {
   group = "GeneralSettings",
   callback = function()
-    last_line = vim.fn.line("'\"")
+    local last_line = vim.fn.line("'\"")
 
     if last_line > 1 and last_line <= vim.fn.line("$") then
       vim.fn.execute("normal! g'\"")
@@ -61,7 +64,7 @@ vim.api.nvim_create_autocmd("InsertLeave", {
 })
 
 -- Color changes
-local color_scheme_callback = function ()
+local color_scheme_callback = function()
   -- Highlight trailing spaces in non-Insert modes
   vim.api.nvim_set_hl(0, "ExtraWhitespace", {
     fg = "red",

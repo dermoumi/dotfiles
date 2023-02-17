@@ -1,52 +1,64 @@
--- indentation
-vim.opt.tabstop = 2
-vim.opt.softtabstop = -1
-vim.opt.shiftwidth = 0
-vim.opt.expandtab = true
-vim.opt.smartindent = true
-vim.opt.smarttab = true
-vim.opt.autoindent = true
+-- Leader
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
 
--- line numbers
-vim.opt.number = true
-vim.opt.numberwidth = 5
-vim.opt.relativenumber = true
-vim.opt.signcolumn = "yes"
+local opt = vim.opt
 
--- swap and backups
-vim.opt.swapfile = false
+opt.laststatus = 0
+opt.scrolloff = 4
+opt.pumblend = 10
+opt.pumheight = 10
+opt.clipboard = "unnamedplus"
+opt.hidden = true
+opt.mouse = "a"
+opt.inccommand = "nosplit"
+opt.updatetime = 200
+opt.cmdheight = 0
+opt.termguicolors = true
+opt.colorcolumn = "80"
+opt.sessionoptions = { "buffers", "curdir", "tabpages", "winsize" }
+opt.spelllang = { "en" }
+opt.wildmode = "longest:full,full" -- Command-line completion mode
+opt.formatoptions = "jcroqlnt" -- tcqj
+opt.grepformat = "%f:%l:%c:%m"
+opt.grepprg = "rg --vimgrep"
+opt.autowrite = true -- Enable auto write
+opt.wrap = false
 
--- system clipboard
-vim.opt.clipboard = "unnamedplus"
+if vim.fn.has("nvim-0.9.0") == 1 then
+  opt.splitkeep = "screen"
+  opt.shortmess:append({ C = true })
+end
 
--- do not save when switching buffers
-vim.opt.hidden = true
+-- Indentation
+opt.tabstop = 2
+opt.softtabstop = -1
+opt.shiftwidth = 2
+opt.shiftround = true
+opt.expandtab = true
+opt.smartindent = true
+opt.smarttab = true
+opt.autoindent = true
+opt.breakindent = true
 
--- enable mouse support
-vim.opt.mouse = "a"
+-- Line numbers
+opt.number = true
+opt.numberwidth = 5
+opt.relativenumber = true
+opt.signcolumn = "yes"
 
--- ignore case when searching lowercase terms
-vim.opt.ignorecase = true
-vim.opt.smartcase = true
+-- Ignore case when searching lowercase terms
+opt.ignorecase = true
+opt.smartcase = true
 
--- force splits in specific directions
-vim.opt.splitbelow = true
-vim.opt.splitright = true
+-- Force splits in specific directions
+opt.splitbelow = true
+opt.splitright = true
 
--- enable indentation on breaks
-vim.opt.breakindent = true
+-- Save undo history
+opt.undofile = true
+opt.undolevels = 10000
+opt.swapfile = false
 
--- incremental live completion
-vim.opt.inccommand = "nosplit"
-
--- save undo history
-vim.opt.undofile = true
-
--- decrease update time
-vim.opt.updatetime = 250
-
--- color column
-vim.opt.colorcolumn = "80"
-
--- make command bar only visible when being used
-vim.opt.cmdheight = 0
+-- Fix markdown indentation settings
+vim.g.markdown_recommended_style = 0

@@ -25,7 +25,7 @@ local spawn_process = function(cmd, args, callback)
   handle = uv.spawn(cmd, {
     args = args,
     stdio = { nil, stdout, nil },
-  }, function (code)
+  }, function(code)
     stdout:read_stop()
     stdout:close()
     handle:close()
@@ -34,8 +34,9 @@ local spawn_process = function(cmd, args, callback)
       print(table.concat(stderr_result))
     end
 
-    local stdout_trimmed = table.concat(stdout_result):gsub("^%s*(.-)%s*$", "%1")
-    local stderr_trimmed = table.concat(stderr_result):gsub("^%s*(.-)%s*$", "%1")
+    local pattern = "^%s*(.-)%s*$"
+    local stdout_trimmed = table.concat(stdout_result):gsub(pattern, "%1")
+    local stderr_trimmed = table.concat(stderr_result):gsub(pattern, "%1")
 
     if callback ~= nil then
       callback(code, stdout_trimmed, stderr_trimmed)
@@ -113,15 +114,15 @@ end
 
 -- Create a group to scope autocommands in
 vim.api.nvim_create_augroup("RemoteAutogroup", {
-    clear = true
+  clear = true,
 })
 
-vim.api.nvim_create_autocmd({"VimEnter", "FocusGained"}, {
+vim.api.nvim_create_autocmd({ "VimEnter", "FocusGained" }, {
   group = "RemoteAutogroup",
   callback = write_nvim_serverfile,
 })
 
-vim.api.nvim_create_autocmd({"VimLeave"}, {
+vim.api.nvim_create_autocmd({ "VimLeave" }, {
   group = "RemoteAutogroup",
   callback = delete_nvim_serverfile,
 })

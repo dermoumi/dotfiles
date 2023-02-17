@@ -2,36 +2,53 @@ return {
   {
     "nvim-treesitter/nvim-treesitter",
     dependencies = "nvim-treesitter/nvim-treesitter-textobjects",
-    event = "BufRead",
+    event = "BufReadPost",
     build = ":TSUpdate",
+    keys = {
+      {
+        "<c-space>",
+        desc = "Increment selection",
+      },
+      {
+        "<bs>",
+        desc = "Shrink selection",
+        mode = "x",
+      },
+    },
     opts = {
       ensure_installed = {
-        "lua",
-        "python",
-        "javascript",
-        "typescript",
         "bash",
-        "json",
         "css",
+        "help",
+        "html",
+        "javascript",
+        "json",
+        "lua",
+        "markdown",
+        "markdown_inline",
+        "python",
+        "query",
+        "regex",
+        "tsx",
+        "typescript",
         "rust",
+        "vim",
         "yaml",
       },
       highlight = {
-        -- false will disable the whole extension
         enable = true,
       },
       incremental_selection = {
         enable = true,
         keymaps = {
-          init_selection = "gnn",
-          node_incremental = "grn",
-          scope_incremental = "grc",
-          node_decremental = "grm",
+          init_selection = "<C-space>",
+          node_incremental = "<C-space>",
+          scope_incremental = "<nop>",
+          node_decremental = "<bs>",
         },
       },
       indent = {
         enable = true,
-        disable = { "yaml" },
       },
       textobjects = {
         select = {

@@ -3,7 +3,7 @@ return {
     "echasnovski/mini.nvim",
     config = function()
       -- Nothing to do
-    end
+    end,
   },
   {
     "echasnovski/mini.comment",
@@ -40,8 +40,12 @@ return {
         local gs = require("gitsigns")
 
         vim.keymap.set("n", "]c", function()
-          if vim.wo.diff then return "]c" end
-          vim.schedule(function() gs.next_hunk() end)
+          if vim.wo.diff then
+            return "]c"
+          end
+          vim.schedule(function()
+            gs.next_hunk()
+          end)
           return "<Ignore>"
         end, {
           desc = "Next hunk",
@@ -49,8 +53,12 @@ return {
         })
 
         vim.keymap.set("n", "[c", function()
-          if vim.wo.diff then return "[c" end
-          vim.schedule(function() gs.prev_hunk() end)
+          if vim.wo.diff then
+            return "[c"
+          end
+          vim.schedule(function()
+            gs.prev_hunk()
+          end)
           return "<Ignore>"
         end, {
           desc = "Prev hunk",
@@ -125,5 +133,5 @@ return {
     config = function(_, opts)
       require("gitsigns").setup(opts)
     end,
-  }
+  },
 }

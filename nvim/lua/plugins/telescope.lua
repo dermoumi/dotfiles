@@ -14,11 +14,12 @@ return {
       {
         "<leader>ff",
         function()
+          local opts = { hidden = true }
           local tb = require("telescope.builtin")
-          local ok = pcall(tb.find_files)
+          local ok = pcall(tb.find_files, opts)
 
           if not ok then
-            tb.fd({ hidden = true })
+            tb.fd(opts)
           end
         end,
         desc = "Find file…",
@@ -104,7 +105,7 @@ return {
         sorting_strategy = "ascending",
         layout_config = {
           prompt_position = "top",
-          preview_width = 0.5,
+          -- preview_width = 0.5,
           scroll_speed = 5,
         },
         winblend = 0,
@@ -117,6 +118,8 @@ return {
             ["<M-BS>"] = { "<C-W>", type = "command" },
             ["<C-BS>"] = { "<C-W>", type = "command" },
             ["<C-H>"] = { "<C-W>", type = "command" },
+            ["<Home>"] = { "<C-O><S-I>", type = "command" },
+            ["<End>"] = { "<C-O><S-A>", type = "command" },
           },
         },
         vimgrep_arguments = {

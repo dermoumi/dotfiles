@@ -8,21 +8,24 @@ return {
 
     -- Panel colors
     vim.api.nvim_set_hl(0, "WhichKeyFloat", {
-      ctermbg = 233
+      ctermbg = 233,
     })
 
     -- Initialize
-    local wk = require("which-key")
-    wk.setup()
+    local which_key = require("which-key")
+    which_key.setup()
 
     -- Categories
-    wk.register({
+    which_key.register({
       ["<leader>f"] = { name = "+Find" },
       ["<leader>W"] = { name = "+Workspace" },
       ["<leader>h"] = { name = "+Git" },
+      ["<leader>u"] = { name = "+Notifications" },
       ["g"] = { name = "+Go to" },
       ["'"] = { name = "+Marks" },
-      ["\""] = { name = "+Registers" },
+      ["g'"] = { name = "+Marks" },
+      ["g`"] = { name = "+Marks" },
+      ['"'] = { name = "+Registers" },
     })
-  end
+  end,
 }

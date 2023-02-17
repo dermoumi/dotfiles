@@ -1,4 +1,53 @@
-local function on_attach(_, bufnr)
+local util = require("lazy.core.util")
+
+local autoformat = true
+
+local function toggle_autoformat()
+  autoformat = not autoformat
+
+  if autoformat then
+    util.info("Enabled format on save", { title = "Format" })
+  else
+    util.warn("Disabled format on save", { title = "Format" })
+  end
+end
+
+local function format(bufnr)
+  if not autoformat then
+    return
+  end
+
+  local ft = vim.bo[bufnr].filetype
+  local sources = require("null-ls.sources")
+  local have_nls = #sources.get_available(ft, "NULL_LS_FORMATTING") > 0
+
+  local format_opts = vim.tbl_deep_extend("force", {
+    bufnr = bufnr,
+    filter = function(client)
+      if have_nls then
+        return client.name == "null-ls"
+      end
+
+      return client.name ~= "null-ls"
+    end,
+  }, {})
+
+  vim.lsp.buf.format(format_opts)
+end
+
+local function on_attach(client, bufnr)
+  -- Setup auto formatting
+  if client.supports_method("textDocument/formatting") then
+    vim.api.nvim_create_autocmd("BufWritePre", {
+      group = vim.api.nvim_create_augroup("LspFormat." .. bufnr, {}),
+      buffer = bufnr,
+      callback = function()
+        format(bufnr)
+      end,
+    })
+  end
+
+  -- Setup key maps
   vim.keymap.set("n", "gD", vim.lsp.buf.declaration, {
     buffer = bufnr,
     desc = "Go to declaration",
@@ -24,79 +73,123 @@ local function on_attach(_, bufnr)
     desc = "Remove workspace folder",
   })
   vim.keymap.set("n", "<leader>Wl", function()
-    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+    vim.notify(table.concat(vim.lsp.buf.list_workspace_folders(), "\n"))
   end, {
     buffer = bufnr,
     desc = "List workspace folders",
   })
 end
 
-local servers = {
-  sumneko_lua = {
-    settings = {
-      Lua = {
-        runtime = {
-          version = "Lua 5.1",
-        },
-        diagnostics = {
-          globals = {
-            "vim",
-            "lvim",
-            "packer_plugins",
-          },
-        },
-      },
-    },
-  },
-  pyright = {},
-  rust_analyzer = {},
-  tsserver = {},
-  eslint = {},
-}
-
 return {
   {
     "williamboman/mason.nvim",
-    config = function()
-      require("mason").setup()
+    config = function(_, opts)
+      require("mason").setup(opts)
     end,
   },
+
+  -- Formatting
+  {
+    "jose-elias-alvarez/null-ls.nvim",
+    event = "BufReadPre",
+    keys = {
+      {
+        "<leader>=",
+        toggle_autoformat,
+        desc = "Toggle autoformat",
+        silent = true,
+      },
+    },
+    dependencies = {
+      "mason.nvim",
+    },
+    opts = function()
+      local nls = require("null-ls")
+      return {
+        sources = {
+          -- nls.builtins.formatting.prettierd,
+          nls.builtins.formatting.stylua,
+          nls.builtins.formatting.black,
+          nls.builtins.code_actions.eslint,
+          -- nls.builtins.diagnostics.flake8,
+        },
+      }
+    end,
+  },
+
+  -- Mason-LSPConfig bridge
   {
     "williamboman/mason-lspconfig.nvim",
     dependencies = "mason.nvim",
     config = function()
       require("mason-lspconfig").setup({
-        ensure_installed = {
-          "sumneko_lua",
-        },
+        automatic_installation = true,
       })
     end,
   },
+
+  -- LSP
   {
     "neovim/nvim-lspconfig",
     dependencies = "mason-lspconfig.nvim",
-    event = "VeryLazy",
-    config = function()
-      local lspconfig = require("lspconfig")
-
-      local default_options = {
+    event = "BufReadPre",
+    opts = {
+      -- Options for vim.diagnostic.config()
+      diagnostics = {
+        underline = true,
+        update_in_insert = false,
+        virtual_text = { spacing = 4, prefix = "●" },
+        severity_sort = true,
+      },
+      -- Server to load and their config
+      servers = {
+        lua_ls = {
+          settings = {
+            Lua = {
+              runtime = {
+                version = "Lua 5.1",
+              },
+              diagnostics = {
+                globals = {
+                  "vim",
+                },
+              },
+              workspace = {
+                checkThirdParty = false,
+              },
+              completion = {
+                callSnippet = "Replace",
+              },
+            },
+          },
+        },
+        pyright = {},
+        rust_analyzer = {},
+        tsserver = {},
+        eslint = {},
+        jsonls = {},
+      },
+      -- Default server options
+      server_opts = {
         on_attach = on_attach,
         flags = {
           debounce_text_changes = 150,
         },
-      }
+      },
+    },
+    config = function(_, opts)
+      local lspconfig = require("lspconfig")
 
-      for server_name, server_config in pairs(servers) do
-        local options = vim.tbl_deep_extend(
-          "force",
-          default_options,
-          server_config
-        )
+      for server_name, server_config in pairs(opts.servers) do
+        local options =
+          vim.tbl_deep_extend("force", opts.server_opts, server_config)
 
         lspconfig[server_name].setup(options)
       end
     end,
   },
+
+  -- Auto-document function signatures
   {
     "ray-x/lsp_signature.nvim",
     lazy = "InsertEnter",
@@ -105,9 +198,7 @@ return {
       handler_opts = {
         border = "none",
       },
-      extra_trigger_chars = {
-        "(",
-      },
+      extra_trigger_chars = { "(" },
       padding = " ",
       hint_enable = false,
       floating_window_above_cur_line = false,
@@ -115,5 +206,5 @@ return {
     config = function(_, opts)
       require("lsp_signature").setup(opts)
     end,
-  }
+  },
 }

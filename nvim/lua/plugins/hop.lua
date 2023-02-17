@@ -19,24 +19,6 @@ return {
       desc = "Hop to char",
     },
     {
-      "<leader>w",
-      function()
-        local dir = require("hop.hint").HintDirection
-        require("hop").hint_words({ direction = dir.AFTER_CURSOR })
-      end,
-      mode = { "n", "o", "v" },
-      desc = "Hop to next word",
-    },
-    {
-      "<leader>b",
-      function()
-        local dir = require("hop.hint").HintDirection
-        require("hop").hint_words({ direction = dir.BEFORE_CURSOR })
-      end,
-      mode = { "n", "o", "v" },
-      desc = "Hop to previous word",
-    },
-    {
       "<leader>t",
       function()
         local dir = require("hop.hint").HintDirection
@@ -79,5 +61,5 @@ return {
       fg = "#E1AF4B",
       ctermfg = 220,
     })
-  end
+  end,
 }

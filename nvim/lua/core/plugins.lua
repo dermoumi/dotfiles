@@ -12,8 +12,28 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-require("lazy").setup({
-  { import = "plugins" },
-}, {
-  defaults = { lazy = true },
+require("lazy").setup("plugins", {
+  defaults = {
+    lazy = true,
+    version = false,
+  },
+  install = {
+    colorscheme = { "ayu" },
+  },
+  checker = {
+    enabled = true,
+  },
+  performance = {
+    disable_plugins = {
+      "gzip",
+      "tarPlugin",
+      "tohtml",
+      "tutor",
+      "zipPlugin",
+    },
+  },
+})
+
+vim.keymap.set("n", "<leader>L", "<cmd>Lazy<CR>", {
+  desc = "Lazy",
 })

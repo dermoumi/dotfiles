@@ -1,11 +1,9 @@
 local set_dark_mode = function()
   vim.o.background = "dark"
-  vim.cmd [[ colorscheme gruvbox ]]
 end
 
 local set_light_mode = function()
   vim.o.background = "light"
-  require("ayu").colorscheme()
 end
 
 local toggle_dark_mode = function()
@@ -18,38 +16,24 @@ end
 
 return {
   {
-    "ellisonleao/gruvbox.nvim",
+    "Shatur/neovim-ayu",
     lazy = false,
-    dependencies = {
-      "Shatur/neovim-ayu",
-    },
     keys = {
-      { "<leader>\\", toggle_dark_mode },
+      {
+        "<leader>\\",
+        toggle_dark_mode,
+        desc = "Toggle dark mode",
+      },
     },
-    config = function()
-      local color_overrides = {
-        Normal = {
-          bg = "none",
-          ctermbg = "none",
-        },
-      }
-
-      require("gruvbox").setup({
-        overrides = color_overrides,
-      })
-
-      require("ayu").setup({
-        overrides = color_overrides,
-      })
-
-      set_dark_mode()
+    config = function(_, opts)
+      require("ayu").setup(opts)
+      vim.cmd("colorscheme ayu")
     end,
   },
   {
     "f-person/auto-dark-mode.nvim",
     lazy = false,
     dependencies = {
-      "gruvbox.nvim",
       "neovim-ayu",
     },
     opts = {
@@ -57,13 +41,11 @@ return {
       set_dark_mode = set_dark_mode,
       set_light_mode = set_light_mode,
     },
-    enabled = function()
-      return vim.loop.os_uname().sysname == "Darwin"
-    end,
+    enabled = vim.loop.os_uname().sysname == "Darwin",
     config = function(_, opts)
       local auto_dark_mode = require("auto-dark-mode")
       auto_dark_mode.setup(opts)
       auto_dark_mode.init()
     end,
-  }
+  },
 }
