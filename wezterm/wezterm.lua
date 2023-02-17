@@ -6,13 +6,16 @@ gruvbox.cursor_bg = "#fabc2e"
 gruvbox.cursor_border = "#fabc2e"
 gruvbox.cursor_fg = "#171717"
 
+local ayu_dark = wezterm.color.get_builtin_schemes()["ayu"]
+ayu_dark.background = "#0a0e14"
+
 local ayu_light = wezterm.color.get_builtin_schemes()["ayu_light"]
-ayu_light.ansi[8] = "#A9A9A9"
+ayu_light.ansi[8] = "#A9A9A9" -- darker white ansi color
 ayu_light.brights[8] = "#D9D9D9"
 
-function scheme_for_appearance(appearance)
+local function scheme_for_appearance(appearance)
   if appearance:find "Dark" then
-    return "gruvbox_custom"
+    return "ayu_dark_custom"
   else
     return "ayu_light_custom"
   end
@@ -40,6 +43,7 @@ local config = {
     color_schemes = {
         ["gruvbox_custom"] = gruvbox,
         ["ayu_light_custom"] = ayu_light,
+        ["ayu_dark_custom"] = ayu_dark,
     },
 }
 
