@@ -82,21 +82,6 @@ if [[ -d ~/.cargo && ! "$CARGO_HOME" ]]; then
     fi
 fi
 
-# volta
-if [[ -d ~/.volta ]]; then
-    export VOLTA_HOME=$HOME/.volta
-    path=($VOLTA_HOME/bin $path)
-
-    export PNPM_HOME="$(npm config get prefix 2>/dev/null)/bin"
-    path=($PNPM_HOME $path)
-elif [[ -d ~/.local/share/pnpm ]]; then
-    export PNPM_HOME="$HOME/.local/share/pnpm"
-    path=($PNPM_HOME $path)
-elif [[ -d ~/Library/pnpm ]]; then
-    export PNPM_HOME="$HOME/Library/pnpm"
-    path=($PNPM_HOME $path)
-fi
-
 # android sdk
 if [[ -d ~/Library/Android/Sdk ]]; then
     export ANDROID_HOME="$HOME/Library/Android/sdk"
