@@ -2,10 +2,5 @@
 
 # Attaches tmux session immediately after ssh'ing into a remote
 ssht() {
-    local cmd=(=ssh)
-    if command -v kitty &>/dev/null; then
-        cmd=(kitty +kitten ssh)
-    fi
-
-    "${cmd[@]}" -t "$@" "bash -c 'tmux attach || tmux new || exec bash'"
+    ssh -t "$@" "bash -c 'tmux attach || tmux new || exec bash'"
 }
