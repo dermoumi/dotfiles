@@ -40,6 +40,13 @@ local config = {
     ["ayu_light_custom"] = ayu_light,
     ["ayu_dark_custom"] = ayu_dark,
   },
+
+  hyperlink_rules = {
+    {
+      regex = "\\b\\w+://(?:[\\w.-]+):\\d+\\S*\\b/?",
+      format = "$0",
+    },
+  },
 }
 
 return config
