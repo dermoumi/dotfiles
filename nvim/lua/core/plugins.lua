@@ -20,7 +20,7 @@ require("lazy").setup("plugins", {
     colorscheme = { "ayu" },
   },
   checker = {
-    enabled = true,
+    enabled = false,
   },
   performance = {
     disable_plugins = {
