@@ -1,3 +1,4 @@
 {
-    "karabiner": "~/.config/karabiner"
+  "karabiner": "~/.config/karabiner",
+  "yabai": "~/.config/yabai"
 }
