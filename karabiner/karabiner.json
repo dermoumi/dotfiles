@@ -129,7 +129,7 @@
             "manipulators": [
               {
                 "from": {
-                  "key_code": "h",
+                  "key_code": "j",
                   "modifiers": {
                     "mandatory": ["left_option"],
                     "optional": ["any"]
@@ -144,7 +144,7 @@
               },
               {
                 "from": {
-                  "key_code": "j",
+                  "key_code": "c",
                   "modifiers": {
                     "mandatory": ["left_option"],
                     "optional": ["any"]
@@ -159,7 +159,7 @@
               },
               {
                 "from": {
-                  "key_code": "k",
+                  "key_code": "v",
                   "modifiers": {
                     "mandatory": ["left_option"],
                     "optional": ["any"]
@@ -174,7 +174,7 @@
               },
               {
                 "from": {
-                  "key_code": "l",
+                  "key_code": "p",
                   "modifiers": {
                     "mandatory": ["left_option"],
                     "optional": ["any"]
@@ -189,7 +189,7 @@
               },
               {
                 "from": {
-                  "key_code": "comma",
+                  "key_code": "w",
                   "modifiers": {
                     "mandatory": ["left_option"],
                     "optional": ["any"]
@@ -204,7 +204,7 @@
               },
               {
                 "from": {
-                  "key_code": "i",
+                  "key_code": "g",
                   "modifiers": {
                     "mandatory": ["left_option"],
                     "optional": ["any"]
