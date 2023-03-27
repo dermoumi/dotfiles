@@ -47,6 +47,8 @@ local config = {
       format = "$0",
     },
   },
+
+  check_for_updates = false,
 }
 
 return config
