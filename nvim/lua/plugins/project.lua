@@ -5,6 +5,7 @@ return {
     opts = {
       patterns = {
         ".git",
+        "!package.json",
       },
       exclude_dirs = {
         "~/.dotfiles/*",
