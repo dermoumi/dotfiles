@@ -6,6 +6,7 @@ return {
       patterns = {
         ".git",
         "!package.json",
+        "!node_modules",
       },
       exclude_dirs = {
         "~/.dotfiles/*",
