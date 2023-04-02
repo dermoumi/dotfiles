@@ -5,6 +5,7 @@ return {
     opts = {
       patterns = {
         ".git",
+        "!node_modules",
       },
       exclude_dirs = {
         "~/.dotfiles/*",
