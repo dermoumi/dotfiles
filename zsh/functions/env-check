@@ -31,7 +31,7 @@ env-check() {
         repo=$1
         filename_pattern=$2
 
-        curl -fsSL "https://api.github.com/repos/$repo/releases/latest" | grep -oE "https://.+/$filename_pattern"
+        curl -fsSL "https://api.github.com/repos/$repo/releases/latest" | grep -oE "https://.+/$filename_pattern" | head -n1
     }
 
     __try-curl() {
@@ -239,7 +239,7 @@ env-check() {
             # Try to download binary executable
             archi=$(uname -sm)
             case "$archi" in
-                Linux\ aarch64*) file_pattern="ripgrep-[^-]+-arm-unknown-linux-gnueabihf\.tar\.gz"   ;;
+                Linux\ aarch64*) file_pattern="ripgrep-[^-]+-aarch64-unknown-linux-gnu\.tar\.gz"   ;;
                 Linux\ *64)      file_pattern="ripgrep-[^-]+-x86_64-unknown-linux-musl\.tar\.gz"   ;;
                 CYGWIN*\ *64)    file_pattern="ripgrep-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
                 MINGW*\ *64)     file_pattern="ripgrep-[^-]+-x86_64-pc-windows-msvc\.zip"     ;;
