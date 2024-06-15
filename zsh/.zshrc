@@ -96,6 +96,11 @@ if [[ "$ANDROID_HOME" ]]; then
     path=($ANDROID_HOME/tools/bin $ANDROID_HOME/platform-tools $ANDROID_HOME/emulator $path)
 fi
 
+if [[ -d "/opt/homebrew/share/android-ndk" ]]; then
+  export ANDROID_NDK_HOME="/opt/homebrew/share/android-ndk"
+  export NDK_HOME=$ANDROID_NDK
+fi
+
 # SDK man
 if [[ -d ~/.sdkman ]]; then
     export SDKMAN_DIR="$HOME/.sdkman"
@@ -219,7 +224,6 @@ fi
 init_abbr() {
     ABBR_USER_ABBREVIATIONS_FILE="$ZDOTDIR/abbreviations"
     ABBR_AUTOLOAD=0
-    ABBR_PRECMD_LOGS=0
     ABBR_DEFAULT_BINDINGS=0
     bindkey " " abbr-expand-and-space # space to expand abbr
     bindkey "^ " magic-space # ctrl+space to insert space without expanding abbr
