@@ -219,7 +219,7 @@ fi
 init_abbr() {
     ABBR_USER_ABBREVIATIONS_FILE="$ZDOTDIR/abbreviations"
     ABBR_AUTOLOAD=0
-    ABBR_PRECMD_LOGS=0
+    # ABBR_PRECMD_LOGS=0
     ABBR_DEFAULT_BINDINGS=0
     bindkey " " abbr-expand-and-space # space to expand abbr
     bindkey "^ " magic-space # ctrl+space to insert space without expanding abbr
