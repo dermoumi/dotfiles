@@ -43,10 +43,12 @@ local config = {
 
   hyperlink_rules = {
     {
-      regex = "\\b\\w+://(?:[\\w.-]+):\\d+\\S*\\b/?",
+      regex = "\\b\\w+://(?:[\\w.-]+)(:\\d+)?\\S*\\b/?",
       format = "$0",
     },
   },
+
+  check_for_updates = false,
 }
 
 return config
