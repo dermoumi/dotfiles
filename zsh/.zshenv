@@ -71,6 +71,11 @@ elif [[ -d ~/Library/pnpm ]]; then
     path=($PNPM_HOME $path)
 fi
 
+# libpq on macos
+if [[ -d /opt/homebrew/opt/libpq/bin ]]; then
+    path=(/opt/homebrew/opt/libpq/bin $path)
+fi
+
 #
 # Tool config
 #
