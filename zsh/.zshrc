@@ -225,10 +225,10 @@ init_abbr() {
     ABBR_USER_ABBREVIATIONS_FILE="$ZDOTDIR/abbreviations"
     ABBR_AUTOLOAD=0
     ABBR_DEFAULT_BINDINGS=0
-    bindkey " " abbr-expand-and-space # space to expand abbr
+    bindkey " " abbr-expand-and-insert # space to expand abbr
     bindkey "^ " magic-space # ctrl+space to insert space without expanding abbr
     bindkey -M isearch " " magic-space # normal space is normal in incremental search
-    bindkey -M isearch "^ " abbr-expand-and-space # ctrl+space expands abbr in isearch
+    bindkey -M isearch "^ " abbr-expand-and-insert # ctrl+space expands abbr in isearch
 
     # Allows abbreviation to be expanded on enter if they're the only command to execute
     _expand_abbr_and_accept() {
