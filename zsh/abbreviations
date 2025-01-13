@@ -1,4 +1,4 @@
 abbr d="docker"
-abbr dc="docker-compose"
+abbr dc="docker compose"
 abbr prm="pipenv run manage"
 abbr prun="pipenv run"
