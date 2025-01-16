@@ -14,7 +14,7 @@ while :; do
 done
 
 # Utility to link source to target
-link() {
+mk_link() {
     source=$1
     target_dir=$2
 
@@ -29,14 +29,14 @@ link() {
 }
 
 # Link files
-link zsh/.zshenv ~/
-link .gitconfig ~/
-link .fdignore ~/
-link .tmux.conf ~/
-link wezterm ~/.config/
-link nvim ~/.config/
+mk_link zsh/.zshenv ~/
+mk_link .gitconfig ~/
+mk_link .fdignore ~/
+mk_link .tmux.conf ~/
+mk_link wezterm ~/.config/
+mk_link nvim ~/.config/
 
 # MacOS specific links
 if [ "$(uname)" == "Darwin" ]; then
-    link karabiner ~/.config/
+    mk_link karabiner ~/.config/
 fi
