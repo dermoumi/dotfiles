@@ -75,6 +75,36 @@ if [[ -d ~/.cargo && ! "$CARGO_HOME" ]]; then
     fi
 fi
 
+# volta
+if [[ -d ~/.volta ]]; then
+    export VOLTA_HOME=$HOME/.volta
+    path=($VOLTA_HOME/bin $path)
+
+    export PNPM_HOME="$(npm config get prefix 2>/dev/null)/bin"
+    path=($PNPM_HOME $path)
+elif [[ -d ~/.local/share/pnpm ]]; then
+    export PNPM_HOME="$HOME/.local/share/pnpm"
+    path=($PNPM_HOME $path)
+elif [[ -d ~/Library/pnpm ]]; then
+    export PNPM_HOME="$HOME/Library/pnpm"
+    path=($PNPM_HOME $path)
+fi
+
+# pyenv
+if [[ -d ~/.pyenv && ! ("$PYENV_ROOT" && -d "$PYENV_ROOT") ]]; then
+    export PYENV_ROOT=~/.pyenv
+    path=($PYENV_ROOT/bin $path)
+fi
+if command -v pyenv &>/dev/null; then
+    eval "$(pyenv init --path)"
+fi
+
+# poetry
+if [[ -d ~/.poetry && ! ("$POETRY_ROOT" && -d "$POETRY_ROOT") ]]; then
+    export POETRY_ROOT=~/.poetry
+    path=($POETRY_ROOT/bin $path)
+fi
+
 # powerlevel10k
 [[ ! -f "$ZDOTDIR/p10k.zsh" ]] || source "$ZDOTDIR/p10k.zsh"
 
