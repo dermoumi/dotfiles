@@ -1,9 +1,17 @@
-# Check whether or not to force linking files
-if [ "$1" = "--force" ] || [ "$1" = "-f" ]; then
-    force=true
-else
-    force=false
-fi
+#!/bin/sh
+
+force=0
+
+while :; do
+    case $1 in
+        -f|--force)
+            force=1
+            shift
+            ;;
+        *)
+            break
+    esac
+done
 
 # Utility to link source to target
 link() {
@@ -11,7 +19,7 @@ link() {
     target_dir=$2
 
     target=$target_dir$(basename $source)
-    if [ -e "$target" ] && [ "$force" = false ]; then
+    if [ -e "$target" ] && ! ((force)); then
         echo "$target already exists. Use --force to overwrite"
         return
     fi
