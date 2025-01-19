@@ -63,7 +63,7 @@ vim.api.nvim_create_autocmd("InsertLeave", {
   command = [[ match ExtraWhitespace /\s\+$/ ]],
 })
 
--- Color changes
+-- Callback for each time the color scheme changes
 local color_scheme_callback = function()
   -- Highlight trailing spaces in non-Insert modes
   vim.api.nvim_set_hl(0, "ExtraWhitespace", {
