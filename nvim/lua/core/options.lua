@@ -62,3 +62,16 @@ opt.swapfile = false
 
 -- Fix markdown indentation settings
 vim.g.markdown_recommended_style = 0
+
+-- Setup python if exists
+local pyenv_path
+if vim.fn.executable("pyenv") == 1 then
+  local output = vim.system({"pyenv", "prefix", "nvim"}, { text = true }):wait()
+  if output.code == 0 then
+    pyenv_path = vim.trim(output.stdout) .. "/bin/python"
+  end
+end
+
+if pyenv_path then
+  vim.g.python3_host_prog = pyenv_path
+end
