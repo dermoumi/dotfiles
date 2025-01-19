@@ -1,13 +1,10 @@
--- Save with ctrl+s (habits, you know)
-vim.keymap.set({ "i", "n" }, "<C-s>", "<cmd>w<cr>")
-
 -- Easily navigate through wrapped lines
 vim.keymap.set("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true })
 vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true })
 
--- Scroll with ctrl+j and ctrl+k
-vim.keymap.set("", "<C-k>", "5<c-y>")
-vim.keymap.set("", "<C-j>", "5<c-e>")
+-- Scroll with ctrl+u and ctrl+d
+vim.keymap.set("", "<C-u>", "5<c-y>")
+vim.keymap.set("", "<C-d>", "5<c-e>")
 
 -- Better shifting
 vim.keymap.set("v", "<", "<gv")
