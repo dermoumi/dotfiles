@@ -95,9 +95,6 @@ if [[ -d ~/.pyenv && ! ("$PYENV_ROOT" && -d "$PYENV_ROOT") ]]; then
     export PYENV_ROOT=~/.pyenv
     path=($PYENV_ROOT/bin $path)
 fi
-if command -v pyenv &>/dev/null; then
-    eval "$(pyenv init --path)"
-fi
 
 # poetry
 if [[ -d ~/.poetry && ! ("$POETRY_ROOT" && -d "$POETRY_ROOT") ]]; then

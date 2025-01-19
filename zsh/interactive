@@ -180,3 +180,10 @@ init_fzf() {
 }
 zinit ice wait=1 lucid depth=1 atinit=init_fzf
 zinit light junegunn/fzf
+
+# Enable automatic activation of virtualenvs
+if command -v pyenv &>/dev/null; then
+    eval "$(pyenv init --path)"
+    eval "$(pyenv init -)"
+    eval "$(pyenv virtualenv-init -)"
+fi
