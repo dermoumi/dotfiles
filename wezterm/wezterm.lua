@@ -22,7 +22,7 @@ local config = {
     "JetBrainsMono Nerd Font Mono",
     "JetBrains Mono",
   }),
-  font_size = 14,
+  font_size = 14.4,
   line_height = 1.15,
 
   hide_tab_bar_if_only_one_tab = true,
