@@ -13,11 +13,13 @@ return {
     require("which-key").setup(opts)
   end,
   opts = {
+    show_help = false,
     win = {
       row = math.huge,
-      wo = {
-        winblend = 10,
-      },
+      border = { "╼", "━" ,"╾", " ", " ", " ", " ", " " },
+      padding = { 0, 1 },
+      title_pos = "left",
+      wo = { winblend = 20 },
     },
     spec = {
       { "<leader>f", group = "Find" },
