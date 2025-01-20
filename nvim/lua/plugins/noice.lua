@@ -50,6 +50,11 @@ return {
         filter = { find = "^Hop %d+ char:" },
         opts = { skip = true },
       },
+      {
+        -- Message when changing large amount of text
+        filter = { find = "; before #%d+" },
+        opts = { skip = true },
+      },
     },
   },
 }
