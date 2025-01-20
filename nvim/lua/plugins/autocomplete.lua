@@ -1,9 +1,12 @@
 return {
   "hrsh7th/nvim-cmp",
-  event = { "InsertEnter" },
+  event = { "InsertEnter", "CmdlineEnter" },
   dependencies = {
     "onsails/lspkind-nvim",
     "hrsh7th/cmp-buffer",
+    "hrsh7th/cmp-path",
+    "hrsh7th/cmp-nvim-lsp",
+    "hrsh7th/cmp-cmdline",
   },
   opts = function(_, opts)
     local cmp = require("cmp")
@@ -59,5 +62,29 @@ return {
     opts.completion = {
       keyword_length = 2,
     }
+  end,
+  config = function(_, opts)
+    vim.opt.completeopt = { "menu", "menuone", "noselect" }
+
+    local cmp = require("cmp")
+    cmp.setup(opts)
+
+    -- Autocomplete for cmdline
+    cmp.setup.cmdline(":", {
+      mapping = cmp.mapping.preset.cmdline(),
+      sources = cmp.config.sources(
+        { { name = "path" } },
+        { { name = "cmdline" } }
+      ),
+      matching = { disallow_symbol_nonprefix_matching = false },
+    })
+
+    -- Autocompletion for / search
+    cmp.setup.cmdline({ "/", "?" }, {
+      mapping = cmp.mapping.preset.cmdline(),
+      sources = {
+        { name = "buffer" },
+      },
+    })
   end,
 }
