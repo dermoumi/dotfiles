@@ -14,31 +14,6 @@ return {
       desc = "Hop to char",
     },
     {
-      "<leader>f",
-      function()
-        local dir = require("hop.hint").HintDirection
-        require("hop").hint_char1({
-          direction = dir.AFTER_CURSOR,
-          current_line_only = true,
-          dim_unmatched = true,
-        })
-      end,
-      mode = { "n", "o", "v" },
-      desc = "Hop forward in line",
-    },
-    {
-      "<leader>F",
-      function()
-        local dir = require("hop.hint").HintDirection
-        require("hop").hint_char1({
-          direction = dir.BEFORE_CURSOR,
-          current_line_only = true,
-        })
-      end,
-      mode = { "n", "o", "v" },
-      desc = "Hop backward in line",
-    },
-    {
       "<leader>/",
       function()
         require("hop").hint_patterns()

@@ -5,7 +5,6 @@ return {
     keys = {
       {
         "<leader>uu",
-        "<cmd>Notifications<cr>",
         function()
           local ok, telescope = pcall(require, "telescope")
           if ok then

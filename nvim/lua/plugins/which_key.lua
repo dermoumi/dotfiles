@@ -22,6 +22,7 @@ return {
       wo = { winblend = 20 },
     },
     spec = {
+      { "<leader>f", group = "Find" },
       { "<leader>h", group = "Git" },
       { "<leader>u", group = "Notifications" },
       { "g", group = "Go to", mode = { "n", "v" } },
