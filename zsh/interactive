@@ -127,11 +127,11 @@ init_fzf() {
             --marker=→
             --color=fg:246,fg+:4,bg+:0,gutter:16,pointer:14,info:2,header:11,hl:7,hl+:7
             --bind='ctrl-space:toggle-down'
-            --bind='ctrl-/:toggle-preview'
+            --bind='ctrl-\:toggle-preview'
             --bind='ctrl-o:execute-silent(code {} &)'
             --bind='ctrl-p:execute-silent(code {} &)+abort'
-            --bind='ctrl-k:preview-up+preview-up+preview-up+preview-up+preview-up'
-            --bind='ctrl-j:preview-down+preview-down+preview-down+preview-down+preview-down'
+            --bind='ctrl-u:preview-up+preview-up+preview-up+preview-up+preview-up'
+            --bind='ctrl-d:preview-down+preview-down+preview-down+preview-down+preview-down'
             --bind='ctrl-r:toggle-all'
             --bind='ctrl-s:toggle-sort'
             --bind='ctrl-w:toggle-preview-wrap'
