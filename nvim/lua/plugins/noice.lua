@@ -30,6 +30,26 @@ return {
         filter = { find = "^\".+\" %[New%]$" },
         opts = { skip = true },
       },
+      {
+        -- Message when lines are yanked
+        filter = { find = "^%d+ lines yanked$" },
+        opts = { skip = true },
+      },
+      {
+        -- Message when lines are pasted
+        filter = { find = "^%d+ more lines" },
+        opts = { skip = true },
+      },
+      {
+        -- Message when lines are removed
+        filter = { find = "^%d+ fewer lines" },
+        opts = { skip = true },
+      },
+      {
+        -- Message when hopping chars
+        filter = { find = "^Hop %d+ char:" },
+        opts = { skip = true },
+      },
     },
   },
 }
