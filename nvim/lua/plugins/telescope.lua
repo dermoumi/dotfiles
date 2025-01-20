@@ -85,6 +85,15 @@ return {
     opts = function(_, opts)
       local actions_layout = require("telescope.actions.layout")
 
+      local create_new_file = function(prompt_bufnr)
+        local actions_state = require("telescope.actions.state")
+        local picker = actions_state.get_current_picker(prompt_bufnr)
+        local prompt = picker:_get_prompt()
+        if prompt ~= "" then
+          vim.cmd("e! " .. prompt)
+        end
+      end
+
       opts.defaults = {
         show_line = false,
         prompt_title = "",
@@ -116,6 +125,7 @@ return {
             ["<Home>"] = { "<C-O><S-I>", type = "command" },
             ["<End>"] = { "<C-O><S-A>", type = "command" },
             ["<C-\\>"] = actions_layout.toggle_preview,
+            ["<C-n>"] = create_new_file,
           },
         },
         vimgrep_arguments = {
