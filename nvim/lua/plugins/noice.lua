@@ -55,6 +55,16 @@ return {
         filter = { find = "; before #%d+" },
         opts = { skip = true },
       },
+      {
+        -- Message when searching for a pattern that does not exist in the page
+        filter = { find = "^[/?].+" },
+        opts = { skip = true },
+      },
+      {
+        -- Message when lines are de/indented
+        filter = { find = "^%d+ lines? [<>]ed %d+ times?$" },
+        opts = { skip = true },
+      },
     },
   },
 }
