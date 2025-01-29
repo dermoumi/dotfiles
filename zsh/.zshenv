@@ -35,18 +35,6 @@ if [ ! "$LOCAL_LIB_PATH" ] && [ -d ~/.local/lib ]; then
     export LD_LIBRARY_PATH="$LOCAL_LIB_PATH:$LD_LIBRARY_PATH"
 fi
 
-# ls aliases
-alias ls="ls --color=auto"
-alias ll="ls -lh"
-alias la="ls -a"
-alias lla="ll -a"
-
-# color aliases
-alias diff="diff --color=auto"
-alias grep="grep --color=auto"
-alias ip="ip --color=auto"
-alias dmesg="dmesg --color=auto"
-
 # default editor
 if [[ ! "$EDITOR" ]]; then
     if command -v nvim &>/dev/null; then

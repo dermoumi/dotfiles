@@ -5,9 +5,21 @@ if grep -sq "docker\|lxc" /proc/1/cgroup; then
   export TERM=xterm-256color
 fi
 
-# exa
-if command -v exa &>/dev/null; then
-    alias ls=exa
+# ls aliases
+alias ls="ls --color=auto"
+alias ll="ls -lh"
+alias la="ls -a"
+alias lla="ll -a"
+
+# color aliases
+alias diff="diff --color=auto"
+alias grep="grep --color=auto"
+alias ip="ip --color=auto"
+alias dmesg="dmesg --color=auto"
+
+# eza
+if command -v eza &>/dev/null; then
+    alias ls=eza
     alias lt='ll --tree'
 fi
 
