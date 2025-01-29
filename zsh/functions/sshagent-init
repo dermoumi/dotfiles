@@ -39,7 +39,7 @@ sshagent-init() {
     # through a dummy askpass program
     __ssh_add() {
         if ! ((auto)) || [[ ! "${SSH_SECRET+x}" ]]; then
-            ssh-add
+            ssh-add "$@"
             return
         fi
 
@@ -57,7 +57,7 @@ sshagent-init() {
     fi
 
     # agent_run_state: 0=agent running w/ key; 1=agent w/o key; 2=agent not running
-    agent_run_state=$(__ssh_add -l &>/dev/null; echo $?)
+    agent_run_state=$(ssh-add -l &>/dev/null; echo $?)
 
     if [[ ! "$SSH_AUTH_SOCK" ]] || [[ "$agent_run_state" == 2 ]]; then
         # Makesure .ssh dir exists
@@ -72,6 +72,10 @@ sshagent-init() {
         __ssh_add &>/dev/null
     elif [[ "$SSH_AUTH_SOCK" ]] && [[ "$agent_run_state" == 1 ]]; then
         # The agent already exists, just add the keys to it
-        __ssh_add &>/dev/null
+        if [[ "$OSTYPE" =~ darwin.+ ]]; then
+            __ssh_add --apple-use-keychain &>/dev/null
+        else
+            __ssh_add &>/dev/null
+        fi
     fi
 }
