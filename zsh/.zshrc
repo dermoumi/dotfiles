@@ -57,7 +57,12 @@ fi
 
 if [[ "$ANDROID_HOME" ]]; then
     export ANDROID_SDK_ROOT=$ANDROID_HOME
-    path=($ANDROID_HOME/tools/bin $ANDROID_HOME/platform-tools $ANDROID_HOME/emulator $path)
+    path=(
+        $ANDROID_HOME/tools/bin
+        $ANDROID_HOME/platform-tools
+        $ANDROID_HOME/emulator
+        $path
+    )
 fi
 
 if [[ -d "/opt/homebrew/share/android-ndk" ]]; then
@@ -92,13 +97,13 @@ fi
 
 # pyenv
 if [[ -d ~/.pyenv && ! ("$PYENV_ROOT" && -d "$PYENV_ROOT") ]]; then
-    export PYENV_ROOT=~/.pyenv
+    export PYENV_ROOT=$HOME/.pyenv
     path=($PYENV_ROOT/bin $path)
 fi
 
 # poetry
 if [[ -d ~/.poetry && ! ("$POETRY_ROOT" && -d "$POETRY_ROOT") ]]; then
-    export POETRY_ROOT=~/.poetry
+    export POETRY_ROOT=$HOME/.poetry
     path=($POETRY_ROOT/bin $path)
 fi
 
