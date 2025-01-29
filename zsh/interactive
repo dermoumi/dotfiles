@@ -190,7 +190,7 @@ init_fzf() {
     zinit run junegunn/fzf source shell/completion.zsh 2>/dev/null
     zinit run junegunn/fzf source shell/key-bindings.zsh
 }
-zinit ice wait=1 lucid depth=1 atinit=init_fzf
+zinit ice wait=1 lucid atinit=init_fzf ver=v0.58.0
 zinit light junegunn/fzf
 
 # Enable automatic activation of virtualenvs
