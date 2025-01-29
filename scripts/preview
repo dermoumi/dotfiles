@@ -34,10 +34,16 @@ if [[ -L "$file" ]]; then
 elif [[ -d "$file" ]]; then
     if command -v tree >/dev/null; then
         cmd=( tree --dirsfirst )
-        [[ "$NO_COLOR" ]] || cmd+=( -C )
+
+        if [[ ! "$NO_COLOR" ]]; then
+            cmd+=( -C )
+        fi
     else
         cmd=( ls -x --human-readable --recursive --group-directories-first )
-        [[ "$NO_COLOR" ]] || cmd+=( --color=always )
+
+        if [[ ! "$NO_COLOR" ]]; then
+            cmd+=( --color=always )
+        fi
     fi
 
     cmd+=( "$file" )
@@ -57,7 +63,6 @@ elif [[ -f "$file" ]]; then
             cmd+=( --color=always )
         fi
 
-        # Execute cmd
         if [[ "$PREVIEW_MAX_LINES" ]]; then
             cmd+=( --line-range :"$PREVIEW_MAX_LINES" )
         fi

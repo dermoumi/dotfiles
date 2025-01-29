@@ -103,7 +103,9 @@ if [[ -d ~/.poetry && ! ("$POETRY_ROOT" && -d "$POETRY_ROOT") ]]; then
 fi
 
 # powerlevel10k
-[[ ! -f "$ZDOTDIR/p10k.zsh" ]] || source "$ZDOTDIR/p10k.zsh"
+if [[ -f "$ZDOTDIR/p10k.zsh" ]]; then
+    source "$ZDOTDIR/p10k.zsh"
+fi
 
 # load configuration for interactive mode
 if [[ -o interactive ]]; then
