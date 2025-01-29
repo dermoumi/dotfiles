@@ -47,6 +47,9 @@ mk_link() {
         return
     fi
 
+    # Make sure the target directory exists
+    mkdir -p "$target_dir"
+
     echo "Linking $source to $target"
     ln -Ffs "$PWD/$source" "$target_dir"
 }
