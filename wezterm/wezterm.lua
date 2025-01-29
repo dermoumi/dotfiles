@@ -4,10 +4,10 @@ local ayu_dark = wezterm.color.get_builtin_schemes()["ayu"]
 ayu_dark.background = "#0a0e14"
 
 local ayu_light = wezterm.color.get_builtin_schemes()["ayu_light"]
-ayu_light.ansi[1] = "#D9D9D9"
-ayu_light.ansi[8] = "#000000"
-ayu_light.brights[1] = "#A9A9A9"
-ayu_light.brights[8] = "#323232"
+ayu_light.ansi[8] = "#D9D9D9"
+ayu_light.ansi[1] = "#323232"
+ayu_light.brights[8] = "#A9A9A9"
+ayu_light.brights[1] = "#000000"
 
 local function scheme_for_appearance(appearance)
   if appearance:find("Dark") then
