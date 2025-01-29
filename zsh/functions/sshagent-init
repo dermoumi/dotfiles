@@ -51,6 +51,16 @@ sshagent-init() {
         return "$retval"
     }
 
+    # Imports all keys to the agent
+    # If on macOS, uses the apple keychain as well
+    __import_keys() {
+        if [[ "$OSTYPE" =~ darwin.+ ]]; then
+            __ssh_add --apple-use-keychain &>/dev/null
+        else
+            __ssh_add &>/dev/null
+        fi
+    }
+
     # Loads the agent's env string from file if it exists
     if [[ -f "$env" ]]; then
         . "$env" >| /dev/null
@@ -69,13 +79,9 @@ sshagent-init() {
         . "$env" >| /dev/null
 
         # Add the keys to the newly started agent
-        __ssh_add &>/dev/null
+        __import_keys
     elif [[ "$SSH_AUTH_SOCK" ]] && [[ "$agent_run_state" == 1 ]]; then
         # The agent already exists, just add the keys to it
-        if [[ "$OSTYPE" =~ darwin.+ ]]; then
-            __ssh_add --apple-use-keychain &>/dev/null
-        else
-            __ssh_add &>/dev/null
-        fi
+        __import_keys
     fi
 }
