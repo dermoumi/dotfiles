@@ -5,8 +5,10 @@
 set inputVolume to input volume of (get volume settings)
 if inputVolume = 0 then
     set inputVolume to 54
+    display notification "Mic On" with title "Microphone"
 else
     set inputVolume to 0
+    display notification "Mic Off" with title "Microphone"
 end if
 set volume input volume inputVolume
 return inputVolume

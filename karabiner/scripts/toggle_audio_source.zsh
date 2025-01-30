@@ -1,8 +1,15 @@
 #!/bin/zsh
 
+set -euo pipefail
+
 # Shortcut to switch audio output
 switch() {
     /opt/homebrew/bin/SwitchAudioSource "$@"
+}
+
+# Utility function to show a notification
+notify() {
+    osascript -e "display notification \"$1\" with title \"Audio Source\""
 }
 
 # Get current audio output
@@ -13,15 +20,15 @@ available_devices=$(switch -a)
 if [[ $current_output == "ZQE-CAA" ]]; then
     if echo "$available_devices" | grep -q "Baddies"; then
         switch -s "Baddies" &> /dev/null
-        echo "Switched to Earbuds"
+        notify "Switched to Earbuds"
     elif echo "$available_devices" | grep -q "Meloetta"; then
         switch -s "Meloetta" &> /dev/null
-        echo "Switched to Wireless Headphones"
+        notify "Switched to Wireless Headphones"
     else
         switch -s "USB AUDIO  CODEC" &> /dev/null
-        echo "Switched to Headphones"
+        notify "Switched to Headphones"
     fi
 else
     switch -s "ZQE-CAA" &> /dev/null
-    echo "Switched to Screen"
+    notify "Switched to Screen"
 fi
