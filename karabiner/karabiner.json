@@ -155,6 +155,32 @@
                         ]
                     },
                     {
+                        "description": "Fn + End to toggle audio source",
+                        "manipulators": [
+                            {
+                                "from": {
+                                    "key_code": "end",
+                                    "modifiers": { "mandatory": ["right_option"] }
+                                },
+                                "to": [{ "shell_command": "zsh ~/.dotfiles/karabiner/scripts/toggle_audio_source.zsh" }],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
+                        "description": "Fn + PgUp to toggle microphone level",
+                        "manipulators": [
+                            {
+                                "from": {
+                                    "key_code": "page_up",
+                                    "modifiers": { "mandatory": ["right_option"] }
+                                },
+                                "to": [{ "shell_command": "osascript ~/.dotfiles/karabiner/scripts/toggle_microphone.applescript" }],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
                         "description": "Map fn+h/j/k/l to Arrows",
                         "manipulators": [
                             {
