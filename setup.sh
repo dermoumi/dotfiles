@@ -161,10 +161,11 @@ __install_desktop_apps_macos() {
     __ensure_homebrew_installed
 
     brew install --cask android-platform-tools battery chatgpt discord docker \
-        firefox google-chrome iina jordanbaird-ice karabiner-elements \
+        zen-browser google-chrome iina jordanbaird-ice karabiner-elements \
         keepingyouawake keka launchbar nightfall rectangle spotify topnotch \
         transmission visual-studio-code wezterm windscribe insync \
-        font-jetbrains-mono-nerd-font monitorcontrol prismlauncher
+        font-jetbrains-mono-nerd-font monitorcontrol prismlauncher \
+        cyberduck
 
     # Run windscribe installer if it's not installed
     if ! [ -d /Users/$(whoami)/Library/Application\ Support/Windscribe/ ]; then
