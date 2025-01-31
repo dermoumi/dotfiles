@@ -32,6 +32,7 @@ get_latest_pid() {
 
   local pid_file
   local latest_pid
+  mkdir -p "$NVIM_REMOTE_DIR"  # Ensure the directory exists
   while true; do
     pid_file=$(
       command ls -1Art $NVIM_REMOTE_DIR | grep -E "^$name_pattern" | tail -n 1
