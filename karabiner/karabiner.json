@@ -1,8 +1,5 @@
 {
-    "global": {
-        "check_for_updates_on_startup": false,
-        "show_in_menu_bar": false
-    },
+    "global": { "show_in_menu_bar": false },
     "profiles": [
         {
             "complex_modifications": {
@@ -80,7 +77,7 @@
                                 ],
                                 "from": {
                                     "key_code": "spacebar",
-                                    "modifiers": { "mandatory": ["left_alt", "left_gui"] }
+                                    "modifiers": { "mandatory": ["fn", "left_gui"] }
                                 },
                                 "to": [{ "key_code": "play_or_pause" }],
                                 "type": "basic"
@@ -99,7 +96,7 @@
                                 ],
                                 "from": {
                                     "key_code": "z",
-                                    "modifiers": { "mandatory": ["left_alt", "left_shift"] }
+                                    "modifiers": { "mandatory": ["fn", "left_shift"] }
                                 },
                                 "to": [{ "key_code": "rewind" }],
                                 "type": "basic"
@@ -118,7 +115,7 @@
                                 ],
                                 "from": {
                                     "key_code": "x",
-                                    "modifiers": { "mandatory": ["left_alt", "left_shift"] }
+                                    "modifiers": { "mandatory": ["fn", "left_shift"] }
                                 },
                                 "to": [{ "key_code": "fastforward" }],
                                 "type": "basic"
@@ -452,15 +449,15 @@
                             "to": [{ "key_code": "left_option" }]
                         },
                         {
+                            "from": { "key_code": "left_option" },
+                            "to": [{ "apple_vendor_top_case_key_code": "keyboard_fn" }]
+                        },
+                        {
                             "from": { "key_code": "right_command" },
                             "to": [{ "key_code": "right_option" }]
                         },
                         {
                             "from": { "key_code": "right_option" },
-                            "to": [{ "apple_vendor_top_case_key_code": "keyboard_fn" }]
-                        },
-                        {
-                            "from": { "key_code": "left_option" },
                             "to": [{ "apple_vendor_top_case_key_code": "keyboard_fn" }]
                         }
                     ]
@@ -481,15 +478,15 @@
                             "to": [{ "key_code": "left_option" }]
                         },
                         {
+                            "from": { "key_code": "left_option" },
+                            "to": [{ "apple_vendor_top_case_key_code": "keyboard_fn" }]
+                        },
+                        {
                             "from": { "key_code": "right_command" },
                             "to": [{ "key_code": "right_option" }]
                         },
                         {
                             "from": { "key_code": "right_option" },
-                            "to": [{ "apple_vendor_top_case_key_code": "keyboard_fn" }]
-                        },
-                        {
-                            "from": { "key_code": "left_option" },
                             "to": [{ "apple_vendor_top_case_key_code": "keyboard_fn" }]
                         }
                     ]
