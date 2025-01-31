@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Abort on error
+set -euo pipefail
+
 # General variables
 is_macos=0
 if [ "$(uname)" == "Darwin" ]; then
@@ -18,7 +21,7 @@ install_utilities=0
 
 # Parse arguments
 while :; do
-    case $1 in
+    case ${1-} in
         -f|--force)
             force=1
             shift
@@ -188,7 +191,7 @@ __install_desktop_apps() {
 
 __restart_zsh() {
     echo "Restarting zsh..."
-    if [ "$ZSH_EXECUTION_STRING" ]; then
+    if [ "${ZSH_EXECUTION_STRING-}" ]; then
         ((failed)) || exec zsh -c "$ZSH_EXECUTION_STRING"
     else
         exec zsh
