@@ -35,16 +35,5 @@ if [ ! "$LOCAL_LIB_PATH" ] && [ -d ~/.local/lib ]; then
     export LD_LIBRARY_PATH="$LOCAL_LIB_PATH:$LD_LIBRARY_PATH"
 fi
 
-# default editor
-if [[ ! "$EDITOR" ]]; then
-    if command -v nvim &>/dev/null; then
-        export EDITOR=nvim
-    elif command -v vim &>/dev/null; then
-        export EDITOR=vim
-    elif command -v nano &>/dev/null; then
-        export EDITOR=nano
-    fi
-fi
-
 # make sure paths don't contain duplicates
 typeset -gU cdpath fpath mailpath path
