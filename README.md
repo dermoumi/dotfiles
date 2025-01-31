@@ -3,6 +3,6 @@
 Macos instructions:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | sh -s -- -a -c
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/dermoumi/dotfiles/HEAD/setup.sh)" -- -a -c
 ```
 
