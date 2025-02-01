@@ -124,7 +124,7 @@ return {
             ["<C-H>"] = { "<C-W>", type = "command" },
             ["<Home>"] = { "<C-O><S-I>", type = "command" },
             ["<End>"] = { "<C-O><S-A>", type = "command" },
-            ["<C-\\>"] = actions_layout.toggle_preview,
+            ["<C-z>"] = actions_layout.toggle_preview,
             ["<C-n>"] = create_new_file,
           },
         },

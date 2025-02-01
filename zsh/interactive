@@ -27,6 +27,8 @@ fi
 if command -v bat &>/dev/null; then
     export BAT_STYLE="snip"
     export BAT_THEME="base16"
+    export BAT_THEME_DARK="base16"
+    export BAT_THEME_LIGHT="base16"
     alias cat=bat
 fi
 
@@ -145,7 +147,7 @@ init_fzf() {
             --marker=→
             --color=fg:246,fg+:4,bg+:0,gutter:16,pointer:14,info:2,header:11,hl:7,hl+:7
             --bind='ctrl-space:toggle-down'
-            --bind='ctrl-\:toggle-preview'
+            --bind='ctrl-z:toggle-preview'
             --bind='ctrl-o:execute-silent(code {} &)'
             --bind='ctrl-p:execute-silent(code {} &)+abort'
             --bind='ctrl-u:preview-up+preview-up+preview-up+preview-up+preview-up'
