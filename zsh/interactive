@@ -26,6 +26,7 @@ fi
 # bat
 if command -v bat &>/dev/null; then
     export BAT_STYLE="snip"
+    export BAT_THEME="base16"
     alias cat=bat
 fi
 
