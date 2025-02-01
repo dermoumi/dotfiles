@@ -1,8 +1,8 @@
 #!/bin/zsh
 
-scoop() {
+winget() {
     (
         cd /mnt/c/
-        =scoop "$@"
+        =winget.exe "$@"
     )
 }

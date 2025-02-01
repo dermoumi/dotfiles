@@ -128,13 +128,10 @@ zinit ice wait=0 lucid depth=1
 zinit light wfxr/forgit
 
 # fzf
-init_fzf() {
-    export FZF_DEFAULT_COMMAND="fd --type f --type l --color=never --no-ignore-vcs --hidden"
-    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-    export FZF_ALT_C_COMMAND="fd --type d --color=never --no-ignore-vcs --hidden"
-
-    # configure the preview window
+if command -v fzf &>/dev/null; then
     reconfigure_fzf_preview() {
+        # configure the preview window
+
         local fzf_default_ops_base="
             --ansi
             --cycle
@@ -190,16 +187,18 @@ init_fzf() {
         export FZF_ALT_C_OPTS="$fzf_alt_c_ops_base --preview-window=${preview_window}${nohidden}"
     }
 
+    export FZF_DEFAULT_COMMAND="fd --type f --type l --color=never --no-ignore-vcs --hidden"
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    export FZF_ALT_C_COMMAND="fd --type d --color=never --no-ignore-vcs --hidden"
+
     # reconfigure preview options whenever the terminal resizes
     trap reconfigure_fzf_preview SIGWINCH
+
     # set initial fzf preview window options
     reconfigure_fzf_preview
 
-    zinit run junegunn/fzf source shell/completion.zsh 2>/dev/null
-    zinit run junegunn/fzf source shell/key-bindings.zsh
-}
-zinit ice wait=1 lucid atinit=init_fzf ver=v0.58.0
-zinit light junegunn/fzf
+    eval "$(fzf --zsh)"
+fi
 
 # Enable automatic activation of virtualenvs
 if command -v pyenv &>/dev/null; then
