@@ -405,7 +405,7 @@ __install_desktop_apps_macos() {
         keepingyouawake keka launchbar nightfall rectangle spotify topnotch \
         transmission visual-studio-code wezterm windscribe insync \
         font-jetbrains-mono-nerd-font monitorcontrol prismlauncher \
-        cyberduck
+        cyberduck alt-tab
 
     # Run windscribe installer if it's not installed
     if ! [ -d /Users/$(whoami)/Library/Application\ Support/Windscribe/ ]; then
