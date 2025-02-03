@@ -109,6 +109,29 @@
                     "type": "device_unless"
                   }
                 ],
+                "description": "Fn+Capslock -> Actual capslock",
+                "from": {
+                  "key_code": "caps_lock",
+                  "modifiers": {
+                    "mandatory": ["fn"],
+                    "optional": ["caps_lock"]
+                  }
+                },
+                "to": [{ "key_code": "caps_lock" }],
+                "type": "basic"
+              },
+              {
+                "conditions": [
+                  {
+                    "identifiers": [
+                      {
+                        "product_id": 480,
+                        "vendor_id": 13364
+                      }
+                    ],
+                    "type": "device_unless"
+                  }
+                ],
                 "description": "Change caps_lock to control when used as modifier, escape when used alone",
                 "from": {
                   "key_code": "caps_lock",
