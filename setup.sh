@@ -28,6 +28,19 @@ install_utilities=0
 # Parse arguments
 while :; do
     case ${1-} in
+        --cli)
+            link=1
+            clone=1
+            install_utilities=1
+            shift
+            ;;
+        --desktop)
+            link=1
+            clone=1
+            install_utilities=1
+            install_desktop_apps=1
+            shift
+            ;;
         -l|--link)
             link=1
             shift
