@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
+sudo yabai --load-sa
+
+# tell karabiner shortcuts that yabai is the window manager
+karabiner_cli --set-variables '{"wm": "yabai"}'
+
+# set focus follows mouse mode (default: off, options: off, autoraise, autofocus)
+yabai -m config focus_follows_mouse autofocus

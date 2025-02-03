@@ -121,6 +121,7 @@ __make_links() {
     # MacOS specific links
     if ((is_macos)); then
         __mk_link karabiner ~/.config/
+        __mk_link yabai ~/.config/
     fi
 }
 

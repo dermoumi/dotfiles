@@ -368,8 +368,40 @@
             ]
           },
           {
-            "description": "Map fn+numbers to hyper+numbers",
+            "description": "Space management with Dock.app",
             "manipulators": [
+              {
+                "from": {
+                  "key_code": "j",
+                  "modifiers": { "mandatory": ["left_control", "left_command"] }
+                },
+                "to": [
+                  {
+                    "key_code": "left_arrow",
+                    "modifiers": ["left_control"]
+                  }
+                ],
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": 0 }
+                ]
+              },
+              {
+                "from": {
+                  "key_code": "p",
+                  "modifiers": { "mandatory": ["left_control", "left_command"] }
+                },
+                "to": [
+                  {
+                    "key_code": "right_arrow",
+                    "modifiers": ["left_control"]
+                  }
+                ],
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": 0 }
+                ]
+              },
               {
                 "from": {
                   "key_code": "1",
@@ -378,10 +410,13 @@
                 "to": [
                   {
                     "key_code": "1",
-                    "modifiers": ["left_option", "left_command", "left_control"]
+                    "modifiers": ["left_control", "left_option", "left_command"]
                   }
                 ],
-                "type": "basic"
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": 0 }
+                ]
               },
               {
                 "from": {
@@ -391,10 +426,13 @@
                 "to": [
                   {
                     "key_code": "2",
-                    "modifiers": ["left_option", "left_command", "left_control"]
+                    "modifiers": ["left_control", "left_option", "left_command"]
                   }
                 ],
-                "type": "basic"
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": 0 }
+                ]
               },
               {
                 "from": {
@@ -404,10 +442,13 @@
                 "to": [
                   {
                     "key_code": "3",
-                    "modifiers": ["left_option", "left_command", "left_control"]
+                    "modifiers": ["left_control", "left_option", "left_command"]
                   }
                 ],
-                "type": "basic"
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": 0 }
+                ]
               },
               {
                 "from": {
@@ -417,10 +458,13 @@
                 "to": [
                   {
                     "key_code": "4",
-                    "modifiers": ["left_option", "left_command", "left_control"]
+                    "modifiers": ["left_control", "left_option", "left_command"]
                   }
                 ],
-                "type": "basic"
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": 0 }
+                ]
               },
               {
                 "from": {
@@ -430,10 +474,13 @@
                 "to": [
                   {
                     "key_code": "5",
-                    "modifiers": ["left_option", "left_command", "left_control"]
+                    "modifiers": ["left_control", "left_option", "left_command"]
                   }
                 ],
-                "type": "basic"
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": 0 }
+                ]
               },
               {
                 "from": {
@@ -443,10 +490,13 @@
                 "to": [
                   {
                     "key_code": "6",
-                    "modifiers": ["left_option", "left_command", "left_control"]
+                    "modifiers": ["left_control", "left_option", "left_command"]
                   }
                 ],
-                "type": "basic"
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": 0 }
+                ]
               },
               {
                 "from": {
@@ -456,10 +506,13 @@
                 "to": [
                   {
                     "key_code": "7",
-                    "modifiers": ["left_option", "left_command", "left_control"]
+                    "modifiers": ["left_control", "left_option", "left_command"]
                   }
                 ],
-                "type": "basic"
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": 0 }
+                ]
               },
               {
                 "from": {
@@ -469,10 +522,13 @@
                 "to": [
                   {
                     "key_code": "8",
-                    "modifiers": ["left_option", "left_command", "left_control"]
+                    "modifiers": ["left_control", "left_option", "left_command"]
                   }
                 ],
-                "type": "basic"
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": 0 }
+                ]
               },
               {
                 "from": {
@@ -482,10 +538,13 @@
                 "to": [
                   {
                     "key_code": "9",
-                    "modifiers": ["left_option", "left_command", "left_control"]
+                    "modifiers": ["left_control", "left_option", "left_command"]
                   }
                 ],
-                "type": "basic"
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": 0 }
+                ]
               },
               {
                 "from": {
@@ -495,10 +554,322 @@
                 "to": [
                   {
                     "key_code": "0",
-                    "modifiers": ["left_option", "left_command", "left_control"]
+                    "modifiers": ["left_control", "left_option", "left_command"]
                   }
                 ],
-                "type": "basic"
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": 0 }
+                ]
+              }
+            ]
+          },
+          {
+            "description": "Space management with yabai",
+            "manipulators": [
+              {
+                "from": {
+                  "key_code": "non_us_backslash",
+                  "modifiers": { "mandatory": ["fn"] }
+                },
+                "to": [
+                  {
+                    "shell_command": "/Users/sdrm/.local/bin/yabai -m space --focus recent"
+                  }
+                ],
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": "yabai" }
+                ]
+              },
+              {
+                "from": {
+                  "key_code": "j",
+                  "modifiers": { "mandatory": ["left_control", "left_command"] }
+                },
+                "to": [
+                  {
+                    "shell_command": "/Users/sdrm/.local/bin/yabai -m space --focus prev"
+                  }
+                ],
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": "yabai" }
+                ]
+              },
+              {
+                "from": {
+                  "key_code": "p",
+                  "modifiers": { "mandatory": ["left_control", "left_command"] }
+                },
+                "to": [
+                  {
+                    "shell_command": "/Users/sdrm/.local/bin/yabai -m space --focus next"
+                  }
+                ],
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": "yabai" }
+                ]
+              },
+              {
+                "from": {
+                  "key_code": "1",
+                  "modifiers": { "mandatory": ["fn"] }
+                },
+                "to": [
+                  {
+                    "shell_command": "/Users/sdrm/.local/bin/yabai -m space --focus 1"
+                  }
+                ],
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": "yabai" }
+                ]
+              },
+              {
+                "from": {
+                  "key_code": "2",
+                  "modifiers": { "mandatory": ["fn"] }
+                },
+                "to": [
+                  {
+                    "shell_command": "/Users/sdrm/.local/bin/yabai -m space --focus 2"
+                  }
+                ],
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": "yabai" }
+                ]
+              },
+              {
+                "from": {
+                  "key_code": "3",
+                  "modifiers": { "mandatory": ["fn"] }
+                },
+                "to": [
+                  {
+                    "shell_command": "/Users/sdrm/.local/bin/yabai -m space --focus 3"
+                  }
+                ],
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": "yabai" }
+                ]
+              },
+              {
+                "from": {
+                  "key_code": "8",
+                  "modifiers": { "mandatory": ["fn"] }
+                },
+                "to": [
+                  {
+                    "shell_command": "/Users/sdrm/.local/bin/yabai -m space --focus 4"
+                  }
+                ],
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": "yabai" }
+                ]
+              },
+              {
+                "from": {
+                  "key_code": "9",
+                  "modifiers": { "mandatory": ["fn"] }
+                },
+                "to": [
+                  {
+                    "shell_command": "/Users/sdrm/.local/bin/yabai -m space --focus 5"
+                  }
+                ],
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": "yabai" }
+                ]
+              },
+              {
+                "from": {
+                  "key_code": "0",
+                  "modifiers": { "mandatory": ["fn"] }
+                },
+                "to": [
+                  {
+                    "shell_command": "/Users/sdrm/.local/bin/yabai -m space --focus 6"
+                  }
+                ],
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": "yabai" }
+                ]
+              },
+              {
+                "from": {
+                  "key_code": "6",
+                  "modifiers": { "mandatory": ["fn"] }
+                },
+                "to": [
+                  {
+                    "shell_command": "/Users/sdrm/.local/bin/yabai -m space --focus 7"
+                  }
+                ],
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": "yabai" }
+                ]
+              },
+              {
+                "from": {
+                  "key_code": "non_us_backslash",
+                  "modifiers": { "mandatory": ["fn", "shift"] }
+                },
+                "to": [
+                  {
+                    "shell_command": "/Users/sdrm/.local/bin/yabai -m window --space recent"
+                  }
+                ],
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": "yabai" }
+                ]
+              },
+              {
+                "from": {
+                  "key_code": "j",
+                  "modifiers": {
+                    "mandatory": ["left_control", "left_command", "shift"]
+                  }
+                },
+                "to": [
+                  {
+                    "shell_command": "/Users/sdrm/.local/bin/yabai -m window --space prev"
+                  }
+                ],
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": "yabai" }
+                ]
+              },
+              {
+                "from": {
+                  "key_code": "p",
+                  "modifiers": {
+                    "mandatory": ["left_control", "left_command", "shift"]
+                  }
+                },
+                "to": [
+                  {
+                    "shell_command": "/Users/sdrm/.local/bin/yabai -m window --space next"
+                  }
+                ],
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": "yabai" }
+                ]
+              },
+              {
+                "from": {
+                  "key_code": "1",
+                  "modifiers": { "mandatory": ["fn", "shift"] }
+                },
+                "to": [
+                  {
+                    "shell_command": "/Users/sdrm/.local/bin/yabai -m window --space 1"
+                  }
+                ],
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": "yabai" }
+                ]
+              },
+              {
+                "from": {
+                  "key_code": "2",
+                  "modifiers": { "mandatory": ["fn", "shift"] }
+                },
+                "to": [
+                  {
+                    "shell_command": "/Users/sdrm/.local/bin/yabai -m window --space 2"
+                  }
+                ],
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": "yabai" }
+                ]
+              },
+              {
+                "from": {
+                  "key_code": "3",
+                  "modifiers": { "mandatory": ["fn", "shift"] }
+                },
+                "to": [
+                  {
+                    "shell_command": "/Users/sdrm/.local/bin/yabai -m window --space 3"
+                  }
+                ],
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": "yabai" }
+                ]
+              },
+              {
+                "from": {
+                  "key_code": "8",
+                  "modifiers": { "mandatory": ["fn", "shift"] }
+                },
+                "to": [
+                  {
+                    "shell_command": "/Users/sdrm/.local/bin/yabai -m window --space 4"
+                  }
+                ],
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": "yabai" }
+                ]
+              },
+              {
+                "from": {
+                  "key_code": "9",
+                  "modifiers": { "mandatory": ["fn", "shift"] }
+                },
+                "to": [
+                  {
+                    "shell_command": "/Users/sdrm/.local/bin/yabai -m window --space 5"
+                  }
+                ],
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": "yabai" }
+                ]
+              },
+              {
+                "from": {
+                  "key_code": "0",
+                  "modifiers": { "mandatory": ["fn", "shift"] }
+                },
+                "to": [
+                  {
+                    "shell_command": "/Users/sdrm/.local/bin/yabai -m window --space 6"
+                  }
+                ],
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": "yabai" }
+                ]
+              },
+              {
+                "from": {
+                  "key_code": "6",
+                  "modifiers": { "mandatory": ["fn", "shift"] }
+                },
+                "to": [
+                  {
+                    "shell_command": "/Users/sdrm/.local/bin/yabai -m window --space 7"
+                  }
+                ],
+                "type": "basic",
+                "conditions": [
+                  { "name": "wm", "type": "variable_if", "value": "yabai" }
+                ]
               }
             ]
           },
