@@ -304,9 +304,11 @@ __install_gh_release() {
         __download_extract "$url"
 
         # Hop into the extracted directory if any
-        local subdir=$(find . -maxdepth 1 -type d ! -name ".*" | head -n1)
-        if [ "$subdir" ]; then
-            cd "$subdir"
+        if ! [ -f $extracted_bin ]; then
+            local subdir=$(find . -maxdepth 1 -type d ! -name ".*" | head -n1)
+            if [ "$subdir" ]; then
+                cd "$subdir"
+            fi
         fi
 
         # Select the .appimage if any
