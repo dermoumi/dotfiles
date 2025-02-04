@@ -1,8 +1,8 @@
 #!/bin/zsh
 
 # force 256-color mode when inside containers
-if grep -sq "docker\|lxc" /proc/1/cgroup; then
-  export TERM=xterm-256color
+if [ -d /boot ] && [ -n "$(find /boot -maxdepth 0 -empty)" ]; then
+  export TERM=screen-256color
 fi
 
 # ls aliases
