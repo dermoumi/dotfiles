@@ -26,6 +26,7 @@ force=0
 clone=0
 install_desktop_apps=0
 install_utilities=0
+no_neovim=0
 no_python=0
 no_node=0
 chsh=0
@@ -69,6 +70,10 @@ while :; do
         -a|--all)
             install_desktop_apps=1
             install_utilities=1
+            shift
+            ;;
+        --no-neovim)
+            no_neovim=1
             shift
             ;;
         --no-python)
@@ -166,7 +171,7 @@ __install_utilities_macos() {
     __ensure_homebrew_installed
 
     # Install apps
-    brew install fzf fd zoxide ripgrep bat neovim tmux \
+    brew install fzf fd zoxide ripgrep bat tmux \
         pyenv-virtualenv eza gnupg xz switchaudio-osx
 
     # Setup volta
@@ -195,16 +200,21 @@ __install_utilities_macos() {
         pip install -U pip
     fi
 
-    # Setup nvim python provider
-    if __check_app_installed pip; then
-        pip install -U neovim-remote
-    fi
+    # Setup neovim
+    if ! ((no_neovim)); then
+        brew install neovim
 
-    if __check_app_installed pyenv-virtualenv; then
-        pyenv virtualenv nvim
-        pyenv activate nvim
-        pip install -U pip neovim
-        pyenv deactivate
+        # Setup nvim python provider
+        if __check_app_installed pip; then
+            pip install -U neovim-remote
+        fi
+
+        if __check_app_installed pyenv-virtualenv; then
+            pyenv virtualenv nvim
+            pyenv activate nvim
+            pip install -U pip neovim
+            pyenv deactivate
+        fi
     fi
 }
 
@@ -258,6 +268,12 @@ __install_gh_release() {
     echo "Installing $name..."
 
     if __check_app_installed $bin; then
+        local version_str=$($bin --version)
+        if ((  "$?" )); then
+            echo "Failed to check $name" >&2
+            return 1
+        fi
+
         local current=$($bin --version | grep -oP "$current_version_pattern" | head -n1)
         local latest=$(__grep_repo_releases "$repo" "$latest_version_pattern")
 
@@ -314,16 +330,7 @@ __install_gh_release() {
 __install_utilities_aptget() {
     sudo apt-get update
 
-    libfuse2_name=$(apt-cache search libfuse2 | awk '{print $1}')
-    if [[ -z "$libfuse2_name" ]]; then
-        echo "Failed to find libfuse2 package" >&2
-        return 1
-    fi
-
-    sudo apt-get install -y zsh git curl unzip tmux build-essential \
-        gnupg "$libfuse2_name" \
-        libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev \
-        libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+    sudo apt-get install -y zsh git curl unzip tmux build-essential gnupg
 
     local fail=()
 
@@ -344,6 +351,10 @@ __install_utilities_aptget() {
     # pyenv
     if ! ((no_python)); then
         (
+            sudo apt-get install -y libssl-dev zlib1g-dev libbz2-dev \
+                libreadline-dev libsqlite3-dev libncursesw5-dev xz-utils \
+                tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+
             export PYENV_ROOT=$HOME/.pyenv
             export PATH="$PYENV_ROOT/bin:$PATH"
 
@@ -415,25 +426,35 @@ __install_utilities_aptget() {
         "eza_x86_64-unknown-linux-musl.tar.gz" || fail+=(eza)
 
     # neovim
-    __install_gh_release neovim \
-        neovim/neovim \
-        "[^\s]+$" \
-        '(?<="name": "Nvim )(.+)(?=\",$)' \
-        "nvim-linux-arm64.appimage" \
-        "nvim-linux-x86_64.appimage" \
-        nvim || fail+=(neovim)
-
-    if __check_app_installed pip; then
-        pip install -U neovim-remote || fail+=(neovim-remote)
-    fi
-
-    if __check_app_installed pyenv-virtualenv; then
+    if ! ((no_neovim)); then
         (
-            pyenv virtualenv nvim
-            pyenv activate nvim
-            pip install -U pip neovim
-            pyenv deactivate
-        ) || fail+=(python_neovim)
+            libfuse2_name=$(apt-cache search libfuse2 | awk '{print $1}')
+            if [[ -z "$libfuse2_name" ]]; then
+                echo "Failed to find libfuse2 package" >&2
+                return 1
+            fi
+
+            sudo apt-get install -y $libfuse2_name
+
+            __install_gh_release neovim \
+                neovim/neovim \
+                "[^\s]+$" \
+                '(?<="name": "Nvim )(.+)(?=\",$)' \
+                "nvim-linux-arm64.appimage" \
+                "nvim-linux-x86_64.appimage" \
+                nvim
+
+            if __check_app_installed pip; then
+                pip install -U neovim-remote
+            fi
+
+            if __check_app_installed pyenv-virtualenv; then
+                pyenv virtualenv nvim
+                pyenv activate nvim
+                pip install -U pip neovim
+                pyenv deactivate
+            fi
+        ) || fail+=(neovim)
     fi
 
     if [[ "${fail[@]}" ]]; then
