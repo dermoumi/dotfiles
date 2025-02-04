@@ -17,13 +17,18 @@ if ((is_macos)); then
 fi
 
 bin_path="$HOME/.local/bin"
-mkdir -p "$bin_path"
+man_path="$HOME/.local/man"
+mkdir -p "$bin_path" "$man_path"
+export PATH="$bin_path:$PATH"
 
 link=0
 force=0
 clone=0
 install_desktop_apps=0
 install_utilities=0
+no_python=0
+no_node=0
+chsh=0
 
 # Parse arguments
 while :; do
@@ -64,6 +69,18 @@ while :; do
         -a|--all)
             install_desktop_apps=1
             install_utilities=1
+            shift
+            ;;
+        --no-python)
+            no_python=1
+            shift
+            ;;
+        --no-node)
+            no_node=1
+            shift
+            ;;
+        --chsh)
+            chsh=1
             shift
             ;;
         *)
@@ -149,30 +166,46 @@ __install_utilities_macos() {
     __ensure_homebrew_installed
 
     # Install apps
-    brew install fzf fd zoxide ripgrep bat neovim tmux volta pyenv \
+    brew install fzf fd zoxide ripgrep bat neovim tmux \
         pyenv-virtualenv eza gnupg xz switchaudio-osx
 
     # Setup volta
-    export VOLTA_HOME=$HOME/.volta
-    export PATH="$VOLTA_HOME/bin:$PATH"
+    if ! ((no_node)); then
+        brew install volta
 
-    volta install node pnpm
+        export VOLTA_HOME=$HOME/.volta
+        export PATH="$VOLTA_HOME/bin:$PATH"
+
+        volta install node pnpm
+    fi
 
     # Setup pyenv
-    export PYENV_ROOT=$HOME/.pyenv
-    export PATH="$PYENV_ROOT/bin:$PATH"
+    if ! ((no_python)); then
+        brew install pyenv
 
-    eval "$(pyenv init --path)"
-    eval "$(pyenv init -)"
-    eval "$(pyenv virtualenv-init -)"
+        export PYENV_ROOT=$HOME/.pyenv
+        export PATH="$PYENV_ROOT/bin:$PATH"
 
-    pyenv install -s 3
-    pyenv global 3
-    pip install -U pip neovim-remote
-    pyenv virtualenv nvim
-    pyenv activate nvim
-    pip install -U pip neovim
-    pyenv deactivate
+        eval "$(pyenv init --path)"
+        eval "$(pyenv init -)"
+        eval "$(pyenv virtualenv-init -)"
+
+        pyenv install -s 3
+        pyenv global 3
+        pip install -U pip
+    fi
+
+    # Setup nvim python provider
+    if __check_app_installed pip; then
+        pip install -U neovim-remote
+    fi
+
+    if __check_app_installed pyenv-virtualenv; then
+        pyenv virtualenv nvim
+        pyenv activate nvim
+        pip install -U pip neovim
+        pyenv deactivate
+    fi
 }
 
 repo_releases_cache=""
@@ -292,7 +325,45 @@ __install_utilities_aptget() {
         libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev \
         libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
 
-    local fail=0
+    local fail=()
+
+    # volta
+    if ! ((no_node)); then
+        (
+            export VOLTA_HOME=$HOME/.volta
+            export PATH="$VOLTA_HOME/bin:$PATH"
+
+            if ! __check_app_installed volta; then
+                bash -c "$(curl https://get.volta.sh)" || fail=1
+            fi
+
+            volta install node pnpm
+        ) || fail+=(volta)
+    fi
+
+    # pyenv
+    if ! ((no_python)); then
+        (
+            export PYENV_ROOT=$HOME/.pyenv
+            export PATH="$PYENV_ROOT/bin:$PATH"
+
+            if ! __check_app_installed pyenv; then
+                curl -fsSL https://pyenv.run | bash || fail=1
+            fi
+
+            if ! [ -d $PYENV_ROOT/plugins/pyenv-virtualenv ]; then
+                git clone https://github.com/pyenv/pyenv-virtualenv.git \
+                    $PYENV_ROOT/plugins/pyenv-virtualenv
+            fi
+
+            eval "$(pyenv init -)"
+            eval "$(pyenv virtualenv-init -)"
+
+            pyenv install -s 3
+            pyenv global 3
+            pip install -U pip
+        ) || fail+=(pyenv)
+    fi
 
     # fzf
     __install_gh_release fzf \
@@ -300,7 +371,7 @@ __install_utilities_aptget() {
         "^[^\s]+" \
         '(?<="name": ")(.+)(?=\",$)' \
         "fzf-[^-]+-linux_arm64\.tar\.gz" \
-        "fzf-[^-]+-linux_amd64\.tar\.gz" || fail=1
+        "fzf-[^-]+-linux_amd64\.tar\.gz" || fail+=(fzf)
 
     # fd
     __install_gh_release fd \
@@ -308,7 +379,7 @@ __install_utilities_aptget() {
         "[^\s]+$" \
         '(?<="name": "v)(.+)(?=\",$)' \
         "fd-[^-]+-arm-unknown-linux-musleabihf\.tar\.gz" \
-        "fd-[^-]+-x86_64-unknown-linux-musl\.tar\.gz" || fail=1
+        "fd-[^-]+-x86_64-unknown-linux-musl\.tar\.gz" || fail+=(fd)
 
     # zoxide
     __install_gh_release zoxide \
@@ -316,7 +387,7 @@ __install_utilities_aptget() {
         "[^\s]+$" \
         '(?<="name": ")(.+)(?=\",$)' \
         "zoxide(-.+)?-aarch64-unknown-linux-musl\.tar\.gz" \
-        "zoxide(-.+)?-x86_64-unknown-linux-musl\.tar\.gz" || fail=1
+        "zoxide(-.+)?-x86_64-unknown-linux-musl\.tar\.gz" || fail+=(zoxide)
 
     # ripgrep
     __install_gh_release ripgrep \
@@ -325,7 +396,7 @@ __install_utilities_aptget() {
         '(?<="name": ")(.+)(?=\",$)' \
         "ripgrep-[^-]+-aarch64-unknown-linux-gnu\.tar\.gz" \
         "ripgrep-[^-]+-x86_64-unknown-linux-musl\.tar\.gz" \
-        rg || fail=1
+        rg || fail+=(rg)
 
     # bat
     __install_gh_release bat \
@@ -333,7 +404,15 @@ __install_utilities_aptget() {
         "(?<=bat\s)[^\s]+" \
         '(?<="name": "v)(.+)(?=\",$)' \
         "bat-[^-]+-aarch64-unknown-linux-gnu\.tar\.gz" \
-        "bat-[^-]+-x86_64-unknown-linux-musl\.tar\.gz" || fail=1
+        "bat-[^-]+-x86_64-unknown-linux-musl\.tar\.gz" || fail+=(bat)
+
+    # eza
+    __install_gh_release eza \
+        eza-community/eza \
+        "^v[\d\.]+" \
+        '(?<="name": "eza )(.+)(?=\",$)' \
+        "eza_aarch64-unknown-linux-gnu.tar.gz" \
+        "eza_x86_64-unknown-linux-musl.tar.gz" || fail+=(eza)
 
     # neovim
     __install_gh_release neovim \
@@ -342,56 +421,23 @@ __install_utilities_aptget() {
         '(?<="name": "Nvim )(.+)(?=\",$)' \
         "nvim-linux-arm64.appimage" \
         "nvim-linux-x86_64.appimage" \
-        nvim || fail=1
+        nvim || fail+=(neovim)
 
-    # eza
-    __install_gh_release eza \
-        eza-community/eza \
-        "^v[\d\.]+" \
-        '(?<="name": "eza )(.+)(?=\",$)' \
-        "eza_aarch64-unknown-linux-gnu.tar.gz" \
-        "eza_x86_64-unknown-linux-musl.tar.gz" || fail=1
+    if __check_app_installed pip; then
+        pip install -U neovim-remote || fail+=(neovim-remote)
+    fi
 
-    # volta
-    (
-        export VOLTA_HOME=$HOME/.volta
-        export PATH="$VOLTA_HOME/bin:$PATH"
+    if __check_app_installed pyenv-virtualenv; then
+        (
+            pyenv virtualenv nvim
+            pyenv activate nvim
+            pip install -U pip neovim
+            pyenv deactivate
+        ) || fail+=(python_neovim)
+    fi
 
-        if ! __check_app_installed volta; then
-            bash -c "$(curl https://get.volta.sh)" || fail=1
-        fi
-
-        volta install node pnpm
-    ) || fail=1
-
-    # pyenv
-    (
-        export PYENV_ROOT=$HOME/.pyenv
-        export PATH="$PYENV_ROOT/bin:$PATH"
-
-        if ! __check_app_installed pyenv; then
-            curl -fsSL https://pyenv.run | bash || fail=1
-        fi
-
-        if ! [ -d $PYENV_ROOT/plugins/pyenv-virtualenv ]; then
-            git clone https://github.com/pyenv/pyenv-virtualenv.git \
-                $PYENV_ROOT/plugins/pyenv-virtualenv
-        fi
-
-        eval "$(pyenv init -)"
-        eval "$(pyenv virtualenv-init -)"
-
-        pyenv install -s 3
-        pyenv global 3
-        pip install -U pip neovim-remote
-        pyenv virtualenv nvim
-        pyenv activate nvim
-        pip install -U pip neovim
-        pyenv deactivate
-    ) || fail=1
-
-    if (( fail )); then
-        echo "Failed to install some utilities" >&2
+    if [[ "${fail[@]}" ]]; then
+        echo "Failed to install some utilities: ${fail[@]}" >&2
         return 1
     fi
 }
@@ -443,6 +489,11 @@ __install_desktop_apps() {
 __restart_zsh() {
     if ! __check_app_installed zsh; then
         return
+    fi
+
+    if ((chsh)); then
+        echo "Changing default shell to zsh..."
+        chsh -s $(which zsh)
     fi
 
     echo "Restarting zsh..."
