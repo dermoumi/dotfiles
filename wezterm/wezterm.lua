@@ -49,6 +49,7 @@ local config = {
   },
 
   check_for_updates = false,
+  window_close_confirmation = "NeverPrompt",
 }
 
 return config
