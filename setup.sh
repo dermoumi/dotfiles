@@ -2,8 +2,6 @@
 
 # Abort on error
 set -euo pipefail
-# Allow empty glob matches
-shopt -s nullglob
 
 # General variables
 is_macos=0
@@ -26,9 +24,9 @@ force=0
 clone=0
 install_desktop_apps=0
 install_utilities=0
-no_neovim=0
 no_python=0
 no_node=0
+use_system_python=0
 chsh=0
 
 # Parse arguments
@@ -72,12 +70,12 @@ while :; do
             install_utilities=1
             shift
             ;;
-        --no-neovim)
-            no_neovim=1
-            shift
-            ;;
         --no-python)
             no_python=1
+            shift
+            ;;
+        --use-system-python)
+            use_system_python=1
             shift
             ;;
         --no-node)
@@ -103,6 +101,10 @@ __clone_repo() {
     repo_https_url="https://github.com/dermoumi/dotfiles.git"
     repo_ssh_url="git@github.com:dermoumi/dotfiles.git"
     dotfiles_dir="$HOME/.dotfiles"
+
+    if [ -d "$dotfiles_dir" ]; then
+        rm -rf "$dotfiles_dir"
+    fi
 
     git clone "$repo_https_url" "$dotfiles_dir"
     cd "$dotfiles_dir"
@@ -153,6 +155,14 @@ __check_app_installed() {
     command -v $app &>/dev/null
 }
 
+__sudo() {
+    if __check_app_installed sudo; then
+        sudo "$@"
+    else
+        "$@"
+    fi
+}
+
 __ensure_homebrew_installed() {
     if __check_app_installed brew; then
         return
@@ -171,7 +181,7 @@ __install_utilities_macos() {
     __ensure_homebrew_installed
 
     # Install apps
-    brew install fzf fd zoxide ripgrep bat tmux \
+    brew install fzf fd zoxide ripgrep bat tmux neovim \
         pyenv-virtualenv eza gnupg xz switchaudio-osx
 
     # Setup volta
@@ -195,26 +205,24 @@ __install_utilities_macos() {
         eval "$(pyenv init -)"
         eval "$(pyenv virtualenv-init -)"
 
-        pyenv install -s 3
-        pyenv global 3
+        if ! ((use_system_python)); then
+            pyenv install -s 3
+            pyenv global 3
+        fi
+
         pip install -U pip
     fi
 
-    # Setup neovim
-    if ! ((no_neovim)); then
-        brew install neovim
+    # Setup nvim python provider
+    if __check_app_installed pip; then
+        pip install -U neovim-remote
+    fi
 
-        # Setup nvim python provider
-        if __check_app_installed pip; then
-            pip install -U neovim-remote
-        fi
-
-        if __check_app_installed pyenv-virtualenv; then
-            pyenv virtualenv nvim
-            pyenv activate nvim
-            pip install -U pip neovim
-            pyenv deactivate
-        fi
+    if __check_app_installed pyenv-virtualenv; then
+        pyenv virtualenv nvim
+        pyenv activate nvim
+        pip install -U pip neovim
+        pyenv deactivate
     fi
 }
 
@@ -264,6 +272,7 @@ __install_gh_release() {
     local linux_amd64_pattern=$6
     local bin=${7-$name}
     local extracted_bin=${8-$bin}
+    local whole_dir_mv_to=${9-}
 
     echo "Installing $name..."
 
@@ -286,6 +295,8 @@ __install_gh_release() {
     fi
 
     (
+        set -euo pipefail
+
         local tmp_dir=$(mktemp -d)
         pushd $tmp_dir &>/dev/null
 
@@ -311,17 +322,33 @@ __install_gh_release() {
             fi
         fi
 
-        # Select the .appimage if any
-        if ! [ -f $extracted_bin ]; then
-            extracted_bin=$(find . -maxdepth 1 -type f -iname "*.AppImage" | head -n1)
-        fi
+        if [ "$whole_dir_mv_to" ]; then
+            mkdir -p "$whole_dir_mv_to"
+            mv ./* "$whole_dir_mv_to"
 
-        if [ "$extracted_bin" ] && [ -f $extracted_bin ]; then
-            chmod +x $extracted_bin
-            mv $extracted_bin "$bin_path/$bin"
+            cd "$whole_dir_mv_to"
+
+            if [ "$extracted_bin" ] && [ -f $extracted_bin ]; then
+                chmod +x $extracted_bin
+                rm -f "$bin_path/$bin"
+                ln -s "$PWD/$extracted_bin" "$bin_path/$bin"
+            else
+                echo "Failed to download $name" >&2
+                return 1
+            fi
         else
-            echo "Failed to download $name" >&2
-            return 1
+            # Select the .appimage if any
+            if ! [ -f $extracted_bin ]; then
+                extracted_bin=$(find . -maxdepth 1 -type f -iname "*.AppImage" | head -n1)
+            fi
+
+            if [ "$extracted_bin" ] && [ -f $extracted_bin ]; then
+                chmod +x $extracted_bin
+                mv $extracted_bin "$bin_path/$bin"
+            else
+                echo "Failed to download $name" >&2
+                return 1
+            fi
         fi
 
         popd &>/dev/null
@@ -330,15 +357,16 @@ __install_gh_release() {
 }
 
 __install_utilities_aptget() {
-    sudo apt-get update
-
-    sudo apt-get install -y zsh git curl unzip tmux build-essential gnupg
+    __sudo apt-get update
+    __sudo apt-get install -y zsh git curl unzip tmux build-essential gnupg
 
     local fail=()
 
     # volta
     if ! ((no_node)); then
         (
+            set -euo pipefail
+
             export VOLTA_HOME=$HOME/.volta
             export PATH="$VOLTA_HOME/bin:$PATH"
 
@@ -353,9 +381,7 @@ __install_utilities_aptget() {
     # pyenv
     if ! ((no_python)); then
         (
-            sudo apt-get install -y libssl-dev zlib1g-dev libbz2-dev \
-                libreadline-dev libsqlite3-dev libncursesw5-dev xz-utils \
-                tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+            set -euo pipefail
 
             export PYENV_ROOT=$HOME/.pyenv
             export PATH="$PYENV_ROOT/bin:$PATH"
@@ -372,9 +398,19 @@ __install_utilities_aptget() {
             eval "$(pyenv init -)"
             eval "$(pyenv virtualenv-init -)"
 
-            pyenv install -s 3
-            pyenv global 3
-            pip install -U pip
+            # Install build dependencies
+            __sudo apt-get install -y libssl-dev zlib1g-dev libbz2-dev \
+                libreadline-dev libsqlite3-dev libncursesw5-dev xz-utils \
+                tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+
+            if ! ((use_system_python)); then
+                pyenv install -s 3
+                pyenv global 3
+            fi
+
+            if __check_app_installed pip; then
+                pip install -U pip
+            fi
         ) || fail+=(pyenv)
     fi
 
@@ -428,36 +464,30 @@ __install_utilities_aptget() {
         "eza_x86_64-unknown-linux-musl.tar.gz" || fail+=(eza)
 
     # neovim
-    if ! ((no_neovim)); then
-        (
-            libfuse2_name=$(apt-cache search libfuse2 | awk '{print $1}')
-            if [[ -z "$libfuse2_name" ]]; then
-                echo "Failed to find libfuse2 package" >&2
-                return 1
-            fi
+    (
+        set -euo pipefail
 
-            sudo apt-get install -y $libfuse2_name
+        __install_gh_release neovim \
+            neovim/neovim \
+            "[^\s]+$" \
+            '(?<="name": "Nvim )(.+)(?=\",$)' \
+            "nvim-linux-arm64.tar.gz" \
+            "nvim-linux-x86_64.tar.gz" \
+            nvim \
+            bin/nvim \
+            $HOME/.neovim_install
 
-            __install_gh_release neovim \
-                neovim/neovim \
-                "[^\s]+$" \
-                '(?<="name": "Nvim )(.+)(?=\",$)' \
-                "nvim-linux-arm64.appimage" \
-                "nvim-linux-x86_64.appimage" \
-                nvim
+        if __check_app_installed pip; then
+            pip install -U neovim-remote
+        fi
 
-            if __check_app_installed pip; then
-                pip install -U neovim-remote
-            fi
-
-            if __check_app_installed pyenv-virtualenv; then
-                pyenv virtualenv nvim
-                pyenv activate nvim
-                pip install -U pip neovim
-                pyenv deactivate
-            fi
-        ) || fail+=(neovim)
-    fi
+        if __check_app_installed pyenv-virtualenv; then
+            pyenv virtualenv nvim
+            pyenv activate nvim
+            pip install -U pip neovim
+            pyenv deactivate
+        fi
+    ) || fail+=(neovim)
 
     if [[ "${fail[@]}" ]]; then
         echo "Failed to install some utilities: ${fail[@]}" >&2
