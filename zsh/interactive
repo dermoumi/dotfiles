@@ -209,6 +209,12 @@ if command -v fzf &>/dev/null; then
     trap set_fzf_opts SIGWINCH # call whenever the terminal resizes
     set_fzf_opts
 
+    _fzf_complete_ssht() {
+        _fzf_complete --prompt="ssh> " -- "$@" < <(
+            cat ~/.ssh/config | grep -E '^Host\s+' | awk '{print $2}'
+        )
+    }
+
     eval "$(fzf --zsh)"
 fi
 
