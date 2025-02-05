@@ -268,6 +268,33 @@ __download_extract() {
     fi
 }
 
+__is_latest_version() {
+    local name=$1
+    local repo=$2
+    local current_version_pattern=$3
+    local latest_version_pattern=$4
+    local bin=${3-$name}
+
+    if __check_app_installed $bin; then
+        local version_str=$($bin --version)
+        if ((  "$?" )); then
+            echo "Failed to check $name" >&2
+            return 1
+        fi
+
+        local current=$($bin --version | grep -oP "$current_version_pattern" | head -n1)
+        local latest=$(__grep_repo_releases "$repo" "$latest_version_pattern")
+
+        if [ "$current" == "$latest" ]; then
+            echo "$name is already up to date"
+            return 0
+        fi
+
+        echo "Updating $name from '$current' to '$latest'"
+        return 1
+    fi
+}
+
 __install_gh_release() {
     local name=$1
     local repo=$2
@@ -280,6 +307,10 @@ __install_gh_release() {
     local whole_dir_mv_to=${9-}
 
     echo "Installing $name..."
+
+    if __is_latest_version "$name" "$repo" "$current_version_pattern" "$latest_version_pattern" "$bin"; then
+        return
+    fi
 
     if __check_app_installed $bin; then
         local version_str=$($bin --version)
@@ -371,6 +402,10 @@ __latest_archive() {
 
 __build_neovim() {
     local bin_path=${1-$HOME/.local/bin}
+
+    if __is_latest_version neovim neovim/neovim "[^\s]+$" '(?<="name": "Nvim )(.+)(?=\",$)' nvim; then
+        return
+    fi
 
     local tmp_dir=$(mktemp -d)
     pushd $tmp_dir &>/dev/null
