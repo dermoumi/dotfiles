@@ -140,10 +140,11 @@ if command -v fzf &>/dev/null; then
             --reverse
             --info=inline
             --height=30%
-            --border=rounded
+            --no-border
             --preview='preview {}'
             --pointer=·
             --marker=→
+            --style=minimal
             --color=fg:246,fg+:4,bg+:0,gutter:16,pointer:14,info:2,header:11,hl:7,hl+:7
             --bind='ctrl-space:toggle-down'
             --bind='ctrl-z:toggle-preview'

@@ -358,7 +358,7 @@ __install_gh_release() {
 
 __install_utilities_aptget() {
     __sudo apt-get update
-    __sudo apt-get install -y zsh git curl unzip tmux build-essential gnupg
+    __sudo apt-get install -yq zsh git curl unzip tmux build-essential gnupg
 
     local fail=()
 
@@ -399,7 +399,7 @@ __install_utilities_aptget() {
             eval "$(pyenv virtualenv-init -)"
 
             # Install build dependencies
-            __sudo apt-get install -y libssl-dev zlib1g-dev libbz2-dev \
+            __sudo apt-get install -yq libssl-dev zlib1g-dev libbz2-dev \
                 libreadline-dev libsqlite3-dev libncursesw5-dev xz-utils \
                 tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
 
