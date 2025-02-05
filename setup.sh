@@ -27,6 +27,7 @@ install_utilities=0
 no_python=0
 no_node=0
 use_system_python=0
+build_neovim=0
 chsh=0
 
 # Parse arguments
@@ -80,6 +81,10 @@ while :; do
             ;;
         --no-node)
             no_node=1
+            shift
+            ;;
+        --build-neovim)
+            build_neovim=1
             shift
             ;;
         --chsh)
@@ -356,6 +361,37 @@ __install_gh_release() {
     )
 }
 
+__latest_archive() {
+    local repo=${1-}
+
+    local tag_name=$(__grep_repo_releases "$repo" '(?<="tag_name": ")[^"]+')
+
+    echo "https://github.com/$repo/archive/refs/tags/$tag_name.tar.gz"
+}
+
+__build_neovim() {
+    local bin_path=${1-$HOME/.local/bin}
+
+    local tmp_dir=$(mktemp -d)
+    pushd $tmp_dir &>/dev/null
+
+    local archive_url=$(__latest_archive neovim/neovim)
+    echo "Downloading neovim from $archive_url"
+
+    curl -fsSL $archive_url | tar -xz
+    cd neovim-*
+
+    __sudo apt-get install -yq ninja-build gettext cmake curl build-essential
+    make CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/.neovim"
+    make install
+
+    mkdir -p "$bin_path"
+    ln -s $HOME/.neovim/bin/nvim $bin_path/nvim
+
+    popd &>/dev/null
+    rm -rf $tmp_dir
+}
+
 __install_utilities_aptget() {
     __sudo apt-get update
     __sudo apt-get install -yq zsh git curl unzip tmux build-essential gnupg
@@ -467,15 +503,19 @@ __install_utilities_aptget() {
     (
         set -euo pipefail
 
-        __install_gh_release neovim \
-            neovim/neovim \
-            "[^\s]+$" \
-            '(?<="name": "Nvim )(.+)(?=\",$)' \
-            "nvim-linux-arm64.tar.gz" \
-            "nvim-linux-x86_64.tar.gz" \
-            nvim \
-            bin/nvim \
-            $HOME/.neovim_install
+        if ((build_neovim)); then
+            __build_neovim
+        else
+            __install_gh_release neovim \
+                neovim/neovim \
+                "[^\s]+$" \
+                '(?<="name": "Nvim )(.+)(?=\",$)' \
+                "nvim-linux-arm64.tar.gz" \
+                "nvim-linux-x86_64.tar.gz" \
+                nvim \
+                bin/nvim \
+                $HOME/.neovim
+        fi
 
         if __check_app_installed pip; then
             pip install -U neovim-remote
