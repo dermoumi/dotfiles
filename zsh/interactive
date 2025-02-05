@@ -125,31 +125,70 @@ init_substring_search() {
 zinit ice wait=0 lucid depth=1 atinit=init_substring_search
 zinit light zsh-users/zsh-history-substring-search
 
+# calculate fzf preview window params based on terminal size
+preview_params() {
+    # sets fzf preview position and status (no/hidden) depending on terminal size
+    local hide_threshold_columns=74
+    local hide_threshold_lines=36
+    local lines_factor=2.3 # assume that a cell is n times a tall as it wide
+
+    local config="default"
+    local hidden="nohidden"
+
+    if ((COLUMNS > LINES * lines_factor)); then   # screen is wider than it is tall
+        config="right,50%,border-left"
+
+        # force hide the preview window if the screen is not wide enough
+        if ((COLUMNS < hide_threshold_columns)); then
+            hidden="hidden"
+        fi
+    else # screen is taller than it is wide
+        config="bottom,50%,border-top"
+
+        # force hide the preview window if the screen is not tall enough
+        if ((LINES < hide_threshold_lines)); then
+            hidden="hidden"
+        fi
+    fi
+
+    echo "$config,$hidden"
+}
+
 # forgit
-zinit ice wait=0 lucid depth=1
+init_forgit() {
+    export FORGIT_NO_ALIASES=1
+
+    set_fzf_opts() {
+        export FORGIT_FZF_DEFAULT_OPTS="--preview-window=$(preview_params)"
+    }
+
+    trap set_fzf_opts SIGWINCH # call whenever the terminal resizes
+    set_fzf_opts
+}
+zinit ice wait=0 lucid depth=1 atload='path=($PWD/bin $path)' atinit=init_forgit
 zinit light wfxr/forgit
 
 # fzf
 if command -v fzf &>/dev/null; then
-    reconfigure_fzf_preview() {
-        # configure the preview window
-
-        local fzf_default_ops_base="
+    set_fzf_opts() {
+        preview_window=$(preview_params)
+        export FZF_DEFAULT_OPTS="
             --ansi
             --cycle
             --reverse
-            --info=inline
+            --info=inline-right
+            --no-separator
             --height=30%
-            --no-border
+            --border=none
+            --list-border=none
+            --input-border=none
             --preview='preview {}'
-            --pointer=·
-            --marker=→
-            --style=minimal
-            --color=fg:246,fg+:4,bg+:0,gutter:16,pointer:14,info:2,header:11,hl:7,hl+:7
+            --pointer=
+            --highlight-line
+            --color=gutter:-1,pointer:255,scrollbar:4,preview-scrollbar:4
             --bind='ctrl-space:toggle-down'
             --bind='ctrl-z:toggle-preview'
-            --bind='ctrl-o:execute-silent(code {} &)'
-            --bind='ctrl-p:execute-silent(code {} &)+abort'
+            --bind='ctrl-y:execute-silent(printf '%s' {+} | zsh -ic to-clip)'
             --bind='ctrl-u:preview-up+preview-up+preview-up+preview-up+preview-up'
             --bind='ctrl-d:preview-down+preview-down+preview-down+preview-down+preview-down'
             --bind='ctrl-r:toggle-all'
@@ -157,48 +196,18 @@ if command -v fzf &>/dev/null; then
             --bind='ctrl-w:toggle-preview-wrap'
             --bind='home:first'
             --bind='end:last'
+            --preview-window=$preview_window
         "
-        local fzf_ctrl_t_ops_base="--no-height --no-border"
-        local fzf_alt_c_ops_base="--no-height --no-border"
-
-        # sets fzf preview position and status (no/hidden) depending on terminal size
-        local hide_threshold_columns=74
-        local hide_threshold_lines=36
-        local lines_factor=2.3 # assume that a cell is n times a tall as it wide
-
-        local preview_window="default"
-        local nohidden=",nohidden"
-
-        if ((COLUMNS > LINES * lines_factor)); then   # screen is wider than it is tall
-            preview_window="right,50%,border-left"
-
-            # force hide the preview window if the screen is not wide enough
-            if ((COLUMNS < hide_threshold_columns)); then
-                nohidden=",hidden"
-            fi
-        else # screen is taller than it is wide
-            preview_window="bottom,50%,border-top"
-
-            # force hide the preview window if the screen is not tall enough
-            if ((LINES < hide_threshold_lines)); then
-                nohidden=",hidden"
-            fi
-        fi
-
-        export FZF_DEFAULT_OPTS="$fzf_default_ops_base --preview-window=${preview_window},hidden"
-        export FZF_CTRL_T_OPTS="$fzf_ctrl_t_ops_base --preview-window=${preview_window}${nohidden}"
-        export FZF_ALT_C_OPTS="$fzf_alt_c_ops_base --preview-window=${preview_window}${nohidden}"
+        export FZF_CTRL_T_OPTS="--no-height --no-border --preview-window=$preview_window"
+        export FZF_ALT_C_OPTS="--no-height --no-border --preview-window=$preview_window"
     }
 
     export FZF_DEFAULT_COMMAND="fd --type f --type l --color=never --no-ignore-vcs --hidden"
     export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
     export FZF_ALT_C_COMMAND="fd --type d --color=never --no-ignore-vcs --hidden"
 
-    # reconfigure preview options whenever the terminal resizes
-    trap reconfigure_fzf_preview SIGWINCH
-
-    # set initial fzf preview window options
-    reconfigure_fzf_preview
+    trap set_fzf_opts SIGWINCH # call whenever the terminal resizes
+    set_fzf_opts
 
     eval "$(fzf --zsh)"
 fi
