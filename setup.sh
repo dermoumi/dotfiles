@@ -151,13 +151,15 @@ __make_links() {
     if ((is_macos)); then
         __mk_link karabiner ~/.config/
         __mk_link yabai ~/.config/
+    else
+        __mk_link environment.d ~/.config/
+        __mk_link systemd ~/.config/
     fi
 }
 
 # Checks if the given app is installed
 __check_app_installed() {
-    local app=$1
-    command -v $app &>/dev/null
+    command -v $1 &>/dev/null
 }
 
 __sudo() {
@@ -416,7 +418,6 @@ __build_neovim() {
     curl -fsSL $archive_url | tar -xz
     cd neovim-*
 
-    __sudo apt-get install -yq ninja-build gettext cmake curl build-essential
     make CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/.neovim"
     make install
 
@@ -425,6 +426,46 @@ __build_neovim() {
 
     popd &>/dev/null
     rm -rf $tmp_dir
+}
+
+__is_steamos() {
+    __check_app_installed steamos-readonly
+}
+
+__pacman_setup() {
+    if __is_steamos; then
+        __sudo steamos-readonly disable
+        local devmode_status=$(__sudo steamos-devmode status)
+        if [ "$devmode_status" = "disabled" ]; then
+            __sudo steamos-devmode enable --no-prompt
+        fi
+        __sudo steamos-unminimize --dev
+    fi
+
+    __sudo pacman -Syu
+    __sudo pacman -S --needed base-devel git curl unzip tar
+
+    # Install yay
+    if ! __check_app_installed yay; then
+        local tmp_dir=$(mktemp -d)
+        pushd "$tmp_dir" &>/dev/null
+
+        git clone https://aur.archlinux.org/yay-bin.git
+        cd yay-bin
+        if __is_steamos && pacman -V | grep -oq "Pacman v6.0"; then
+            git checkout 96f90180a3cf72673b1769c23e2c74edb0293a9f
+        fi
+        makepkg -si
+
+        popd &>/dev/null
+        rm -rf "$tmp_dir"
+    fi
+}
+
+__pacman_cleanup() {
+    if __is_steamos; then
+        __sudo steamos-readonly enable
+    fi
 }
 
 __install_utilities_aptget() {
@@ -442,7 +483,7 @@ __install_utilities_aptget() {
             export PATH="$VOLTA_HOME/bin:$PATH"
 
             if ! __check_app_installed volta; then
-                bash -c "$(curl https://get.volta.sh)" || fail=1
+                bash -c "$(curl https://get.volta.sh)"
             fi
 
             volta install node pnpm
@@ -458,7 +499,7 @@ __install_utilities_aptget() {
             export PATH="$PYENV_ROOT/bin:$PATH"
 
             if ! __check_app_installed pyenv; then
-                curl -fsSL https://pyenv.run | bash || fail=1
+                curl -fsSL https://pyenv.run | bash
             fi
 
             if ! [ -d $PYENV_ROOT/plugins/pyenv-virtualenv ]; then
@@ -539,6 +580,7 @@ __install_utilities_aptget() {
         set -euo pipefail
 
         if ((build_neovim)); then
+            __sudo apt-get install -yq ninja-build gettext cmake curl build-essential
             __build_neovim
         else
             __install_gh_release neovim \
@@ -570,6 +612,152 @@ __install_utilities_aptget() {
     fi
 }
 
+__install_utilities_pacman() {
+    __pacman_setup
+    yay -S --noconfirm zsh tmux gnupg docker
+
+    local fail=()
+
+    # volta
+    if ! ((no_node)); then
+        (
+            set -euo pipefail
+
+            export VOLTA_HOME=$HOME/.volta
+            export PATH="$VOLTA_HOME/bin:$PATH"
+
+            if ! __check_app_installed volta; then
+                rm -rf "$VOLTA_HOME"
+                bash -c "$(curl https://get.volta.sh)"
+            fi
+
+            volta install node pnpm
+        ) || fail+=(volta)
+    fi
+
+    # pyenv
+    if ! ((no_python)); then
+        (
+            set -euo pipefail
+
+            export PYENV_ROOT=$HOME/.pyenv
+            export PATH="$PYENV_ROOT/bin:$PATH"
+
+            if ! __check_app_installed pyenv; then
+                rm -rf "$PYENV_ROOT"
+                curl -fsSL https://pyenv.run | bash
+            fi
+
+            if ! [ -d $PYENV_ROOT/plugins/pyenv-virtualenv ]; then
+                git clone https://github.com/pyenv/pyenv-virtualenv.git \
+                    $PYENV_ROOT/plugins/pyenv-virtualenv
+            fi
+
+            eval "$(pyenv init -)"
+            eval "$(pyenv virtualenv-init -)"
+
+            # Install build dependencies
+            yay -S --noconfirm openssl zlib xz tk
+
+            if ! ((use_system_python)); then
+                pyenv install -s 3
+                pyenv global 3
+            fi
+
+            if __check_app_installed pip; then
+                pip install -U pip
+            fi
+        ) || fail+=(pyenv)
+    fi
+
+    # fzf
+    __install_gh_release fzf \
+        junegunn/fzf \
+        "^[^\s]+" \
+        '(?<="name": ")(.+)(?=\",$)' \
+        "fzf-[^-]+-linux_arm64\.tar\.gz" \
+        "fzf-[^-]+-linux_amd64\.tar\.gz" || fail+=(fzf)
+
+    # fd
+    __install_gh_release fd \
+        sharkdp/fd \
+        "[^\s]+$" \
+        '(?<="name": "v)(.+)(?=\",$)' \
+        "fd-[^-]+-arm-unknown-linux-musleabihf\.tar\.gz" \
+        "fd-[^-]+-x86_64-unknown-linux-musl\.tar\.gz" || fail+=(fd)
+
+    # zoxide
+    __install_gh_release zoxide \
+        ajeetdsouza/zoxide \
+        "[^\s]+$" \
+        '(?<="name": ")(.+)(?=\",$)' \
+        "zoxide(-.+)?-aarch64-unknown-linux-musl\.tar\.gz" \
+        "zoxide(-.+)?-x86_64-unknown-linux-musl\.tar\.gz" || fail+=(zoxide)
+
+    # ripgrep
+    __install_gh_release ripgrep \
+        BurntSushi/ripgrep \
+        "(?<=ripgrep\s)[^\s]+" \
+        '(?<="name": ")(.+)(?=\",$)' \
+        "ripgrep-[^-]+-aarch64-unknown-linux-gnu\.tar\.gz" \
+        "ripgrep-[^-]+-x86_64-unknown-linux-musl\.tar\.gz" \
+        rg || fail+=(rg)
+
+    # bat
+    __install_gh_release bat \
+        sharkdp/bat \
+        "(?<=bat\s)[^\s]+" \
+        '(?<="name": "v)(.+)(?=\",$)' \
+        "bat-[^-]+-aarch64-unknown-linux-gnu\.tar\.gz" \
+        "bat-[^-]+-x86_64-unknown-linux-musl\.tar\.gz" || fail+=(bat)
+
+    # eza
+    __install_gh_release eza \
+        eza-community/eza \
+        "^v[\d\.]+" \
+        '(?<="name": "eza )(.+)(?=\",$)' \
+        "eza_aarch64-unknown-linux-gnu.tar.gz" \
+        "eza_x86_64-unknown-linux-musl.tar.gz" || fail+=(eza)
+
+    # neovim
+    (
+        set -euo pipefail
+
+        if ((build_neovim)); then
+            yay -S --noconfirm cmake ninja
+            __build_neovim
+        else
+            __install_gh_release neovim \
+                neovim/neovim \
+                "[^\s]+$" \
+                '(?<="name": "Nvim )(.+)(?=\",$)' \
+                "nvim-linux-arm64.tar.gz" \
+                "nvim-linux-x86_64.tar.gz" \
+                nvim \
+                bin/nvim \
+                $HOME/.neovim
+        fi
+
+        if __check_app_installed pip; then
+            pip install -U neovim-remote
+        fi
+
+        if __check_app_installed pyenv-virtualenv; then
+            pyenv virtualenv nvim
+            pyenv activate nvim
+            pip install -U pip neovim
+            pyenv deactivate
+        fi
+    ) || fail+=(neovim)
+
+    __pacman_cleanup
+
+    if [[ "${fail[@]}" ]]; then
+        echo "Failed to install some utilities: ${fail[@]}" >&2
+        return 1
+    fi
+}
+
 __install_utilities() {
     if ! ((install_utilities)); then
         return
@@ -578,8 +766,10 @@ __install_utilities() {
     echo "Installing utilities..."
     if ((is_macos)); then
         __install_utilities_macos
-    elif __check_app_installed apt-get &>/dev/null; then
+    elif __check_app_installed apt-get; then
         __install_utilities_aptget
+    elif __check_app_installed pacman; then
+        __install_utilities_pacman
     else
         echo "Unsupported OS. Skipping..." >&2
     fi
@@ -601,6 +791,15 @@ __install_desktop_apps_macos() {
     fi
 }
 
+__install_desktop_apps_pacman() {
+    __pacman_setup
+
+    yay -S --noconfirm zen-browser-bin insync discord spotify windscribe-v2-bin \
+        visual-studio-code-bin prismlauncher-qt5-bin
+
+    __pacman_cleanup
+}
+
 __install_desktop_apps() {
     if ! ((install_desktop_apps)); then
         return
@@ -609,6 +808,8 @@ __install_desktop_apps() {
     echo "Installing desktop apps..."
     if ((is_macos)); then
         __install_desktop_apps_macos
+    elif __check_app_installed pacman; then
+        __install_desktop_apps_pacman
     else
         echo "Unsupported OS. Skipping..." >&2
     fi
