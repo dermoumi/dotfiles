@@ -39,7 +39,13 @@ elif [[ -d "$file" ]]; then
             cmd+=( -C )
         fi
     else
-        cmd=( ls -x --human-readable --recursive --group-directories-first )
+        if command -v eza; then
+            cmd=( eza --tree --icons=always )
+        else
+            cmd=( ls )
+        fi
+
+        cmd+=( -x --group-directories-first )
 
         if [[ ! "$NO_COLOR" ]]; then
             cmd+=( --color=always )
