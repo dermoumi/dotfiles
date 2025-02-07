@@ -24,8 +24,8 @@ force=0
 clone=0
 install_desktop_apps=0
 install_utilities=0
-no_python=0
-no_node=0
+install_python=1
+install_node=1
 use_system_python=0
 build_neovim=0
 chsh=0
@@ -33,13 +33,13 @@ chsh=0
 # Parse arguments
 while :; do
     case ${1-} in
-        --cli)
+        --init-cli)
             link=1
             clone=1
             install_utilities=1
             shift
             ;;
-        --desktop)
+        --init-desktop)
             link=1
             clone=1
             install_utilities=1
@@ -72,7 +72,7 @@ while :; do
             shift
             ;;
         --no-python)
-            no_python=1
+            install_python=0
             shift
             ;;
         --use-system-python)
@@ -80,7 +80,7 @@ while :; do
             shift
             ;;
         --no-node)
-            no_node=1
+            install_node=0
             shift
             ;;
         --build-neovim)
@@ -90,6 +90,10 @@ while :; do
         --chsh)
             chsh=1
             shift
+            ;;
+        -*)
+            echo "Unknown option: $1" >&2
+            exit 1
             ;;
         *)
             break
@@ -112,8 +116,10 @@ __clone_repo() {
     fi
 
     git clone "$repo_https_url" "$dotfiles_dir"
-    cd "$dotfiles_dir"
+
+    pushd "$dotfiles_dir" &>/dev/null
     git remote set-url origin "$repo_ssh_url"
+    popd &>/dev/null
 }
 
 # Utility to link source to target
@@ -131,7 +137,7 @@ __mk_link() {
     mkdir -p "$target_dir"
 
     echo "Linking $source to $target"
-    ln -Ffs "$PWD/$source" "$target_dir"
+    ln -Ffs "$HOME/.dotfiles/$source" "$target_dir"
 }
 
 __make_links() {
@@ -183,6 +189,18 @@ __ensure_homebrew_installed() {
     fi
 }
 
+__is_root_user() {
+    [ "$(id -u)" = "0" ]
+}
+
+__pip_install() {
+    if __is_root_user; then
+        pip install --root-user-action=ignore "$@"
+    else
+        pip install "$@"
+    fi
+}
+
 # Install utilities
 __install_utilities_macos() {
     __ensure_homebrew_installed
@@ -192,7 +210,7 @@ __install_utilities_macos() {
         pyenv-virtualenv eza gnupg xz switchaudio-osx
 
     # Setup volta
-    if ! ((no_node)); then
+    if ((install_node)); then
         brew install volta
 
         export VOLTA_HOME=$HOME/.volta
@@ -202,7 +220,7 @@ __install_utilities_macos() {
     fi
 
     # Setup pyenv
-    if ! ((no_python)); then
+    if ((install_python)); then
         brew install pyenv
 
         export PYENV_ROOT=$HOME/.pyenv
@@ -217,20 +235,40 @@ __install_utilities_macos() {
             pyenv global 3
         fi
 
-        pip install -U pip
+        __pip install -U pip
     fi
 
     # Setup nvim python provider
     if __check_app_installed pip; then
-        pip install -U neovim-remote
+        __pip_install -U neovim-remote
     fi
 
     if __check_app_installed pyenv-virtualenv; then
         pyenv virtualenv nvim
         pyenv activate nvim
-        pip install -U pip neovim
+        __pip_install -U pip neovim
         pyenv deactivate
     fi
+}
+
+__is_libc_version_supported() {
+    local target_major=$1
+    local target_minor=$2
+
+    # Extract version from `ldd --version`
+    local version=$(ldd --version | head -n1 | grep -oP '\d+\.\d+')
+    local major=$(echo $version | cut -d. -f1)
+    local minor=$(echo $version | cut -d. -f2)
+
+    if ((major < target_major)); then
+        return 1
+    fi
+
+    if ((major == target_major)) && ((minor < target_minor)); then
+        return 1
+    fi
+
+    return 0
 }
 
 repo_releases_cache=""
@@ -277,24 +315,26 @@ __is_latest_version() {
     local latest_version_pattern=$4
     local bin=${3-$name}
 
-    if __check_app_installed $bin; then
-        local version_str=$($bin --version)
-        if ((  "$?" )); then
-            echo "Failed to check $name" >&2
-            return 1
-        fi
-
-        local current=$($bin --version | grep -oP "$current_version_pattern" | head -n1)
-        local latest=$(__grep_repo_releases "$repo" "$latest_version_pattern")
-
-        if [ "$current" == "$latest" ]; then
-            echo "$name is already up to date"
-            return 0
-        fi
-
-        echo "Updating $name from '$current' to '$latest'"
+    if ! __check_app_installed $bin; then
         return 1
     fi
+
+    local version_str=$($bin --version)
+    if ((  "$?" )); then
+        echo "Failed to check $name" >&2
+        return 1
+    fi
+
+    local current=$($bin --version | grep -oP "$current_version_pattern" | head -n1)
+    local latest=$(__grep_repo_releases "$repo" "$latest_version_pattern")
+
+    if [ "$current" == "$latest" ]; then
+        echo "$name is already up to date"
+        return 0
+    fi
+
+    echo "Updating $name from '$current' to '$latest'"
+    return 1
 }
 
 __install_gh_release() {
@@ -312,24 +352,6 @@ __install_gh_release() {
 
     if __is_latest_version "$name" "$repo" "$current_version_pattern" "$latest_version_pattern" "$bin"; then
         return
-    fi
-
-    if __check_app_installed $bin; then
-        local version_str=$($bin --version)
-        if ((  "$?" )); then
-            echo "Failed to check $name" >&2
-            return 1
-        fi
-
-        local current=$($bin --version | grep -oP "$current_version_pattern" | head -n1)
-        local latest=$(__grep_repo_releases "$repo" "$latest_version_pattern")
-
-        if [ "$current" == "$latest" ]; then
-            echo "$name is already up to date"
-            return
-        fi
-
-        echo "Updating $name from '$current' to '$latest'"
     fi
 
     (
@@ -442,11 +464,11 @@ __pacman_setup() {
         __sudo steamos-unminimize --dev
     fi
 
-    __sudo pacman -Syu
-    __sudo pacman -S --needed base-devel git curl unzip tar
+    __sudo pacman -Syu --noconfirm
+    __sudo pacman -S --noconfirm --needed base-devel git curl unzip tar
 
     # Install yay
-    if ! __check_app_installed yay; then
+    if ! __check_app_installed yay && ! __is_root_user; then
         local tmp_dir=$(mktemp -d)
         pushd "$tmp_dir" &>/dev/null
 
@@ -468,143 +490,158 @@ __pacman_cleanup() {
     fi
 }
 
-__install_utilities_aptget() {
-    __sudo apt-get update
-    __sudo apt-get install -yq zsh git curl unzip tmux build-essential gnupg
+__install_volta() {
+    export VOLTA_HOME=$HOME/.volta
+    export PATH="$VOLTA_HOME/bin:$PATH"
 
-    local fail=()
-
-    # volta
-    if ! ((no_node)); then
-        (
-            set -euo pipefail
-
-            export VOLTA_HOME=$HOME/.volta
-            export PATH="$VOLTA_HOME/bin:$PATH"
-
-            if ! __check_app_installed volta; then
-                bash -c "$(curl https://get.volta.sh)"
-            fi
-
-            volta install node pnpm
-        ) || fail+=(volta)
+    if ! __check_app_installed volta; then
+        bash -c "$(curl https://get.volta.sh)"
     fi
 
-    # pyenv
-    if ! ((no_python)); then
-        (
-            set -euo pipefail
+    volta install node pnpm
+}
 
-            export PYENV_ROOT=$HOME/.pyenv
-            export PATH="$PYENV_ROOT/bin:$PATH"
+__install_python() {
+    export PYENV_ROOT=$HOME/.pyenv
+    export PATH="$PYENV_ROOT/bin:$PATH"
 
-            if ! __check_app_installed pyenv; then
-                curl -fsSL https://pyenv.run | bash
-            fi
-
-            if ! [ -d $PYENV_ROOT/plugins/pyenv-virtualenv ]; then
-                git clone https://github.com/pyenv/pyenv-virtualenv.git \
-                    $PYENV_ROOT/plugins/pyenv-virtualenv
-            fi
-
-            eval "$(pyenv init -)"
-            eval "$(pyenv virtualenv-init -)"
-
-            # Install build dependencies
-            __sudo apt-get install -yq libssl-dev zlib1g-dev libbz2-dev \
-                libreadline-dev libsqlite3-dev libncursesw5-dev xz-utils \
-                tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
-
-            if ! ((use_system_python)); then
-                pyenv install -s 3
-                pyenv global 3
-            fi
-
-            if __check_app_installed pip; then
-                pip install -U pip
-            fi
-        ) || fail+=(pyenv)
+    if ! __check_app_installed pyenv; then
+        curl -fsSL https://pyenv.run | bash
     fi
 
-    # fzf
+    if ! [ -d $PYENV_ROOT/plugins/pyenv-virtualenv ]; then
+        git clone https://github.com/pyenv/pyenv-virtualenv.git \
+            $PYENV_ROOT/plugins/pyenv-virtualenv
+    fi
+
+    eval "$(pyenv init -)"
+    eval "$(pyenv virtualenv-init -)"
+
+    if ! ((use_system_python)); then
+        pyenv install -s 3
+        pyenv global 3
+    fi
+
+    if __check_app_installed pip; then
+        __pip_install -U pip
+    fi
+}
+
+__install_fzf() {
     __install_gh_release fzf \
         junegunn/fzf \
         "^[^\s]+" \
         '(?<="name": ")(.+)(?=\",$)' \
         "fzf-[^-]+-linux_arm64\.tar\.gz" \
-        "fzf-[^-]+-linux_amd64\.tar\.gz" || fail+=(fzf)
+        "fzf-[^-]+-linux_amd64\.tar\.gz"
+}
 
-    # fd
+__install_fd() {
     __install_gh_release fd \
         sharkdp/fd \
         "[^\s]+$" \
         '(?<="name": "v)(.+)(?=\",$)' \
         "fd-[^-]+-arm-unknown-linux-musleabihf\.tar\.gz" \
-        "fd-[^-]+-x86_64-unknown-linux-musl\.tar\.gz" || fail+=(fd)
+        "fd-[^-]+-x86_64-unknown-linux-musl\.tar\.gz"
+}
 
-    # zoxide
+__install_zoxide() {
     __install_gh_release zoxide \
         ajeetdsouza/zoxide \
         "[^\s]+$" \
         '(?<="name": ")(.+)(?=\",$)' \
         "zoxide(-.+)?-aarch64-unknown-linux-musl\.tar\.gz" \
-        "zoxide(-.+)?-x86_64-unknown-linux-musl\.tar\.gz" || fail+=(zoxide)
+        "zoxide(-.+)?-x86_64-unknown-linux-musl\.tar\.gz"
+}
 
-    # ripgrep
+__install_ripgrep() {
     __install_gh_release ripgrep \
         BurntSushi/ripgrep \
         "(?<=ripgrep\s)[^\s]+" \
         '(?<="name": ")(.+)(?=\",$)' \
         "ripgrep-[^-]+-aarch64-unknown-linux-gnu\.tar\.gz" \
         "ripgrep-[^-]+-x86_64-unknown-linux-musl\.tar\.gz" \
-        rg || fail+=(rg)
+        rg
+}
 
-    # bat
+__install_bat() {
     __install_gh_release bat \
         sharkdp/bat \
         "(?<=bat\s)[^\s]+" \
         '(?<="name": "v)(.+)(?=\",$)' \
         "bat-[^-]+-aarch64-unknown-linux-gnu\.tar\.gz" \
-        "bat-[^-]+-x86_64-unknown-linux-musl\.tar\.gz" || fail+=(bat)
+        "bat-[^-]+-x86_64-unknown-linux-musl\.tar\.gz"
+}
 
-    # eza
+__install_eza() {
     __install_gh_release eza \
         eza-community/eza \
         "^v[\d\.]+" \
         '(?<="name": "eza )(.+)(?=\",$)' \
         "eza_aarch64-unknown-linux-gnu.tar.gz" \
-        "eza_x86_64-unknown-linux-musl.tar.gz" || fail+=(eza)
+        "eza_x86_64-unknown-linux-musl.tar.gz"
+}
+
+__install_neovim() {
+    if ((build_neovim)); then
+        __build_neovim
+    else
+        __install_gh_release neovim \
+            neovim/neovim \
+            "[^\s]+$" \
+            '(?<="name": "Nvim )(.+)(?=\",$)' \
+            "nvim-linux-arm64.tar.gz" \
+            "nvim-linux-x86_64.tar.gz" \
+            nvim \
+            bin/nvim \
+            $HOME/.neovim
+    fi
+
+    if __check_app_installed pip; then
+        __pip_install -U neovim-remote
+    fi
+
+    if __check_app_installed pyenv-virtualenv; then
+        pyenv virtualenv nvim
+        pyenv activate nvim
+        __pip_install -U pip neovim
+        pyenv deactivate
+    fi
+}
+
+__install_utilities_aptget() {
+    __sudo apt-get update
+    __sudo apt-get install -yq zsh git curl unzip tmux build-essential gnupg
+
+    local fail=()
+
+    __install_fzf || fail+=(fzf)
+    __install_fd || fail+=(fd)
+    __install_zoxide || fail+=(zoxide)
+    __install_ripgrep || fail+=(rg)
+    __install_bat || fail+=(bat)
+    __install_eza || fail+=(eza)
+
+    # volta
+    if ((install_node)); then
+        __install_volta || fail+=(volta)
+    fi
+
+    # pyenv
+    if ((install_python)); then
+        # Install build dependencies
+        __sudo apt-get install -yq libssl-dev zlib1g-dev libbz2-dev \
+            libreadline-dev libsqlite3-dev libncursesw5-dev xz-utils \
+            tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+        __install_python || fail+=(pyenv)
+    fi
 
     # neovim
-    (
-        set -euo pipefail
-
-        if ((build_neovim)); then
-            __sudo apt-get install -yq ninja-build gettext cmake curl build-essential
-            __build_neovim
-        else
-            __install_gh_release neovim \
-                neovim/neovim \
-                "[^\s]+$" \
-                '(?<="name": "Nvim )(.+)(?=\",$)' \
-                "nvim-linux-arm64.tar.gz" \
-                "nvim-linux-x86_64.tar.gz" \
-                nvim \
-                bin/nvim \
-                $HOME/.neovim
-        fi
-
-        if __check_app_installed pip; then
-            pip install -U neovim-remote
-        fi
-
-        if __check_app_installed pyenv-virtualenv; then
-            pyenv virtualenv nvim
-            pyenv activate nvim
-            pip install -U pip neovim
-            pyenv deactivate
-        fi
-    ) || fail+=(neovim)
+    __is_libc_version_supported 2 38 || build_neovim=1
+    if ((build_neovim)); then
+        __sudo apt-get install -yq ninja-build gettext cmake curl build-essential
+    fi
+    __install_neovim || fail+=(neovim)
 
     if [[ "${fail[@]}" ]]; then
         echo "Failed to install some utilities: ${fail[@]}" >&2
@@ -614,141 +651,34 @@ __install_utilities_aptget() {
 
 __install_utilities_pacman() {
     __pacman_setup
-    yay -S --noconfirm zsh tmux gnupg docker
+    __sudo pacman -S --noconfirm zsh tmux gnupg docker
 
     local fail=()
 
+    __install_fzf || fail+=(fzf)
+    __install_fd || fail+=(fd)
+    __install_zoxide || fail+=(zoxide)
+    __install_ripgrep || fail+=(rg)
+    __install_bat || fail+=(bat)
+    __install_eza || fail+=(eza)
+
     # volta
-    if ! ((no_node)); then
-        (
-            set -euo pipefail
-
-            export VOLTA_HOME=$HOME/.volta
-            export PATH="$VOLTA_HOME/bin:$PATH"
-
-            if ! __check_app_installed volta; then
-                rm -rf "$VOLTA_HOME"
-                bash -c "$(curl https://get.volta.sh)"
-            fi
-
-            volta install node pnpm
-        ) || fail+=(volta)
+    if ((install_node)); then
+        __install_volta || fail+=(volta)
     fi
 
     # pyenv
-    if ! ((no_python)); then
-        (
-            set -euo pipefail
-
-            export PYENV_ROOT=$HOME/.pyenv
-            export PATH="$PYENV_ROOT/bin:$PATH"
-
-            if ! __check_app_installed pyenv; then
-                rm -rf "$PYENV_ROOT"
-                curl -fsSL https://pyenv.run | bash
-            fi
-
-            if ! [ -d $PYENV_ROOT/plugins/pyenv-virtualenv ]; then
-                git clone https://github.com/pyenv/pyenv-virtualenv.git \
-                    $PYENV_ROOT/plugins/pyenv-virtualenv
-            fi
-
-            eval "$(pyenv init -)"
-            eval "$(pyenv virtualenv-init -)"
-
-            # Install build dependencies
-            yay -S --noconfirm openssl zlib xz tk
-
-            if ! ((use_system_python)); then
-                pyenv install -s 3
-                pyenv global 3
-            fi
-
-            if __check_app_installed pip; then
-                pip install -U pip
-            fi
-        ) || fail+=(pyenv)
+    if ((install_python)); then
+        __sudo pacman -S --noconfirm openssl zlib xz tk
+        __install_python || fail+=(pyenv)
     fi
 
-    # fzf
-    __install_gh_release fzf \
-        junegunn/fzf \
-        "^[^\s]+" \
-        '(?<="name": ")(.+)(?=\",$)' \
-        "fzf-[^-]+-linux_arm64\.tar\.gz" \
-        "fzf-[^-]+-linux_amd64\.tar\.gz" || fail+=(fzf)
-
-    # fd
-    __install_gh_release fd \
-        sharkdp/fd \
-        "[^\s]+$" \
-        '(?<="name": "v)(.+)(?=\",$)' \
-        "fd-[^-]+-arm-unknown-linux-musleabihf\.tar\.gz" \
-        "fd-[^-]+-x86_64-unknown-linux-musl\.tar\.gz" || fail+=(fd)
-
-    # zoxide
-    __install_gh_release zoxide \
-        ajeetdsouza/zoxide \
-        "[^\s]+$" \
-        '(?<="name": ")(.+)(?=\",$)' \
-        "zoxide(-.+)?-aarch64-unknown-linux-musl\.tar\.gz" \
-        "zoxide(-.+)?-x86_64-unknown-linux-musl\.tar\.gz" || fail+=(zoxide)
-
-    # ripgrep
-    __install_gh_release ripgrep \
-        BurntSushi/ripgrep \
-        "(?<=ripgrep\s)[^\s]+" \
-        '(?<="name": ")(.+)(?=\",$)' \
-        "ripgrep-[^-]+-aarch64-unknown-linux-gnu\.tar\.gz" \
-        "ripgrep-[^-]+-x86_64-unknown-linux-musl\.tar\.gz" \
-        rg || fail+=(rg)
-
-    # bat
-    __install_gh_release bat \
-        sharkdp/bat \
-        "(?<=bat\s)[^\s]+" \
-        '(?<="name": "v)(.+)(?=\",$)' \
-        "bat-[^-]+-aarch64-unknown-linux-gnu\.tar\.gz" \
-        "bat-[^-]+-x86_64-unknown-linux-musl\.tar\.gz" || fail+=(bat)
-
-    # eza
-    __install_gh_release eza \
-        eza-community/eza \
-        "^v[\d\.]+" \
-        '(?<="name": "eza )(.+)(?=\",$)' \
-        "eza_aarch64-unknown-linux-gnu.tar.gz" \
-        "eza_x86_64-unknown-linux-musl.tar.gz" || fail+=(eza)
-
     # neovim
-    (
-        set -euo pipefail
-
-        if ((build_neovim)); then
-            yay -S --noconfirm cmake ninja
-            __build_neovim
-        else
-            __install_gh_release neovim \
-                neovim/neovim \
-                "[^\s]+$" \
-                '(?<="name": "Nvim )(.+)(?=\",$)' \
-                "nvim-linux-arm64.tar.gz" \
-                "nvim-linux-x86_64.tar.gz" \
-                nvim \
-                bin/nvim \
-                $HOME/.neovim
-        fi
-
-        if __check_app_installed pip; then
-            pip install -U neovim-remote
-        fi
-
-        if __check_app_installed pyenv-virtualenv; then
-            pyenv virtualenv nvim
-            pyenv activate nvim
-            pip install -U pip neovim
-            pyenv deactivate
-        fi
-    ) || fail+=(neovim)
+    __is_libc_version_supported 2 38 || build_neovim=1
+    if ((build_neovim)); then
+        __sudo pacman -S --noconfirm cmake ninja
+    fi
+    __install_neovim || fail+=(neovim)
 
     __pacman_cleanup
 
