@@ -383,6 +383,7 @@ __install_gh_release() {
         fi
 
         if [ "$whole_dir_mv_to" ]; then
+            rm -rf "$whole_dir_mv_to"
             mkdir -p "$whole_dir_mv_to"
             mv ./* "$whole_dir_mv_to"
 
@@ -440,11 +441,14 @@ __build_neovim() {
     curl -fsSL $archive_url | tar -xz
     cd neovim-*
 
-    make CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/.neovim"
+    local target_dir=$HOME/.neovim
+    rm -rf $target_dir
+    mkdir -p $target_dir
+    make CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$target_dir"
     make install
 
     mkdir -p "$bin_path"
-    ln -s $HOME/.neovim/bin/nvim $bin_path/nvim
+    ln -s $target_dir/bin/nvim $bin_path/nvim
 
     popd &>/dev/null
     rm -rf $tmp_dir
