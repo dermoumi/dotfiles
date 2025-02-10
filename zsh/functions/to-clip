@@ -3,9 +3,9 @@
 to-clip() {
     # Copy stdin to clipboard depending on which clipboard tool is available
     # And ultimately fallback to osc52 if nothing is available
-    if command -v pbcopy &>/dev/null; then
+    if [[ $commands[pbcopy] ]]; then
         pbcopy
-    elif command -v xclip &>/dev/null; then
+    elif [[ $commands[xclip] ]]; then
         xclip -selection clipboard
     else
         # osc52

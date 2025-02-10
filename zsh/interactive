@@ -18,13 +18,13 @@ alias ip="ip --color=auto"
 alias dmesg="dmesg --color=auto"
 
 # eza
-if command -v eza &>/dev/null; then
+if [[ $commands[eza] ]]; then
     alias ls=eza
     alias lt='ll --tree'
 fi
 
 # bat
-if command -v bat &>/dev/null; then
+if [[ $commands[bat] ]]; then
     export BAT_STYLE="snip"
     export BAT_THEME="base16"
     export BAT_THEME_DARK="base16"
@@ -33,14 +33,14 @@ if command -v bat &>/dev/null; then
 fi
 
 # zoxide
-if command -v zoxide &>/dev/null; then
+if [[ $commands[zoxide] ]]; then
     eval "$(zoxide init zsh)"
 fi
 
 # neovim
-if command -v nvim &>/dev/null; then
+if [[ $commands[nvim] ]]; then
     export EDITOR=nvim
-elif command -v vim &>/dev/null; then
+elif [[ $commands[vim] ]]; then
     export EDITOR=vim
 fi
 
@@ -169,7 +169,7 @@ zinit ice wait=0 lucid depth=1 atload='path=($PWD/bin $path)' atinit=init_forgit
 zinit light wfxr/forgit
 
 # fzf
-if command -v fzf &>/dev/null; then
+if [[ $commands[fzf] ]]; then
     set_fzf_opts() {
         preview_window=$(preview_params)
         export FZF_DEFAULT_OPTS="
@@ -219,7 +219,7 @@ if command -v fzf &>/dev/null; then
 fi
 
 # Enable automatic activation of virtualenvs
-if command -v pyenv &>/dev/null; then
+if [[ $commands[pyenv] ]]; then
     eval "$(pyenv init --path)"
     eval "$(pyenv init -)"
     eval "$(pyenv virtualenv-init -)"
