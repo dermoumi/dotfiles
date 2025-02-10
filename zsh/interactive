@@ -104,8 +104,8 @@ init_abbr() {
     ABBR_AUTOLOAD=0
     ABBR_DEFAULT_BINDINGS=0
     ABBR_SET_EXPANSION_CURSOR=1
-    ABBR_REGULAR_ABBREVIATION_SCALAR_PREFIXES+=("sudo")
-    ABBR_REGULAR_ABBREVIATION_GLOB_PREFIXES+=( "* \| ")
+    ABBR_REGULAR_ABBREVIATION_SCALAR_PREFIXES+=("sudo ", " ")
+    ABBR_REGULAR_ABBREVIATION_GLOB_PREFIXES+=( "*\|" )
 
     bindkey " " abbr-expand-and-insert # space to expand abbr
     bindkey "^ " magic-space # ctrl+space to insert space without expanding abbr
