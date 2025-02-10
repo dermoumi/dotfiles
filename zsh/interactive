@@ -104,16 +104,27 @@ init_abbr() {
     ABBR_AUTOLOAD=0
     ABBR_DEFAULT_BINDINGS=0
     ABBR_SET_EXPANSION_CURSOR=1
+    ABBR_SET_LINE_CURSOR=1
     ABBR_REGULAR_ABBREVIATION_SCALAR_PREFIXES+=("sudo ", " ")
     ABBR_REGULAR_ABBREVIATION_GLOB_PREFIXES+=( "*\|" )
+}
 
-    bindkey " " abbr-expand-and-insert # space to expand abbr
+load_abbr() {
     bindkey "^ " magic-space # ctrl+space to insert space without expanding abbr
     bindkey -M isearch " " magic-space # normal space is normal in incremental search
-    bindkey -M isearch "^ " abbr-expand-and-insert # ctrl+space expands abbr in isearch
+
+    _abbr_expand_and_insert() {
+        emulate -LR zsh
+
+        abbr-expand-and-insert
+        zle redisplay  # Refresh required to update syntax highlighting
+    }
+    zle -N _abbr_expand_and_insert
+    bindkey " " _abbr_expand_and_insert # space to expand abbr
+    bindkey -M isearch "^ " _abbr_expand_and_insert # ctrl+space expands abbr in isearch
 
     # Allows abbreviation to be expanded on enter if they're the only command to execute
-    _expand_abbr_and_accept() {
+    _abbr_expand_and_accept() {
         emulate -LR zsh
 
         # make sure the rbuffer doesn't start with a space
@@ -123,10 +134,45 @@ init_abbr() {
             zle accept-line
         fi
     }
-    zle -N _expand_abbr_and_accept
-    bindkey "^M" _expand_abbr_and_accept
+    zle -N _abbr_expand_and_accept
+    bindkey "^M" _abbr_expand_and_accept
+
+    # syntax highlighting for abbreviations
+    chroma_single_word() {
+        (( next_word = 2 | 8192 ))
+
+        local __first_call="$1" __wrd="$2" __start_pos="$3" __end_pos="$4"
+        local __style
+
+        (( __first_call )) && { __style=${FAST_THEME_NAME}alias }
+        [[ -n "$__style" ]] && (( __start=__start_pos-${#PREBUFFER}, __end=__end_pos-${#PREBUFFER}, __start >= 0 )) && reply+=("$__start $__end ${FAST_HIGHLIGHT_STYLES[$__style]}")
+
+        (( this_word = next_word ))
+        _start_pos=$_end_pos
+
+        return 0
+    }
+
+    register_single_word_chroma() {
+        local word=$1
+        if [[ -x $(command -v $word) ]] || [[ -n $FAST_HIGHLIGHT["chroma-$word"] ]]; then
+            return 1
+        fi
+
+        FAST_HIGHLIGHT+=( "chroma-$word" chroma_single_word )
+        return 0
+    }
+
+    if [[ -n $FAST_HIGHLIGHT ]]; then
+        for abbr in ${(f)"$(abbr list-abbreviations)"}; do
+            if [[ $abbr != *' '* ]]; then
+                register_single_word_chroma ${(Q)abbr}
+            fi
+        done
+    fi
 }
-zinit ice wait=0 lucid depth=1 atinit=init_abbr submods
+
+zinit ice wait=0 lucid depth=1 atinit=init_abbr atload=load_abbr submods
 zinit light olets/zsh-abbr
 
 # fish like substring search
