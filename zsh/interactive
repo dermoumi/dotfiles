@@ -223,16 +223,32 @@ if [[ $commands[fzf] ]]; then
     export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
     export FZF_ALT_C_COMMAND="fd --type d --color=never --no-ignore-vcs --hidden"
 
+    __fzf-complete() {
+        local trigger=${FZF_COMPLETION_TRIGGER:-**}
+        LBUFFER="${LBUFFER}${trigger}"
+        zle fzf-completion 2>/dev/null || zle expand-or-complete
+        if [[ $LBUFFER == *$trigger ]]; then
+            LBUFFER=${LBUFFER%$trigger}
+        fi
+    }
+    zle -N __fzf-complete
+    bindkey "^F" __fzf-complete
+
     trap set_fzf_opts SIGWINCH # call whenever the terminal resizes
     set_fzf_opts
 
-    _fzf_complete_ssht() {
+    source <(fzf --zsh)
+
+    # Override fzf's version by this one that only uses the ~/.ssh/config file
+    _fzf_complete_ssh() {
         _fzf_complete --prompt="ssh> " -- "$@" < <(
             cat ~/.ssh/config | grep -E '^Host\s+' | awk '{print $2}'
         )
     }
 
-    source <(fzf --zsh)
+    _fzf_complete_ssht() {
+        _fzf_complete_ssh "$@"
+    }
 fi
 
 # Enable automatic activation of virtualenvs
