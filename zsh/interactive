@@ -38,7 +38,7 @@ fi
 
 # zoxide
 if [[ $commands[zoxide] ]]; then
-    eval "$(zoxide init zsh)"
+    source <(zoxide init zsh)
 fi
 
 # neovim
@@ -228,12 +228,12 @@ if [[ $commands[fzf] ]]; then
         )
     }
 
-    eval "$(fzf --zsh)"
+    source <(fzf --zsh)
 fi
 
 # Enable automatic activation of virtualenvs
 if [[ $commands[pyenv] ]]; then
-    eval "$(pyenv init --path)"
-    eval "$(pyenv init -)"
-    eval "$(pyenv virtualenv-init -)"
+    source <(pyenv init --path)
+    source <(pyenv init -)
+    source <(pyenv virtualenv-init -)
 fi

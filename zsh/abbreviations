@@ -1,5 +1,7 @@
 abbr dc="docker compose"
 abbr kc="kubectl"
+abbr kaf="kubectl apply -f"
+abbr kg="kubectl get"
 
 abbr ga="git forgit add"
 abbr glo="git forgit log"
