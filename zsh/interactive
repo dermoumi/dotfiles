@@ -1,5 +1,23 @@
 #!/bin/zsh
 
+# zinit
+export ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+if [[ ! -d "$ZINIT_HOME" ]]; then
+    ZINIT_HOME="$(dirname "$ZINIT_HOME")" \
+    NO_EMOJI=1 \
+    NO_INPUT=1 \
+    NO_TUTORIAL=1 \
+    NO_ANNEXES=1 \
+    NO_EDIT=1 \
+    sh -c "$(curl -fsSL https://git.io/zinit-install)"
+fi
+
+source "$ZINIT_HOME/zinit.zsh"
+
+# powerlevel10k theme
+zinit ice depth=1
+zinit light romkatv/powerlevel10k
+
 # Enable completion
 autoload -Uz compinit
 compinit
@@ -57,6 +75,13 @@ if [[ -f $HOME/.kube/config ]]; then
     export KUBECONFIG=$HOME/.kube/config
 fi
 
+# Enable automatic activation of virtualenvs
+if [[ $commands[pyenv] ]]; then
+    source <(pyenv init --path)
+    source <(pyenv init -)
+    source <(pyenv virtualenv-init -)
+fi
+
 # keybindings
 source "$ZDOTDIR/keybindings"
 
@@ -76,23 +101,167 @@ export LESS=" \
 # requires a fairly recent version of less
 export LESSKEYIN="$HOME/.dotfiles/.lesskey"
 
-# zinit
-export ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
-if [[ ! -d "$ZINIT_HOME" ]]; then
-    ZINIT_HOME="$(dirname "$ZINIT_HOME")" \
-    NO_EMOJI=1 \
-    NO_INPUT=1 \
-    NO_TUTORIAL=1 \
-    NO_ANNEXES=1 \
-    NO_EDIT=1 \
-    sh -c "$(curl -fsSL https://git.io/zinit-install)"
+# fzf
+if [[ $commands[fzf] ]]; then
+    # calculate fzf preview window params based on terminal size
+    preview_params() {
+        # sets fzf preview position and status (no/hidden) depending on terminal size
+        local hide_threshold_columns=74
+        local hide_threshold_lines=36
+        local lines_factor=2.3 # assume that a cell is n times a tall as it wide
+
+        local config="default"
+        local hidden="nohidden"
+
+        if ((COLUMNS > LINES * lines_factor)); then   # screen is wider than it is tall
+            config="right,50%,border-left"
+
+            # force hide the preview window if the screen is not wide enough
+            if ((COLUMNS < hide_threshold_columns)); then
+                hidden="hidden"
+            fi
+        else # screen is taller than it is wide
+            config="bottom,50%,border-top"
+
+            # force hide the preview window if the screen is not tall enough
+            if ((LINES < hide_threshold_lines)); then
+                hidden="hidden"
+            fi
+        fi
+
+        echo "$config,$hidden"
+    }
+
+    set_fzf_opts() {
+        preview_window=$(preview_params)
+        export FZF_DEFAULT_OPTS="
+            --ansi
+            --cycle
+            --reverse
+            --info=inline-right
+            --no-separator
+            --height=30%
+            --border=none
+            --list-border=none
+            --input-border=none
+            --preview='preview {}'
+            --pointer=
+            --highlight-line
+            --color=gutter:-1,pointer:255,scrollbar:4,preview-scrollbar:4
+            --bind='ctrl-space:toggle-down'
+            --bind='ctrl-z:toggle-preview'
+            --bind='ctrl-y:execute-silent(printf '%s' {+} | zsh -ic to-clip)'
+            --bind='ctrl-u:preview-up+preview-up+preview-up+preview-up+preview-up'
+            --bind='ctrl-d:preview-down+preview-down+preview-down+preview-down+preview-down'
+            --bind='ctrl-r:toggle-all'
+            --bind='ctrl-s:toggle-sort'
+            --bind='ctrl-w:toggle-preview-wrap'
+            --bind='home:first'
+            --bind='end:last'
+            --preview-window=$preview_window
+        "
+        export FZF_CTRL_T_OPTS="--no-height --no-border --preview-window=$preview_window"
+        export FZF_ALT_C_OPTS="--no-height --no-border --preview-window=$preview_window"
+    }
+
+    export FZF_DEFAULT_COMMAND="fd --type f --type l --color=never --no-ignore-vcs --hidden"
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    export FZF_ALT_C_COMMAND="fd --type d --color=never --no-ignore-vcs --hidden"
+
+    __fzf-complete() {
+        local trigger=${FZF_COMPLETION_TRIGGER:-**}
+        LBUFFER="${LBUFFER}${trigger}"
+        zle fzf-completion 2>/dev/null || zle expand-or-complete
+        if [[ $LBUFFER == *$trigger ]]; then
+            LBUFFER=${LBUFFER%$trigger}
+        fi
+    }
+    zle -N __fzf-complete
+    bindkey "^F" __fzf-complete
+
+    trap set_fzf_opts SIGWINCH # call whenever the terminal resizes
+    set_fzf_opts
+
+    source <(fzf --zsh)
+
+    # Override fzf's version by this one that only uses the ~/.ssh/config file
+    _my_ssh_completion() {
+        local -a hosts
+        hosts=($(cat ~/.ssh/config | grep -E '^Host\s+' | awk '{print $2}'))
+        compadd -a hosts
+    }
+    compdef _my_ssh_completion ssh ssht
+
+    # fzf-tab
+    load_fzf_tab() {
+        # set list-colors to enable filename colorizing
+        zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+        # force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
+        zstyle ':completion:*' menu no
+
+        # Fzf settings
+        zstyle ':fzf-tab:*' use-fzf-default-opts yes
+        zstyle ':fzf-tab:complete:*' fzf-flags --preview-window=right:50%,hidden
+        zstyle ':fzf-tab:complete:*' fzf-preview 'preview $realpath'
+
+        # set descriptions format to enable group support
+        # NOTE: don't use escape sequences (like '%F{red}%d%f') here, fzf-tab will ignore them
+        zstyle ':completion:*:descriptions' format '[%d]'
+        # switch group using `<` and `>`
+        zstyle ':fzf-tab:*' switch-group '<' '>'
+
+        # Disable sorting for ssh and git checkout
+        zstyle ':completion:*:(ssh|ssht|git-checkout):*' sort false
+
+        # Kill
+        zstyle ':completion:*:*:*:*:processes' command "ps -u $USER -o pid,user,comm -w -w"
+        zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-preview \
+            '[[ $group == "[process ID]" ]] && ps -p $word -o command= -w -w'
+        zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-flags --preview-window=down:3:wrap
+
+        zstyle ':fzf-tab:complete:(systemctl-*|journal-ctl-*):*' fzf-preview \
+            'SYSTEMD_COLORS=1 systemctl status $word'
+
+        # Git
+        zstyle ':fzf-tab:complete:git-(add|diff|restore):*' fzf-preview \
+            'git diff $word | delta'
+        zstyle ':fzf-tab:complete:git-log:*' fzf-preview \
+            'git log --color=always $word'
+        zstyle ':fzf-tab:complete:git-help:*' fzf-preview \
+            'git help $word | bat -plman --color=always'
+        zstyle ':fzf-tab:complete:git-show:*' fzf-preview \
+            'case "$group" in
+            "commit tag") git show --color=always $word ;;
+            *) git show --color=always $word | delta ;;
+            esac'
+        zstyle ':fzf-tab:complete:git-checkout:*' fzf-preview \
+            'case "$group" in
+            "modified file") git diff $word | delta ;;
+            "recent commit object name") git show --color=always $word | delta ;;
+            *) git log --color=always $word ;;
+            esac'
+
+        # Homebrew
+        zstyle ':fzf-tab:complete:brew-(install|uninstall|search|info):*-argument-rest' fzf-preview \
+            'brew info $word'
+    }
+    zinit ice lucid depth=1 atload=load_fzf_tab
+    zinit light Aloxaf/fzf-tab
+
+    # forgit
+    init_forgit() {
+        export FORGIT_NO_ALIASES=1
+
+        set_fzf_opts() {
+            export FORGIT_FZF_DEFAULT_OPTS="--preview-window=$(preview_params)"
+        }
+
+        trap set_fzf_opts SIGWINCH # call whenever the terminal resizes
+        set_fzf_opts
+    }
+    zinit ice wait=0 lucid depth=1 atload='path=($PWD/bin $path)' atinit=init_forgit
+    zinit light wfxr/forgit
 fi
-
-source "$ZINIT_HOME/zinit.zsh"
-
-# powerlevel10k theme
-zinit ice depth=1
-zinit light romkatv/powerlevel10k
 
 # fast syntax highlighting
 zinit ice wait=!0 lucid depth=1
@@ -187,119 +356,3 @@ init_substring_search() {
 }
 zinit ice wait=0 lucid depth=1 atinit=init_substring_search
 zinit light zsh-users/zsh-history-substring-search
-
-# calculate fzf preview window params based on terminal size
-preview_params() {
-    # sets fzf preview position and status (no/hidden) depending on terminal size
-    local hide_threshold_columns=74
-    local hide_threshold_lines=36
-    local lines_factor=2.3 # assume that a cell is n times a tall as it wide
-
-    local config="default"
-    local hidden="nohidden"
-
-    if ((COLUMNS > LINES * lines_factor)); then   # screen is wider than it is tall
-        config="right,50%,border-left"
-
-        # force hide the preview window if the screen is not wide enough
-        if ((COLUMNS < hide_threshold_columns)); then
-            hidden="hidden"
-        fi
-    else # screen is taller than it is wide
-        config="bottom,50%,border-top"
-
-        # force hide the preview window if the screen is not tall enough
-        if ((LINES < hide_threshold_lines)); then
-            hidden="hidden"
-        fi
-    fi
-
-    echo "$config,$hidden"
-}
-
-# forgit
-init_forgit() {
-    export FORGIT_NO_ALIASES=1
-
-    set_fzf_opts() {
-        export FORGIT_FZF_DEFAULT_OPTS="--preview-window=$(preview_params)"
-    }
-
-    trap set_fzf_opts SIGWINCH # call whenever the terminal resizes
-    set_fzf_opts
-}
-zinit ice wait=0 lucid depth=1 atload='path=($PWD/bin $path)' atinit=init_forgit
-zinit light wfxr/forgit
-
-# fzf
-if [[ $commands[fzf] ]]; then
-    set_fzf_opts() {
-        preview_window=$(preview_params)
-        export FZF_DEFAULT_OPTS="
-            --ansi
-            --cycle
-            --reverse
-            --info=inline-right
-            --no-separator
-            --height=30%
-            --border=none
-            --list-border=none
-            --input-border=none
-            --preview='preview {}'
-            --pointer=
-            --highlight-line
-            --color=gutter:-1,pointer:255,scrollbar:4,preview-scrollbar:4
-            --bind='ctrl-space:toggle-down'
-            --bind='ctrl-z:toggle-preview'
-            --bind='ctrl-y:execute-silent(printf '%s' {+} | zsh -ic to-clip)'
-            --bind='ctrl-u:preview-up+preview-up+preview-up+preview-up+preview-up'
-            --bind='ctrl-d:preview-down+preview-down+preview-down+preview-down+preview-down'
-            --bind='ctrl-r:toggle-all'
-            --bind='ctrl-s:toggle-sort'
-            --bind='ctrl-w:toggle-preview-wrap'
-            --bind='home:first'
-            --bind='end:last'
-            --preview-window=$preview_window
-        "
-        export FZF_CTRL_T_OPTS="--no-height --no-border --preview-window=$preview_window"
-        export FZF_ALT_C_OPTS="--no-height --no-border --preview-window=$preview_window"
-    }
-
-    export FZF_DEFAULT_COMMAND="fd --type f --type l --color=never --no-ignore-vcs --hidden"
-    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-    export FZF_ALT_C_COMMAND="fd --type d --color=never --no-ignore-vcs --hidden"
-
-    __fzf-complete() {
-        local trigger=${FZF_COMPLETION_TRIGGER:-**}
-        LBUFFER="${LBUFFER}${trigger}"
-        zle fzf-completion 2>/dev/null || zle expand-or-complete
-        if [[ $LBUFFER == *$trigger ]]; then
-            LBUFFER=${LBUFFER%$trigger}
-        fi
-    }
-    zle -N __fzf-complete
-    bindkey "^F" __fzf-complete
-
-    trap set_fzf_opts SIGWINCH # call whenever the terminal resizes
-    set_fzf_opts
-
-    source <(fzf --zsh)
-
-    # Override fzf's version by this one that only uses the ~/.ssh/config file
-    _fzf_complete_ssh() {
-        _fzf_complete --prompt="ssh> " -- "$@" < <(
-            cat ~/.ssh/config | grep -E '^Host\s+' | awk '{print $2}'
-        )
-    }
-
-    _fzf_complete_ssht() {
-        _fzf_complete_ssh "$@"
-    }
-fi
-
-# Enable automatic activation of virtualenvs
-if [[ $commands[pyenv] ]]; then
-    source <(pyenv init --path)
-    source <(pyenv init -)
-    source <(pyenv virtualenv-init -)
-fi
