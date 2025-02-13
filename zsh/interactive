@@ -264,7 +264,10 @@ if [[ $commands[fzf] ]]; then
 fi
 
 # fast syntax highlighting
-zinit ice wait=!0 lucid depth=1
+load_fsh() {
+    FAST_HIGHLIGHT[git-cmsg-len]=60
+}
+zinit ice wait=!0 lucid depth=1 atload=load_fsh
 zinit light zdharma-continuum/fast-syntax-highlighting
 
 # fish-like abbreviations, aliases that auto-expand when pressing space
