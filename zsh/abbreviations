@@ -1,3 +1,7 @@
+abbr ws=windscribe-cli
+abbr "windscribe-cli c"="windscribe-cli connect"
+abbr "windscribe-cli d"="windscribe-cli disconnect"
+
 abbr dc="docker compose"
 abbr kc="kubectl"
 abbr kd="kubectl describe"
