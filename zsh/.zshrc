@@ -30,15 +30,6 @@ sshagent-init --auto
 # makes git status much faster on large repositories
 export DISABLE_UNTRACKED_FILES_DIRTY="true"
 
-# homebrew
-if [[ -d /opt/homebrew/bin ]]; then
-    export HOMEBREW_NO_ENV_HINTS=1
-    path=(/opt/homebrew/bin $path)
-fi
-if [[ -d /opt/homebrew/sbin ]]; then
-    path=(/opt/homebrew/sbin $path)
-fi
-
 # go
 if [[ -d ~/.local/go/bin && ! "$GOPATH" ]]; then
     export GOPATH=$HOME/.local/go

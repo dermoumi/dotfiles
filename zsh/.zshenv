@@ -8,6 +8,15 @@ fi
 # change the default zsh root
 : ${ZDOTDIR:=~/.dotfiles/zsh}
 
+# homebrew
+if [[ -d /opt/homebrew/bin ]]; then
+    export HOMEBREW_NO_ENV_HINTS=1
+    path=(/opt/homebrew/bin $path)
+fi
+if [[ -d /opt/homebrew/sbin ]]; then
+    path=(/opt/homebrew/sbin $path)
+fi
+
 # local scripts directory
 if [ ! "$SCRIPTS_DIR" ] && [ -d ~/.dotfiles/scripts/ ]; then
     export SCRIPTS_DIR=$HOME/.dotfiles/scripts/
