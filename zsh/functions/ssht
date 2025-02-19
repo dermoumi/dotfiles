@@ -3,9 +3,10 @@
 # Attaches tmux session immediately after ssh'ing into a remote
 ssht() {
     ssh -t "$@" 'sh -c "
-        rm /tmp/ssock.\$(id -u) 2>/dev/null;
-        ln -s $SSH_AUTH_SOCK /tmp/ssock.\$(id -u);
-        export SSH_AUTH_SOCK=/tmp/ssock.\$(id -u);
-        tmux attach 2>/dev/null || tmux new || exec bash
+        sock=/tmp/ssock.`id -u`;
+        rm \$sock 2>/dev/null;
+        ln -s $SSH_AUTH_SOCK \$sock;
+        export SSH_AUTH_SOCK=\$sock;
+        command -v tmux >/dev/null && (tmux attach 2>/dev/null || tmux new)
     "'
 }
