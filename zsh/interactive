@@ -359,3 +359,20 @@ init_substring_search() {
 }
 zinit ice wait=0 lucid depth=1 atinit=init_substring_search
 zinit light zsh-users/zsh-history-substring-search
+
+# copilot
+# > brew install gh
+# > gh auth login --web
+# > gh extension install github/gh-copilot --force
+# > echo "ENABLE_COPILOT=1" >> ~/.env.local
+if ((ENABLE_COPILOT)); then
+    load_copilot() {
+        bindkey '^[|' zsh_gh_copilot_explain  # bind Alt+shift+\ to explain
+        bindkey '^[\' zsh_gh_copilot_suggest  # bind Alt+\ to suggest
+        bindkey '»' zsh_gh_copilot_explain  # bind Option+shift+\ to explain
+        bindkey '«' zsh_gh_copilot_suggest  # bind Option+\ to suggest
+    }
+
+    zinit ice wait=0 lucid depth=1 atload=load_copilot
+    zinit light loiccoyle/zsh-github-copilot
+fi
