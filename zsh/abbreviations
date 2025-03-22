@@ -44,7 +44,7 @@ abbr "git up"="git pull --rebase=preserve"
 
 abbr "git a"="git forgit add"
 abbr "git b"="git forgit blame"
-abbr "git cp"="git forgit cherry-pick"
+abbr "git cp"="git forgit cherry_pick"
 abbr "git cln"="git forgit clean"
 abbr "git l"="git forgit log"
 abbr "git rf"="git forgit checkout_file"
