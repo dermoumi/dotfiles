@@ -613,9 +613,13 @@ __install_neovim() {
     fi
 }
 
+__apt() {
+    __sudo env DEBIAN_FRONTEND=noninteractive apt-get -yq "$@"
+}
+
 __install_utilities_aptget() {
-    __sudo apt-get update
-    __sudo apt-get install -yq zsh git curl unzip tmux build-essential gnupg
+    __apt update
+    __apt install zsh git curl unzip tmux build-essential gnupg
 
     local fail=()
 
@@ -634,7 +638,7 @@ __install_utilities_aptget() {
     # pyenv
     if ((install_python)); then
         # Install build dependencies
-        __sudo apt-get install -yq libssl-dev zlib1g-dev libbz2-dev \
+        __apt install libssl-dev zlib1g-dev libbz2-dev \
             libreadline-dev libsqlite3-dev libncursesw5-dev xz-utils \
             tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
         __install_python || fail+=(pyenv)
@@ -643,7 +647,7 @@ __install_utilities_aptget() {
     # neovim
     __is_libc_version_supported 2 38 || build_neovim=1
     if ((build_neovim)); then
-        __sudo apt-get install -yq ninja-build gettext cmake curl build-essential
+        __apt install ninja-build gettext cmake curl build-essential
     fi
     __install_neovim || fail+=(neovim)
 
