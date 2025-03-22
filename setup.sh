@@ -738,6 +738,13 @@ __install_desktop_apps_pacman() {
     __pacman_cleanup
 }
 
+__post_link_setup() {
+    # Sync nvim plugins
+    if __check_app_installed nvim; then
+        nvim --headless "+Lazy! sync" +qa
+    fi;
+}
+
 __install_desktop_apps() {
     if ! ((install_desktop_apps)); then
         return
@@ -774,5 +781,6 @@ __restart_zsh() {
 __install_utilities
 __clone_repo
 __make_links
+__post_link_setup
 __install_desktop_apps
 __restart_zsh
