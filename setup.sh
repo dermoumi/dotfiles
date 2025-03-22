@@ -256,7 +256,7 @@ __is_libc_version_supported() {
     local target_minor=$2
 
     # Extract version from `ldd --version`
-    local version=$(ldd --version | head -n1 | grep -oP '\d+\.\d+')
+    local version=$(ldd --version | head -n1 | grep -oP '\d+\.\d+$')
     local major=$(echo $version | cut -d. -f1)
     local minor=$(echo $version | cut -d. -f2)
 
