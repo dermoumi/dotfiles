@@ -278,7 +278,16 @@ init_abbr() {
     ABBR_SET_EXPANSION_CURSOR=1
     ABBR_SET_LINE_CURSOR=1
     ABBR_REGULAR_ABBREVIATION_SCALAR_PREFIXES+=( "sudo " )
-    ABBR_REGULAR_ABBREVIATION_GLOB_PREFIXES+=( "(*\|| )" )
+
+    # Allow abbreviations to be expanded in the following scenarios:
+    #   echo hello | abbr
+    #   echo hello || abbr
+    #   echo hello && abbr
+    #   echo hello; abbr
+    #   echo hello <(abbr)
+    #   echo $(abbr)
+    #   echo `abbr`
+    ABBR_REGULAR_ABBREVIATION_GLOB_PREFIXES+=("(*\||*&&|*;|*<\(|*\$\(|*\`| )")
 }
 
 load_abbr() {
@@ -317,7 +326,9 @@ load_abbr() {
         local __style
 
         (( __first_call )) && { __style=${FAST_THEME_NAME}alias }
-        [[ -n "$__style" ]] && (( __start=__start_pos-${#PREBUFFER}, __end=__end_pos-${#PREBUFFER}, __start >= 0 )) && reply+=("$__start $__end ${FAST_HIGHLIGHT_STYLES[$__style]}")
+        [[ -n "$__style" ]] \
+            && (( __start=__start_pos-${#PREBUFFER}, __end=__end_pos-${#PREBUFFER}, __start >= 0 )) \
+            && reply+=("$__start $__end ${FAST_HIGHLIGHT_STYLES[$__style]}")
 
         (( this_word = next_word ))
         _start_pos=$_end_pos
