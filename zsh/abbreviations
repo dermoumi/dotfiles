@@ -52,6 +52,6 @@ abbr "git rv"="git forgit revert_commit"
 abbr "git sb"="git forgit checkout_branch"
 abbr "git sc"="git forgit checkout_commit"
 abbr "git sh"="git forgit show"
-abbr "git sp"="git forgit stash push"
-abbr "git ss"="git forgit stash show"
+abbr "git sp"="git forgit stash_push"
+abbr "git ss"="git forgit stash_show"
 
