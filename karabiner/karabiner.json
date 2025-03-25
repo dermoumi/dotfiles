@@ -235,7 +235,12 @@
                     "mandatory": ["left_control", "left_option", "left_command"]
                   }
                 },
-                "to": [{ "key_code": "power" }],
+                "to_after_key_up": [
+                  {
+                    "key_code": "power",
+                    "modifiers": ["left_control", "left_shift"]
+                  }
+                ],
                 "type": "basic"
               }
             ]
