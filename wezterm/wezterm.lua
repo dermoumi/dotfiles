@@ -24,9 +24,7 @@ local config = {
   }),
   font_size = 14.4,
   line_height = 1.15,
-
   hide_tab_bar_if_only_one_tab = true,
-
   window_decorations = "RESIZE",
   window_padding = {
     left = 15,
@@ -34,22 +32,21 @@ local config = {
     top = 10,
     bottom = 10,
   },
-
   color_scheme = scheme_for_appearance(wezterm.gui.get_appearance()),
   color_schemes = {
     ["ayu_light_custom"] = ayu_light,
     ["ayu_dark_custom"] = ayu_dark,
   },
-
   hyperlink_rules = {
     {
       regex = "\\b\\w+://(?:[\\w.-]+)(:\\d+)?\\S*\\b/?",
       format = "$0",
     },
   },
-
   check_for_updates = false,
   window_close_confirmation = "NeverPrompt",
+  initial_rows = 50,
+  initial_cols = 110,
 }
 
 return config
