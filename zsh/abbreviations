@@ -3,6 +3,7 @@ abbr "windscribe-cli c"="windscribe-cli connect"
 abbr "windscribe-cli d"="windscribe-cli disconnect"
 
 abbr dc="docker compose"
+abbr pc="podman compose"
 abbr kc="kubectl"
 abbr kd="kubectl describe"
 abbr kg="kubectl get"

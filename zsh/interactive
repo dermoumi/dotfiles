@@ -75,6 +75,12 @@ if [[ -f $HOME/.kube/config ]]; then
     export KUBECONFIG=$HOME/.kube/config
 fi
 
+# podman alias
+if [[ $commands[podman] && ! $commands[docker] ]]; then
+    alias docker=podman
+    export PODMAN_COMPOSE_WARNING_LOGS=false
+fi
+
 # Enable automatic activation of virtualenvs
 if [[ $commands[pyenv] ]]; then
     source <(pyenv init --path)
