@@ -67,7 +67,7 @@ elif [[ $commands[vim] ]]; then
 fi
 
 # kubectl
-if [[ $commands[kubectl] ]]; then
+if command -v kubectl >/dev/null; then
     source <(kubectl completion zsh)
 fi
 
