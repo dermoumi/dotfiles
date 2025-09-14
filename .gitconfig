@@ -64,6 +64,8 @@
   sp = stash push
   ss = stash show
   st = status
+  sts = stash push --staged
+  stp = stash pop
   # grep TODO and FIXME from staged changes
   todo = grep --break --heading --line-number -e TODO -e FIXME
   # Undo the commit but keep changes

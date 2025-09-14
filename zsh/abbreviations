@@ -55,4 +55,6 @@ abbr "git sc"="git forgit checkout_commit"
 abbr "git sh"="git forgit show"
 abbr "git sp"="git forgit stash_push"
 abbr "git ss"="git forgit stash_show"
+abbr "git sts"="git stash push --staged"
+abbr "git stp"="git stash pop"
 
