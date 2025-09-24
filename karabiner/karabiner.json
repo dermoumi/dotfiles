@@ -109,9 +109,9 @@
                     "type": "device_unless"
                   }
                 ],
-                "description": "Fn+Capslock -> Actual capslock",
+                "description": "Fn+RightCMD -> Capslock",
                 "from": {
-                  "key_code": "caps_lock",
+                  "key_code": "right_option",
                   "modifiers": {
                     "mandatory": ["fn"],
                     "optional": ["caps_lock"]
