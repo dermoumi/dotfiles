@@ -26,6 +26,7 @@
 	rebase = false
 
 [alias]
+  main-branch = !git symbolic-ref refs/remotes/origin/HEAD | cut -d'/' -f4
   a = add
   aa = add --all
   am = amend -m
@@ -35,7 +36,9 @@
   c = commit
   cln = clean
   cm = commit -m
+  cne = commit --no-edit
   co = checkout
+  com = "!f(){ git checkout $(git main-branch) $@;}; f"
   cp = cherry-pick
   # Show the diff between the latest commit and the current state
   d = !"git diff-index --quiet HEAD -- || clear; git --no-pager diff --patch-with-stat"
@@ -54,6 +57,7 @@
   p = push
   pf = push --force-with-lease
   pl = pull
+  plm = "!f(){ git pull origin $(git main-branch) $@;}; f"
   pp = push -o ci.skip
   r = reset
   rf = restore
