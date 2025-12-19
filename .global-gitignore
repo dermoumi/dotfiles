@@ -20,3 +20,6 @@ Thumbs.db
 .Trashes
 .DS_Store
 Desktop.ini
+
+# Eperiments
+.github/copilot-instructions.md

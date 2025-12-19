@@ -42,7 +42,7 @@ alias dmesg="dmesg --color=auto"
 # eza
 if [[ $commands[eza] ]]; then
     alias ls=eza
-    alias lt='ll --tree'
+    alias lt="ll --tree"
 fi
 
 # bat
@@ -51,7 +51,7 @@ if [[ $commands[bat] ]]; then
     export BAT_THEME="base16"
     export BAT_THEME_DARK="base16"
     export BAT_THEME_LIGHT="base16"
-    alias cat=bat
+    alias cat="bat --paging=never"
 fi
 
 # zoxide
@@ -73,6 +73,12 @@ fi
 
 if [[ -f $HOME/.kube/config ]]; then
     export KUBECONFIG=$HOME/.kube/config
+fi
+
+# podman alias
+if [[ $commands[podman] && ! $commands[docker] ]]; then
+    alias docker=podman
+    export PODMAN_COMPOSE_WARNING_LOGS=false
 fi
 
 # Enable automatic activation of virtualenvs
