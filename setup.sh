@@ -28,6 +28,7 @@ install_python=1
 install_node=1
 use_system_python=0
 build_neovim=0
+sync_nvim=0
 chsh=0
 
 # Parse arguments
@@ -37,6 +38,7 @@ while :; do
             link=1
             clone=1
             install_utilities=1
+            sync_nvim=1
             shift
             ;;
         --init-desktop)
@@ -44,6 +46,7 @@ while :; do
             clone=1
             install_utilities=1
             install_desktop_apps=1
+            sync_nvim=1
             shift
             ;;
         -l|--link)
@@ -91,6 +94,10 @@ while :; do
             chsh=1
             shift
             ;;
+        --sync-nvim)
+            sync_nvim=1
+            shift
+            ;;
         -*)
             echo "Unknown option: $1" >&2
             exit 1
@@ -127,7 +134,7 @@ __mk_link() {
     local source=$1
     local target_dir=$2
 
-    local target=$target_dir$(basename $source)
+    local target=${target_dir%/}/$(basename $source)
     if [ -e "$target" ] && ! ((force)); then
         echo "$target already exists. Use --force to overwrite"
         return
@@ -137,7 +144,10 @@ __mk_link() {
     mkdir -p "$target_dir"
 
     echo "Linking $source to $target"
-    ln -Ffs "$HOME/.dotfiles/$source" "$target_dir"
+    local source_path="$HOME/.dotfiles/$source"
+    if ! ln -Ffs "$source_path" "$target_dir" && [[ -d "$source_path" ]]; then
+      ln -Ffs "${source_path%/}/"* "${target%/}/"
+    fi
 }
 
 __make_links() {
@@ -160,6 +170,7 @@ __make_links() {
     else
         __mk_link environment.d ~/.config/
         __mk_link systemd ~/.config/
+        __mk_link hypr ~/.config/
     fi
 }
 
@@ -740,7 +751,7 @@ __install_desktop_apps_pacman() {
 
 __post_link_setup() {
     # Sync nvim plugins
-    if __check_app_installed nvim; then
+    if ((sync_nvim)) && __check_app_installed nvim; then
         nvim --headless "+Lazy! sync" +qa
     fi;
 }
