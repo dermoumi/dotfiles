@@ -105,7 +105,7 @@ vim.keymap.set("n", "<leader>w", "<cmd>set wrap!<cr>", {
 -- Autocomplete with tab
 local _, copilot_suggestion = pcall(require, "copilot.suggestion")
 vim.keymap.set({ "i", "s" }, "<Tab>", function()
-  if copilot_suggestion and copilot_suggestion.is_visible() then
+  if copilot_suggestion and copilot_suggestion.is_visible and copilot_suggestion.is_visible() then
     copilot_suggestion.accept()
   else
     vim.fn.feedkeys("\t", "n")
