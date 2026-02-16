@@ -718,7 +718,7 @@ __install_desktop_apps_macos() {
 
     brew install --cask android-platform-tools battery chatgpt discord docker \
         zen-browser google-chrome iina jordanbaird-ice karabiner-elements \
-        keepingyouawake keka launchbar nightfall rectangle spotify topnotch \
+        keepingyouawake keka launchbar nightfall rectangle topnotch \
         transmission visual-studio-code wezterm windscribe insync \
         font-jetbrains-mono-nerd-font monitorcontrol prismlauncher \
         cyberduck alt-tab
@@ -732,7 +732,7 @@ __install_desktop_apps_macos() {
 __install_desktop_apps_pacman() {
     __pacman_setup
 
-    yay -S --noconfirm zen-browser-bin insync discord spotify windscribe-v2-bin \
+    yay -S --noconfirm zen-browser-bin insync discord windscribe-v2-bin \
         visual-studio-code-bin prismlauncher-qt5-bin
 
     __pacman_cleanup
