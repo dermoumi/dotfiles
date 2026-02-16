@@ -218,32 +218,20 @@ __install_utilities_macos() {
 
     # Install apps
     brew install fzf fd zoxide ripgrep bat tmux neovim \
-        pyenv-virtualenv eza gnupg xz switchaudio-osx
+        eza gnupg xz switchaudio-osx mise
+
+
+    eval "$(mise activate bash)"
 
     # Setup volta
     if ((install_node)); then
-        brew install volta
-
-        export VOLTA_HOME=$HOME/.volta
-        export PATH="$VOLTA_HOME/bin:$PATH"
-
-        volta install node pnpm
+      mise use --global node@lts pnpm@latest
     fi
 
-    # Setup pyenv
+    # Setup python
     if ((install_python)); then
-        brew install pyenv
-
-        export PYENV_ROOT=$HOME/.pyenv
-        export PATH="$PYENV_ROOT/bin:$PATH"
-
-        eval "$(pyenv init --path)"
-        eval "$(pyenv init -)"
-        eval "$(pyenv virtualenv-init -)"
-
         if ! ((use_system_python)); then
-            pyenv install -s 3
-            pyenv global 3
+            mise use --global python@latest uv@latest
         fi
 
         __pip install -U pip
@@ -254,11 +242,13 @@ __install_utilities_macos() {
         __pip_install -U neovim-remote
     fi
 
-    if __check_app_installed pyenv-virtualenv; then
-        pyenv virtualenv nvim
-        pyenv activate nvim
-        __pip_install -U pip neovim
-        pyenv deactivate
+    # Neovim virtualenv
+    if __check_app_installed uv; then
+        local venvs_path=$HOME/.local/share/venvs
+        local venv_path=$venvs_path/nvim-venv
+        mkdir -p $venvs_path
+        uv venv -q --allow-existing $venv_path
+        uv pip install neovim --python $venv_path/bin/python
     fi
 }
 
@@ -324,7 +314,7 @@ __is_latest_version() {
     local repo=$2
     local current_version_pattern=$3
     local latest_version_pattern=$4
-    local bin=${3-$name}
+    local bin=${5-$name}
 
     if ! __check_app_installed $bin; then
         return 1
@@ -359,7 +349,7 @@ __install_gh_release() {
     local extracted_bin=${8-$bin}
     local whole_dir_mv_to=${9-}
 
-    echo "Installing $name..."
+    echo "Installing $name ($bin)..."
 
     if __is_latest_version "$name" "$repo" "$current_version_pattern" "$latest_version_pattern" "$bin"; then
         return
@@ -505,41 +495,25 @@ __pacman_cleanup() {
     fi
 }
 
-__install_volta() {
-    export VOLTA_HOME=$HOME/.volta
-    export PATH="$VOLTA_HOME/bin:$PATH"
-
-    if ! __check_app_installed volta; then
-        bash -c "$(curl https://get.volta.sh)"
+__install_node() {
+    if ! __check_app_installed mise; then
+        __install_mise
     fi
 
-    volta install node pnpm
+    mise use --global node@lts pnpm@latest
 }
 
 __install_python() {
-    export PYENV_ROOT=$HOME/.pyenv
-    export PATH="$PYENV_ROOT/bin:$PATH"
-
-    if ! __check_app_installed pyenv; then
-        curl -fsSL https://pyenv.run | bash
+    if ! __check_app_installed mise; then
+        __install_mise
     fi
 
-    if ! [ -d $PYENV_ROOT/plugins/pyenv-virtualenv ]; then
-        git clone https://github.com/pyenv/pyenv-virtualenv.git \
-            $PYENV_ROOT/plugins/pyenv-virtualenv
-    fi
+    mise use --global python@latest uv@latest
+}
 
-    eval "$(pyenv init -)"
-    eval "$(pyenv virtualenv-init -)"
-
-    if ! ((use_system_python)); then
-        pyenv install -s 3
-        pyenv global 3
-    fi
-
-    if __check_app_installed pip; then
-        __pip_install -U pip
-    fi
+__install_mise() {
+    curl https://mise.run | sh
+    eval "$(mise activate bash)"
 }
 
 __install_fzf() {
@@ -616,11 +590,13 @@ __install_neovim() {
         __pip_install -U neovim-remote
     fi
 
-    if __check_app_installed pyenv-virtualenv; then
-        pyenv virtualenv nvim
-        pyenv activate nvim
-        __pip_install -U pip neovim
-        pyenv deactivate
+    # Neovim virtualenv
+    if __check_app_installed uv; then
+        local venvs_path=$HOME/.local/share/venvs
+        local venv_path=$venvs_path/nvim-venv
+        mkdir -p $venvs_path
+        uv venv -q --allow-existing $venv_path
+        uv pip install neovim --python $venv_path/bin/python
     fi
 }
 
@@ -640,19 +616,16 @@ __install_utilities_aptget() {
     __install_ripgrep || fail+=(rg)
     __install_bat || fail+=(bat)
     __install_eza || fail+=(eza)
+    __install_mise || fail+=(mise)
 
-    # volta
+    # node
     if ((install_node)); then
-        __install_volta || fail+=(volta)
+        __install_node || fail+=(node)
     fi
 
-    # pyenv
+    # python
     if ((install_python)); then
-        # Install build dependencies
-        __apt install libssl-dev zlib1g-dev libbz2-dev \
-            libreadline-dev libsqlite3-dev libncursesw5-dev xz-utils \
-            tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
-        __install_python || fail+=(pyenv)
+        __install_python || fail+=(python)
     fi
 
     # neovim
@@ -680,16 +653,16 @@ __install_utilities_pacman() {
     __install_ripgrep || fail+=(rg)
     __install_bat || fail+=(bat)
     __install_eza || fail+=(eza)
+    __install_mise || fail+=(mise)
 
-    # volta
+    # node
     if ((install_node)); then
-        __install_volta || fail+=(volta)
+        __install_node || fail+=(node)
     fi
 
-    # pyenv
+    # python
     if ((install_python)); then
-        __sudo pacman -S --noconfirm openssl zlib xz tk
-        __install_python || fail+=(pyenv)
+        __install_python || fail+=(python)
     fi
 
     # neovim
@@ -795,3 +768,4 @@ __make_links
 __post_link_setup
 __install_desktop_apps
 __restart_zsh
+

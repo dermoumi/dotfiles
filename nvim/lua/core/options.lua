@@ -64,16 +64,9 @@ opt.swapfile = false
 vim.g.markdown_recommended_style = 0
 
 -- Setup python if exists
-local pyenv_path
-if vim.fn.executable("pyenv") == 1 then
-  local output = vim.system({"pyenv", "prefix", "nvim"}, { text = true }):wait()
-  if output.code == 0 then
-    pyenv_path = vim.trim(output.stdout) .. "/bin/python"
-  end
-end
-
-if pyenv_path then
-  vim.g.python3_host_prog = pyenv_path
+local venv_path="~/.local/share/venvs/nvim-venv/bin/python"
+if vim.fn.executable(venv_path) == 1 then
+  vim.g.python3_host_prog = venv_path
 end
 
 -- Setup clipboard on WSL2

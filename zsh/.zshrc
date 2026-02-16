@@ -74,6 +74,8 @@ fi
 
 # volta
 if [[ -d ~/.volta ]]; then
+    # DEPRECATED
+
     export VOLTA_HOME=$HOME/.volta
     path=($VOLTA_HOME/bin $path)
 
@@ -89,8 +91,14 @@ fi
 
 # pyenv
 if [[ -d ~/.pyenv && ! ("$PYENV_ROOT" && -d "$PYENV_ROOT") ]]; then
+    # DEPRECATED
     export PYENV_ROOT=$HOME/.pyenv
     path=($PYENV_ROOT/bin $path)
+fi
+
+# mise
+if [[ -x "$HOME/.local/bin/mise" ]]; then
+    eval "$(mise activate zsh)"
 fi
 
 # poetry
