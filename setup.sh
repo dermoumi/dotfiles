@@ -171,6 +171,7 @@ __make_links() {
         __mk_link environment.d ~/.config/
         __mk_link systemd ~/.config/
         __mk_link hypr ~/.config/
+        __mk_link quickshell ~/.config/
     fi
 }
 
