@@ -145,8 +145,11 @@ __mk_link() {
 
     echo "Linking $source to $target"
     local source_path="$HOME/.dotfiles/$source"
-    if ! ln -Ffs "$source_path" "$target_dir" && [[ -d "$source_path" ]]; then
-      ln -Ffs "${source_path%/}/"* "${target%/}/"
+    if ! ln -Ffs "$source_path" "$target_dir"; then
+      echo "Failed to link $source_path to $target_dir" >&2
+      mv $target "${target}_bak"
+      ln -Ffs "$source_path" "$target_dir"
+      rm -rf "${target}_bak"
     fi
 }
 
