@@ -718,7 +718,7 @@ __install_desktop_apps_pacman() {
     __pacman_setup
 
     yay -S --noconfirm zen-browser-bin insync discord windscribe-v2-bin \
-        visual-studio-code-bin prismlauncher-qt5-bin
+        visual-studio-code-bin ttf-jetbrains-mono-nerd prismlauncher
 
     __pacman_cleanup
 }
