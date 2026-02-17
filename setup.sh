@@ -212,6 +212,11 @@ __pip_install() {
     if __is_root_user; then
         pip install --root-user-action=ignore "$@"
     else
+        # Make sure we're using the pip from our global mise environment
+        if command -v mise &&>/dev/null; then
+            eval "$(mise activate bash)"
+        fi
+
         pip install "$@"
     fi
 }
