@@ -1,26 +1,13 @@
 #!/bin/bash
 
 #
-# Needs to install ddcci-driver-linux-dkms-git
+# Needs to install ddcutil
 #
 
-# /etc/modules-load.d/ddcci.conf
-#
-# i2c-dev
-# ddcci_backlight
+# Usage: ddc-control + 10
 
-# /etc/udev/rules.d/99-ddcci.rules
-#
-# For Nvidia users
-# ACTION=="add", SUBSYSTEM=="i2c", ATTR{name}=="NVIDIA i2c adapter*", ATTR{new_device}="ddcci 0x37"
-#
-# For AMD/Intel users (uncomment the line below if you don't use Nvidia)
-# ACTION=="add", SUBSYSTEM=="i2c", ATTR{name}=="*aux*", ATTR{new_device}="ddcci 0x37"
-
-# Usage: ddc-control 10%+
-
-DISPLAYS=(1 2)
+DISPLAYS=(12 15)
 
 for DISPLAY in "${DISPLAYS[@]}"; do
-  brightnessctl -d "ddcci*" set "$@"
+  ddcutil --bus "$DISPLAY" setvcp 10 "$@" --sleep-multiplier 0.03 &
 done
