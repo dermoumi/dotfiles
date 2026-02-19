@@ -8,6 +8,11 @@ fi
 # change the default zsh root
 : ${ZDOTDIR:=~/.dotfiles/zsh}
 
+# SSH agent
+if [ -S "$XDG_RUNTIME_DIR/ssh-agent.socket" ]; then
+    export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+fi
+
 # homebrew
 if [[ -d /opt/homebrew/bin ]]; then
     export HOMEBREW_NO_ENV_HINTS=1
