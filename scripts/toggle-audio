@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# --- CONFIGURATION (Descriptions from wpctl status) ---
+DESC_A="PCM2900C Audio CODEC Analog Stereo"
+DESC_B="GB203 High Definition Audio Controller Digital Stereo (HDMI 2)"
+
+# Function to find the numeric ID based on the Description
+# It looks specifically in the 'Sinks' section to avoid Inputs/Monitors
+get_id() {
+    wpctl status | sed -n '/Sinks:/,/Sources:/p' | grep "$1" | grep -oP '\d+(?=\.)' | head -n 1
+}
+
+ID_A=$(get_id "$DESC_A")
+ID_B=$(get_id "$DESC_B")
+
+# Safety Check: Exit if a device isn't found
+if [ -z "$ID_A" ] || [ -z "$ID_B" ]; then
+    notify-send "Audio Toggle" "Error: Device not found. Is your USB/HDMI connected?" -u critical
+    exit 1
+fi
+
+# Get the ID of the current default sink (the line with the '*')
+CURRENT_ID=$(wpctl status | sed -n '/Sinks:/,/Sources:/p' | grep "\*" | grep -oP '\d+(?=\.)' | head -n 1)
+
+# Determine the target
+if [ "$CURRENT_ID" == "$ID_A" ]; then
+    TARGET_ID=$ID_B
+    LABEL="HDMI (GB203)"
+else
+    TARGET_ID=$ID_A
+    LABEL="USB (PCM2900C)"
+fi
+
+# 1. Set the new default
+wpctl set-default "$TARGET_ID"
+
+# 2. Move active streams (apps) to the new target
+# Looks in the 'Streams' section for numeric IDs
+for stream_id in $(wpctl status | sed -n '/Streams:/,$p' | grep -oP '^\s*[│└]?\s*(\d+)(?=\.)' | xargs); do
+    wpctl move "$stream_id" "$TARGET_ID"
+done
+
+notify-send "Audio Swapped" "Output: $LABEL" -i audio-speakers -t 2000
