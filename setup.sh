@@ -174,6 +174,8 @@ __make_links() {
         __mk_link systemd ~/.config/
         __mk_link hypr ~/.config/
         __mk_link quickshell ~/.config/
+        __mk_link waybar ~/.config/
+        __mk_link alsoft.conf ~/.config/
     fi
 }
 
