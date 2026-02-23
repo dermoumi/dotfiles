@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Overwrite the user config for the Limine bootloader and rebuild it.
+for kernel in linux linux-lts linux-zen; do
+  if [[ -f /boot/EFI/Linux/omarchy_${kernel}.efi ]] && [[ -f /boot/EFI/Linux/$(cat /etc/machine-id)_${kernel}.efi ]]; then
+    echo "Cleanup extra UKI"
+    sudo rm -f /boot/EFI/Linux/$(cat /etc/machine-id)_${kernel}.efi
+  fi
+done
+echo "Resetting limine config"
+
+sudo mv /boot/limine.conf /boot/limine.conf.bak
+
+sudo cp ~/.dotfiles/limine/limine.conf /boot/limine.conf
+
+sudo limine-update
+sudo limine-snapper-sync
