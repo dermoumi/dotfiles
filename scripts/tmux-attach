@@ -1,0 +1,3 @@
+#!/bin/bash
+
+[ $TMUX ] && tmux switch -t main || tmux attach -t main || tmux new -s main
