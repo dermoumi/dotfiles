@@ -60,6 +60,12 @@ if [[ $commands[zoxide] ]]; then
     source <(zoxide init zsh)
 fi
 
+# try
+if [[ $commands[try] ]]; then
+    export TRY_PATH=~/Work/tries
+    eval "$(try init)"
+fi
+
 # neovim
 if [[ $commands[nvim] ]]; then
     export EDITOR=nvim
