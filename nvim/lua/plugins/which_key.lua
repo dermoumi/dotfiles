@@ -14,9 +14,9 @@ return {
   end,
   opts = {
     show_help = false,
+    preset = "helix",
     win = {
       row = math.huge,
-      border = { "╼", "━" ,"╾", " ", " ", " ", " ", " " },
       padding = { 0, 1 },
       title_pos = "left",
       wo = { winblend = 20 },
