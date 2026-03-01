@@ -21,6 +21,7 @@ Thumbs.db
 .DS_Store
 Desktop.ini
 
-# Eperiments
+# Experiments
 .github/copilot-instructions.md
 .opencode/*
+CLAUDE.MD
