@@ -9,5 +9,5 @@
 DISPLAYS=(2 5)
 
 for DISPLAY in "${DISPLAYS[@]}"; do
-  ddcutil --bus "$DISPLAY" setvcp 10 "$@" --sleep-multiplier 0.01
+  ddcutil --bus "$DISPLAY" setvcp 10 "$@" --sleep-multiplier 0.03
 done
