@@ -24,4 +24,5 @@ Desktop.ini
 # Experiments
 .github/copilot-instructions.md
 .opencode/*
+.claude/*
 CLAUDE.md
