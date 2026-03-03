@@ -57,7 +57,7 @@ fi
 
 # zoxide
 if [[ $commands[zoxide] ]]; then
-    source <(zoxide init zsh)
+    source <(zoxide init --cmd cd zsh)
 fi
 
 # try
