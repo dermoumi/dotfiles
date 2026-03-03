@@ -70,11 +70,11 @@ bindkey "^J" self-insert-unmeta
 # alt+m to run main tmux session
 bindkey -s "^[m" "[ '$TMUX' ] && tmux switch -t main || tmux attach -t main || tmux new -s main^M"
 
-# ctrl+e to edit current line in nvim
+# ctrl+g to edit current line in nvim
 autoload -Uz edit-command-line
 nvim-command-line() {
     local EDITOR="nvim +':set filetype=sh'"
     edit-command-line
 }
 zle -N nvim-command-line
-bindkey "^E" nvim-command-line
+bindkey "^G" nvim-command-line
