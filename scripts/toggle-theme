@@ -7,5 +7,5 @@ if [ "$CURRENT_THEME" = "$TARGET_THEME" ]; then
   TARGET_THEME="Ayu Dark"
 fi
 
-omarchy-theme-set "$TARGET_THEME"
+theme-set "$TARGET_THEME"
 
