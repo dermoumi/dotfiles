@@ -40,6 +40,16 @@ alias grep="grep --color=auto"
 alias ip="ip --color=auto"
 alias dmesg="dmesg --color=auto"
 
+# global aliases
+alias -g NE='2>/dev/null'
+alias -g DN='1>/dev/null'
+alias -g NUL='>/dev/null 2>&1'
+alias -g G='| rg -i '
+alias -g L='| less'
+alias -g C='| wl-copy'
+alias -g J='| jq'
+alias -g V='| nvim +'
+
 # eza
 if [[ $commands[eza] ]]; then
     alias ls=eza
