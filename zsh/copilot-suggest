@@ -45,3 +45,43 @@ copilot-suggest() {
 }
 zle -N copilot-suggest
 bindkey '^P' copilot-suggest
+
+# ctrl+n to explain current command with copilot
+copilot-explain() {
+    setopt local_options no_monitor
+    [[ -z "$BUFFER" ]] && return
+    local copilot_cmd
+    if (( $+commands[gh] )); then
+        copilot_cmd=(gh copilot)
+    elif (( $+commands[copilot] )); then
+        copilot_cmd=(copilot)
+    else
+        return
+    fi
+    local tmpfile=$(mktemp)
+    local spinner=(⣾ ⣽ ⣻ ⢿ ⡿ ⣟ ⣯ ⣷)
+    local i=0
+
+    zle -R "⣾ Asking copilot..."
+
+    $copilot_cmd -p "Briefly explain this shell command: $BUFFER" -s 2>/dev/null > "$tmpfile" &
+    local pid=$!
+
+    while kill -0 "$pid" 2>/dev/null; do
+        zle -R "${spinner[$((i % ${#spinner[@]} + 1))]} Asking copilot..."
+        sleep 0.1
+        ((i++))
+    done
+
+    wait "$pid"
+    local result=$(<"$tmpfile")
+    rm -f "$tmpfile"
+
+    if [[ -n "$result" ]]; then
+        zle -M "$result"
+    else
+        zle -M "No explanation returned."
+    fi
+}
+zle -N copilot-explain
+bindkey '^N' copilot-explain
