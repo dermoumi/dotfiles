@@ -4,22 +4,25 @@
 copilot-suggest() {
     setopt local_options no_monitor
     [[ -z "$BUFFER" ]] && return
-    local copilot_cmd
-    if (( $+commands[gh] )); then
-        copilot_cmd=(gh copilot)
-    elif (( $+commands[copilot] )); then
-        copilot_cmd=(copilot)
-    else
-        return
-    fi
     local prompt="$BUFFER"
     local tmpfile=$(mktemp)
     local spinner=(⣾ ⣽ ⣻ ⢿ ⡿ ⣟ ⣯ ⣷)
     local i=0
 
+    local ai_prompt="Output only the shell command with no explanation and no markdown formatting for: $prompt"
+
     zle -R "⣾ Asking copilot..."
 
-    $copilot_cmd -p "Output only the shell command with no explanation for: $prompt" -s 2>/dev/null > "$tmpfile" &
+    if (( $+commands[claude] )); then
+        claude -p "$ai_prompt" 2>/dev/null > "$tmpfile" &
+    elif (( $+commands[gh] )); then
+        gh copilot -p "$ai_prompt" -s 2>/dev/null > "$tmpfile" &
+    elif (( $+commands[copilot] )); then
+        copilot -p "$ai_prompt" -s 2>/dev/null > "$tmpfile" &
+    else
+        rm -f "$tmpfile"
+        return
+    fi
     local pid=$!
 
     while kill -0 "$pid" 2>/dev/null; do
@@ -31,9 +34,6 @@ copilot-suggest() {
     wait "$pid"
     local result=$(<"$tmpfile")
     rm -f "$tmpfile"
-
-    # strip markdown code fences
-    result=$(echo "$result" | sed '/^```/d')
 
     if [[ -n "$result" ]]; then
         BUFFER="$result"
@@ -50,25 +50,31 @@ bindkey '^P' copilot-suggest
 copilot-explain() {
     setopt local_options no_monitor
     [[ -z "$BUFFER" ]] && return
-    local copilot_cmd
-    if (( $+commands[gh] )); then
-        copilot_cmd=(gh copilot)
-    elif (( $+commands[copilot] )); then
-        copilot_cmd=(copilot)
-    else
-        return
-    fi
     local tmpfile=$(mktemp)
     local spinner=(⣾ ⣽ ⣻ ⢿ ⡿ ⣟ ⣯ ⣷)
     local i=0
 
-    zle -R "⣾ Asking copilot..."
+    local ai_prompt="Briefly explain this shell command: $BUFFER"
+    if ! (( $+commands[glow] )); then
+        ai_prompt+=" Do not use markdown formatting."
+    fi
 
-    $copilot_cmd -p "Briefly explain this shell command: $BUFFER" -s 2>/dev/null > "$tmpfile" &
+    zle -R "⣾ Asking for explanation..."
+
+    if (( $+commands[claude] )); then
+        claude -p "$ai_prompt" 2>/dev/null > "$tmpfile" &
+    elif (( $+commands[gh] )); then
+        gh copilot -p "$ai_prompt" -s 2>/dev/null > "$tmpfile" &
+    elif (( $+commands[copilot] )); then
+        copilot -p "$ai_prompt" -s 2>/dev/null > "$tmpfile" &
+    else
+        rm -f "$tmpfile"
+        return
+    fi
     local pid=$!
 
     while kill -0 "$pid" 2>/dev/null; do
-        zle -R "${spinner[$((i % ${#spinner[@]} + 1))]} Asking copilot..."
+        zle -R "${spinner[$((i % ${#spinner[@]} + 1))]} Asking for explanation..."
         sleep 0.1
         ((i++))
     done
@@ -78,10 +84,15 @@ copilot-explain() {
     rm -f "$tmpfile"
 
     if [[ -n "$result" ]]; then
-        zle -M "$result"
-    else
-        zle -M "No explanation returned."
+        echo ""
+        if (( $+commands[glow] )); then
+            echo "$result" | glow -
+        else
+            echo "$result"
+        fi
+        echo -e "\n\n\n"
     fi
+    zle reset-prompt
 }
 zle -N copilot-explain
 bindkey '^N' copilot-explain
