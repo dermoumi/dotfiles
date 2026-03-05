@@ -1,0 +1,47 @@
+#!/bin/zsh
+
+# ctrl+p to generate command with copilot
+copilot-suggest() {
+    setopt local_options no_monitor
+    [[ -z "$BUFFER" ]] && return
+    local copilot_cmd
+    if (( $+commands[gh] )); then
+        copilot_cmd=(gh copilot)
+    elif (( $+commands[copilot] )); then
+        copilot_cmd=(copilot)
+    else
+        return
+    fi
+    local prompt="$BUFFER"
+    local tmpfile=$(mktemp)
+    local spinner=(⣾ ⣽ ⣻ ⢿ ⡿ ⣟ ⣯ ⣷)
+    local i=0
+
+    zle -R "⣾ Asking copilot..."
+
+    $copilot_cmd -p "Output only the shell command with no explanation for: $prompt" -s 2>/dev/null > "$tmpfile" &
+    local pid=$!
+
+    while kill -0 "$pid" 2>/dev/null; do
+        zle -R "${spinner[$((i % ${#spinner[@]} + 1))]} Asking copilot..."
+        sleep 0.1
+        ((i++))
+    done
+
+    wait "$pid"
+    local result=$(<"$tmpfile")
+    rm -f "$tmpfile"
+
+    # strip markdown code fences
+    result=$(echo "$result" | sed '/^```/d')
+
+    if [[ -n "$result" ]]; then
+        BUFFER="$result"
+    else
+        BUFFER="$prompt"
+    fi
+    CURSOR=${#BUFFER}
+    zle redisplay
+}
+zle -N copilot-suggest
+bindkey '^P' copilot-suggest

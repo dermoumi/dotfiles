@@ -108,6 +108,9 @@ fi
 # keybindings
 source "$ZDOTDIR/keybindings"
 
+# copilot suggest widget
+source "$ZDOTDIR/copilot-suggest"
+
 # less
 export LESS=" \
     --quit-if-one-screen \
