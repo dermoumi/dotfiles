@@ -1,0 +1,12 @@
+#sidebar-header {
+	height: 0px;
+	width: 0px;
+	padding: 1px 0px 0px !important;
+	visibility: collapse;
+	margin: 0px;
+	overflow: hidden;
+}
+
+#TabsToolbar {
+  display: none;
+}
