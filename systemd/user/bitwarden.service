@@ -1,0 +1,17 @@
+[Unit]
+Description=Bitwarden SSH Agent Service
+After=graphical-session.target
+
+[Service]
+# Adjust path if using Flatpak (e.g., /usr/bin/flatpak run com.bitwarden.desktop)
+ExecStart=/usr/bin/bitwarden --hidden
+Restart=on-failure
+RestartSec=2
+Environment=DISPLAY=:1
+Environment=WAYLAND_DISPLAY=wayland-1
+Environment=XAUTHORITY=%h/.Xauthority
+# Ensure it knows where to find the Wayland socket dynamically
+PassEnvironment=WAYLAND_DISPLAY XDG_RUNTIME_DIR
+
+[Install]
+WantedBy=graphical-session.target
