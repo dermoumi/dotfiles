@@ -11,6 +11,10 @@ fi
 # SSH agent
 if [ -S "$XDG_RUNTIME_DIR/ssh-agent.socket" ]; then
     export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+elif [ -S "$HOME/.bitwarden-ssh-agent.sock" ]; then
+    export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
+elif [ -S "$XDG_RUNTIME_DIR/rbw/ssh-agent-socket" ]; then
+    export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/rbw/ssh-agent-socket"
 fi
 
 # homebrew
