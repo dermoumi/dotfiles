@@ -50,6 +50,11 @@ alias -g C='| wl-copy'
 alias -g J='| jq'
 alias -g V='| nvim +'
 
+# paru to yay alias
+if [[ $commands[paru] ]] && ! [[ $commands[yay] ]]; then
+    alias yay=paru
+fi
+
 # eza
 if [[ $commands[eza] ]]; then
     alias ls=eza
