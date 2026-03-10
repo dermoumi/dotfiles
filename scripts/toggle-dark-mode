@@ -19,10 +19,14 @@ else
     TARGET_MODE="dark"
 fi
 
+# just in case nvr is currently in a mise virtualenv
 if command -v mise &&>/dev/null; then
     eval "$(mise activate bash)"
 fi
 
-for server in $(ls /run/user/$(id -u)/nvim.*.0 2>/dev/null) /tmp/nvimsocket; do
-    nvr --servername "$server" -c "set background=$TARGET_MODE" &
-done
+# Run nvr to update nvim's current theme
+if command -v nvr &&>/dev/null; then
+  for server in $(ls /run/user/$(id -u)/nvim.*.0 2>/dev/null) /tmp/nvimsocket; do
+      nvr --servername "$server" -c "set background=$TARGET_MODE" &
+  done
+fi
