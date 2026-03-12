@@ -111,3 +111,8 @@ vim.keymap.set({ "i", "s" }, "<Tab>", function()
     vim.fn.feedkeys("\t", "n")
   end
 end)
+
+-- Global clipboard keys
+vim.keymap.set({'n', 'v'}, '<C-Insert>', 'y', { noremap = true })
+vim.keymap.set({'n', 'v'}, '<S-Insert>', 'p', { noremap = true })
+

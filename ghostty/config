@@ -49,8 +49,17 @@
 # resize-overlay-duration = 4s 200ms
 
 confirm-close-surface = false
+
+# Input
 mouse-scroll-multiplier = discrete:0.8
+
+# Appearance
 theme = dark:Ayu,light:Ayu Light
 window-padding-x = 12
 window-padding-y = 12
 window-padding-balance = true
+font-family = JetBrainsMono Nerd Font
+
+# Enable global clipboard keys
+keybind = ctrl+insert=copy_to_clipboard
+keybind = shift+insert=paste_from_clipboard
