@@ -97,7 +97,7 @@ if [[ -d ~/.pyenv && ! ("$PYENV_ROOT" && -d "$PYENV_ROOT") ]]; then
 fi
 
 # mise
-if [[ -x "$HOME/.local/bin/mise" ]]; then
+if [[ $commands[mise] ]]; then
     eval "$(mise activate zsh)"
 fi
 
