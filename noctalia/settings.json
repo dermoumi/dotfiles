@@ -373,8 +373,8 @@
         "avatarImage": "/home/sdrm/.face",
         "boxRadiusRatio": 1,
         "clockFormat": "hh\\nmm",
-        "clockStyle": "custom",
-        "compactLockScreen": false,
+        "clockStyle": "analog",
+        "compactLockScreen": true,
         "dimmerOpacity": 0.2,
         "enableBlurBehind": true,
         "enableLockScreenCountdown": true,
@@ -412,6 +412,7 @@
         "lockScreenBlur": 0,
         "lockScreenCountdownDuration": 10000,
         "lockScreenMonitors": [
+            "DP-3"
         ],
         "lockScreenTint": 0,
         "passwordChars": false,
@@ -425,7 +426,7 @@
         "showChangelogOnStartup": true,
         "showHibernateOnLockScreen": false,
         "showScreenCorners": false,
-        "showSessionButtonsOnLockScreen": true,
+        "showSessionButtonsOnLockScreen": false,
         "telemetryEnabled": false
     },
     "hooks": {
