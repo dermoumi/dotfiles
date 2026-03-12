@@ -6,10 +6,14 @@ layout {
   background-color "transparent" // <- needed for noctalia-shell to set wallpaper
 
   border {
+    on
     width 3
+    active-color "#FA8532"
+    inactive-color "#FFFFFF44"
   }
 
   focus-ring {
+    off
     width 3
   }
 
@@ -26,7 +30,6 @@ layout {
   struts {
     left 16
     right 16
-    top -6
-    bottom -6
   }
 }
+
