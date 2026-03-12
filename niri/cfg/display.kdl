@@ -1,0 +1,16 @@
+// ────────────── Output Configuration ──────────────
+// You can run `niri msg outputs` to get the correct name for your displays.
+// You will have to remove "/-" and edit it before it takes effect.
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Outputs
+
+output "Huawei Technologies Co., Inc. ZQE-CAA 0xC080F622" {
+    mode "3560x1440@165.0"
+    position x=0 y=1080
+    scale 1
+}
+
+output "LG Electronics LG ULTRAWIDE 0x000256D7" {
+    mode "2560x1080@60.0"
+    position x=440 y=0
+    scale 1
+}

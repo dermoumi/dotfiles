@@ -1,0 +1,12 @@
+workspace "d1" {
+	open-on-output "Huawei Technologies Co., Inc. ZQE-CAA 0xC080F622"
+}
+
+workspace "d2" {
+	open-on-output "Huawei Technologies Co., Inc. ZQE-CAA 0xC080F622"
+}
+
+workspace "d0" {
+	open-on-output "LG Electronics LG ULTRAWIDE 0x000256D7"
+}
+

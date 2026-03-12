@@ -1,0 +1,37 @@
+// ────────────── Input Configuration ──────────────
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Input
+
+input {
+  keyboard {
+    numlock // Enable numlock on startup
+
+    repeat-delay 250
+    repeat-rate 67
+
+    xkb {
+      //If you want to overwrite your keyboard layout,
+      // uncomment the line below and change the layout accordingly.
+      //layout "us" // Use the American keyboard layout
+      layout "us"
+      variant "altgr-intl"
+      options "compose:caps"
+    }
+  }
+
+  mouse {
+    // scroll-factor 0.9
+  }
+
+  touchpad {
+    tap // Enable tap-to-click
+    natural-scroll // Enable natural (macOS-style) scrolling
+  }
+
+  focus-follows-mouse // Automatically focus windows under the mouse pointer
+}
+
+window-rule {
+  match app-id="com.mitchellh.ghostty"
+
+  scroll-factor 0.08
+}
