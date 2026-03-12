@@ -1,6 +1,6 @@
 {
   "updateIntervalMinutes": 30,
-  "updateTerminalCommand": "foot -e",
+  "updateTerminalCommand": "ghostty -e",
   "currentIconName": "world-download",
   "hideOnZero": true,
   "customCmdGetNumUpdates": "",
