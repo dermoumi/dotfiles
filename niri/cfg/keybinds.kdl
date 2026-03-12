@@ -107,18 +107,26 @@ binds {
     Mod+TAB                             { focus-workspace-previous; }
 
     // ─── Layout Controls ───
+    Mod+O                               { expand-column-to-available-width; }
     Mod+CTRL+F                          { expand-column-to-available-width; }
-    // Mod+C                               { center-column; }
-    Mod+CTRL+C                          { center-visible-columns; }
+    Mod+CTRL+T                          { center-column; }
     Mod+CTRL+H                          { set-column-width "-10%"; }
     Mod+CTRL+L                          { set-column-width "+10%"; }
     Mod+CTRL+J                          { set-window-height "-10%"; }
     Mod+CTRL+K                          { set-window-height "+10%"; }
+    Mod+CTRL+Shift+H                    { set-column-width "-5%"; }
+    Mod+CTRL+Shift+L                    { set-column-width "+5%"; }
+    Mod+CTRL+Shift+J                    { set-window-height "-5%"; }
+    Mod+CTRL+Shift+K                    { set-window-height "+5%"; }
 
     // ─── Modes ───
     Mod+F                               { toggle-window-floating; }
-    Mod+SHIFT+F                         { fullscreen-window; }
-    Mod+CTRL+G                          { toggle-column-tabbed-display; }
+    Mod+Shift+F                         { fullscreen-window; }
+
+    // Tabs
+    Mod+Ctrl+G                          { toggle-column-tabbed-display; }
+    Mod+Alt+H                           { consume-window-into-column; }
+    Mod+Alt+L                           { expel-window-from-column; }
 
     // ─── Screenshots ───
     Mod+Shift+S                         { screenshot; }
@@ -133,7 +141,6 @@ binds {
     // ─── Exit / Power ───
     CTRL+ALT+Delete                     { quit; } // Also quits Niri
     Mod+Shift+P                         { power-off-monitors; } // Turn off screens (useful for OLED or privacy)
-    Mod+O                               repeat=false { toggle-overview; }
 
     // ─── Tools ───
     Mod+Shift+Space                     { spawn "/home/sdrm/.dotfiles/scripts/toggle-dark-mode"; }

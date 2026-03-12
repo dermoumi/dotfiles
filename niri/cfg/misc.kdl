@@ -20,10 +20,6 @@ hotkey-overlay {
   hide-not-bound
 }
 
-clipboard {
-  disable-primary
-}
-
 cursor {
   xcursor-theme "breeze_cursors"
 }
