@@ -6,7 +6,7 @@ input {
     numlock // Enable numlock on startup
 
     repeat-delay 250
-    repeat-rate 67
+    repeat-rate 60
 
     xkb {
       //If you want to overwrite your keyboard layout,
