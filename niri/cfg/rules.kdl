@@ -14,3 +14,14 @@ window-rule {
 
   open-on-workspace "D0"
 }
+
+// Windscribe window to be floating near the tray
+window-rule {
+  match app-id="Windscribe"
+
+  open-floating true
+  draw-border-with-background false
+  default-floating-position x=16 y=16 relative-to="bottom-right"
+  block-out-from "screencast"
+}
+
