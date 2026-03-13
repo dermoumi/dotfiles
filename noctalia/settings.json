@@ -10,7 +10,7 @@
         "enableClipPreview": true,
         "enableClipboardHistory": true,
         "enableSessionSearch": true,
-        "enableSettingsSearch": true,
+        "enableSettingsSearch": false,
         "enableWindowsSearch": true,
         "iconMode": "tabler",
         "ignoreMouseInput": false,
@@ -19,7 +19,7 @@
         ],
         "position": "center",
         "screenshotAnnotationTool": "",
-        "showCategories": true,
+        "showCategories": false,
         "showIconBackground": false,
         "sortByMostUsed": true,
         "terminalCommand": "ghostty -e",
@@ -47,6 +47,7 @@
         "contentPadding": 2,
         "density": "spacious",
         "displayMode": "always_visible",
+        "enableExclusionZoneInset": true,
         "floating": false,
         "fontScale": 1,
         "frameRadius": 12,
@@ -101,6 +102,7 @@
                     "occupiedColor": "none",
                     "pillSize": 0.4,
                     "showApplications": false,
+                    "showApplicationsHover": false,
                     "showBadge": true,
                     "showLabelsOnlyWhenOccupied": true,
                     "unfocusedIconsOpacity": 1
@@ -165,7 +167,7 @@
                     "chevronColor": "none",
                     "colorizeIcons": true,
                     "drawerEnabled": false,
-                    "hidePassive": false,
+                    "hidePassive": true,
                     "id": "Tray",
                     "pinned": [
                     ]
@@ -373,7 +375,7 @@
         "avatarImage": "/home/sdrm/.face",
         "boxRadiusRatio": 1,
         "clockFormat": "hh\\nmm",
-        "clockStyle": "analog",
+        "clockStyle": "digital",
         "compactLockScreen": true,
         "dimmerOpacity": 0.2,
         "enableBlurBehind": true,
@@ -409,12 +411,12 @@
         "language": "",
         "lockOnSuspend": true,
         "lockScreenAnimations": false,
-        "lockScreenBlur": 0,
+        "lockScreenBlur": 1,
         "lockScreenCountdownDuration": 10000,
         "lockScreenMonitors": [
             "DP-3"
         ],
-        "lockScreenTint": 0,
+        "lockScreenTint": 0.71,
         "passwordChars": false,
         "radiusRatio": 0.18,
         "reverseScroll": false,
@@ -452,7 +454,7 @@
         "screenOffCommand": "",
         "screenOffTimeout": 601,
         "suspendCommand": "",
-        "suspendTimeout": 1800
+        "suspendTimeout": 0
     },
     "location": {
         "analogClockInCalendar": false,
@@ -535,7 +537,7 @@
             1,
             2
         ],
-        "location": "bottom",
+        "location": "bottom_right",
         "monitors": [
             "DP-3"
         ],
@@ -545,9 +547,9 @@
         "autoUpdate": true
     },
     "sessionMenu": {
-        "countdownDuration": 10000,
+        "countdownDuration": 5000,
         "enableCountdown": true,
-        "largeButtonsLayout": "single-row",
+        "largeButtonsLayout": "grid",
         "largeButtonsStyle": true,
         "position": "center",
         "powerOptions": [
@@ -562,43 +564,43 @@
                 "action": "suspend",
                 "command": "",
                 "countdownEnabled": true,
-                "enabled": true,
-                "keybind": "2"
+                "enabled": false,
+                "keybind": ""
             },
             {
                 "action": "hibernate",
                 "command": "",
                 "countdownEnabled": true,
-                "enabled": true,
-                "keybind": "3"
+                "enabled": false,
+                "keybind": ""
             },
             {
                 "action": "reboot",
                 "command": "",
                 "countdownEnabled": true,
                 "enabled": true,
-                "keybind": "4"
+                "keybind": "2"
             },
             {
                 "action": "logout",
                 "command": "",
                 "countdownEnabled": true,
                 "enabled": true,
-                "keybind": "5"
+                "keybind": "3"
             },
             {
                 "action": "shutdown",
                 "command": "",
                 "countdownEnabled": true,
                 "enabled": true,
-                "keybind": "6"
+                "keybind": "4"
             },
             {
                 "action": "rebootToUefi",
                 "command": "",
                 "countdownEnabled": true,
-                "enabled": true,
-                "keybind": "7"
+                "enabled": false,
+                "keybind": ""
             },
             {
                 "action": "userspaceReboot",
