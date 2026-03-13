@@ -33,3 +33,13 @@ window-rule {
   default-floating-position x=16 y=16 relative-to="bottom-right"
   block-out-from "screencast"
 }
+
+// Minecraft
+window-rule {
+  match app-id="^Raspberry Flavoured .+$"
+
+  open-on-workspace "D2"
+  variable-refresh-rate true
+  open-maximized true
+  default-column-width { proportion 1.0; }
+}

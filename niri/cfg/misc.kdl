@@ -23,3 +23,9 @@ hotkey-overlay {
 cursor {
   xcursor-theme "breeze_cursors"
 }
+
+overview {
+  workspace-shadow {
+    off
+  }
+}
