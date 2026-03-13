@@ -80,13 +80,6 @@
             ],
             "left": [
                 {
-                    "defaultSettings": {
-                        "hideBackground": false,
-                        "minimumThreshold": 10
-                    },
-                    "id": "plugin:catwalk"
-                },
-                {
                     "characterCount": 2,
                     "colorizeIcons": false,
                     "emptyColor": "none",
@@ -144,23 +137,6 @@
             ],
             "right": [
                 {
-                    "defaultSettings": {
-                        "currentIconName": "world-download",
-                        "hideOnZero": false,
-                        "updateIntervalMinutes": 30,
-                        "updateTerminalCommand": "foot -e"
-                    },
-                    "id": "plugin:update-count"
-                },
-                {
-                    "defaultSettings": {
-                        "playerName": "musicfox",
-                        "updateInterval": 200,
-                        "width": 300
-                    },
-                    "id": "plugin:mpris-lyric"
-                },
-                {
                     "blacklist": [
                         "cachy-update"
                     ],
@@ -173,18 +149,13 @@
                     ]
                 },
                 {
-                    "hideWhenZero": false,
-                    "hideWhenZeroUnread": false,
-                    "iconColor": "none",
-                    "id": "NotificationHistory",
-                    "showUnreadBadge": false,
-                    "unreadBadgeColor": "tertiary"
-                },
-                {
-                    "displayMode": "onhover",
-                    "iconColor": "none",
-                    "id": "Bluetooth",
-                    "textColor": "none"
+                    "defaultSettings": {
+                        "currentIconName": "world-download",
+                        "hideOnZero": false,
+                        "updateIntervalMinutes": 30,
+                        "updateTerminalCommand": "foot -e"
+                    },
+                    "id": "plugin:update-count"
                 },
                 {
                     "displayMode": "onhover",
@@ -203,17 +174,6 @@
                     "iconColor": "none",
                     "id": "KeepAwake",
                     "textColor": "none"
-                },
-                {
-                    "defaultSettings": {
-                        "autoStartBreaks": false,
-                        "autoStartWork": false,
-                        "longBreakDuration": 15,
-                        "sessionsBeforeLongBreak": 4,
-                        "shortBreakDuration": 5,
-                        "workDuration": 25
-                    },
-                    "id": "plugin:pomodoro"
                 },
                 {
                     "clockColor": "tertiary",
@@ -321,6 +281,20 @@
                         "videoSource": "portal"
                     },
                     "id": "plugin:screen-recorder"
+                },
+                {
+                    "enableOnStateLogic": false,
+                    "generalTooltipText": "",
+                    "icon": "heart",
+                    "id": "CustomButton",
+                    "onClicked": "",
+                    "onMiddleClicked": "",
+                    "onRightClicked": "",
+                    "showExecTooltip": true,
+                    "stateChecksJson": "[]"
+                },
+                {
+                    "id": "Notifications"
                 }
             ],
             "right": [
@@ -377,7 +351,7 @@
         "clockFormat": "hh\\nmm",
         "clockStyle": "digital",
         "compactLockScreen": true,
-        "dimmerOpacity": 0.2,
+        "dimmerOpacity": 0,
         "enableBlurBehind": true,
         "enableLockScreenCountdown": true,
         "enableLockScreenMediaControls": false,
@@ -530,7 +504,7 @@
     },
     "osd": {
         "autoHideMs": 2000,
-        "backgroundOpacity": 0.25,
+        "backgroundOpacity": 1,
         "enabled": true,
         "enabledTypes": [
             0,
@@ -648,11 +622,11 @@
         "fontDefaultScale": 1,
         "fontFixed": "JetBrainsMono NF",
         "fontFixedScale": 1,
-        "panelBackgroundOpacity": 0.93,
-        "panelsAttachedToBar": true,
+        "panelBackgroundOpacity": 1,
+        "panelsAttachedToBar": false,
         "scrollbarAlwaysVisible": true,
         "settingsPanelMode": "attached",
-        "settingsPanelSideBarCardStyle": false,
+        "settingsPanelSideBarCardStyle": true,
         "tooltipsEnabled": true,
         "translucentWidgets": false
     },
