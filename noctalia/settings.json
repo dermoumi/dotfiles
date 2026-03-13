@@ -165,8 +165,8 @@
                         "cachy-update"
                     ],
                     "chevronColor": "none",
-                    "colorizeIcons": true,
-                    "drawerEnabled": false,
+                    "colorizeIcons": false,
+                    "drawerEnabled": true,
                     "hidePassive": true,
                     "id": "Tray",
                     "pinned": [

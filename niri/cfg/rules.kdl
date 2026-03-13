@@ -25,3 +25,11 @@ window-rule {
   block-out-from "screencast"
 }
 
+// Bitwarden
+window-rule {
+  match app-id="Bitwarden"
+
+  open-floating true
+  default-floating-position x=16 y=16 relative-to="bottom-right"
+  block-out-from "screencast"
+}
