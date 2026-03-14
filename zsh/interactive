@@ -39,6 +39,7 @@ alias diff="diff --color=auto"
 alias grep="grep --color=auto"
 alias ip="ip --color=auto"
 alias dmesg="dmesg --color=auto"
+alias please="sudo"
 
 # global aliases
 alias -g NE='2>/dev/null'
