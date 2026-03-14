@@ -116,3 +116,8 @@ fi
 if [[ -o interactive ]]; then
     source "$ZDOTDIR/interactive"
 fi
+
+# open alias
+if [[ $commands[xdg-open] ]]; then
+    alias open="xdg-open"
+fi
