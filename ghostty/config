@@ -14,7 +14,7 @@
 #
 # Additionally, each config option is also explained in detail
 # on Ghostty's website, at https://ghostty.org/docs/config.
-#
+
 # Ghostty can reload the configuration while running by using the menu
 # options or the bound key (default: Command + Shift + comma on macOS and
 # Control + Shift + comma on other platforms). Not all config options can be
@@ -58,7 +58,7 @@ theme = dark:Ayu,light:Ayu Light
 window-padding-x = 12
 window-padding-y = 12
 window-padding-balance = true
-font-family = JetBrainsMono Nerd Font
+font-size = 14
 
 # Enable global clipboard keys
 keybind = ctrl+insert=copy_to_clipboard
