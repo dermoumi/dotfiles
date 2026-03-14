@@ -104,6 +104,11 @@ if [[ $commands[podman] && ! $commands[docker] ]]; then
     export PODMAN_COMPOSE_WARNING_LOGS=false
 fi
 
+# vite plus
+if [[ -f "$HOME/.vite-plus/env" ]]; then
+    source "$HOME/.vite-plus/env"
+fi
+
 # Enable automatic activation of virtualenvs
 if [[ $commands[pyenv] ]]; then
     source <(pyenv init --path)
