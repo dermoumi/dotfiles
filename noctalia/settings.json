@@ -283,15 +283,15 @@
                     "id": "plugin:screen-recorder"
                 },
                 {
-                    "enableOnStateLogic": false,
+                    "enableOnStateLogic": true,
                     "generalTooltipText": "",
-                    "icon": "heart",
+                    "icon": "rocket",
                     "id": "CustomButton",
-                    "onClicked": "",
-                    "onMiddleClicked": "",
-                    "onRightClicked": "",
+                    "onClicked": "powerprofilesctl set performance",
+                    "onRightClicked": "powerprofilesctl set balanced",
+                    "onMiddleClicked": "powerprofilesctl set power-saver",
                     "showExecTooltip": true,
-                    "stateChecksJson": "[]"
+                    "stateChecksJson": "[{\"command\":\"bash -c '[[ $(powerprofilesctl get) == \\\"performance\\\" ]]'\",\"icon\":\"\"}]"
                 },
                 {
                     "id": "Notifications"
