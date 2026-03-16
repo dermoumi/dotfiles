@@ -288,8 +288,8 @@
                     "icon": "rocket",
                     "id": "CustomButton",
                     "onClicked": "powerprofilesctl set performance",
-                    "onRightClicked": "powerprofilesctl set balanced",
                     "onMiddleClicked": "powerprofilesctl set power-saver",
+                    "onRightClicked": "powerprofilesctl set balanced",
                     "showExecTooltip": true,
                     "stateChecksJson": "[{\"command\":\"bash -c '[[ $(powerprofilesctl get) == \\\"performance\\\" ]]'\",\"icon\":\"\"}]"
                 },

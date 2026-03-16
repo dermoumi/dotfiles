@@ -63,8 +63,8 @@ binds {
     Mod+Shift+CTRL+Down                 { move-column-to-monitor-down; }
 
     // shortcut on my g502
-    Mod+CTRL+Right                      { focus-column-left; }
-    Mod+CTRL+Left                       { focus-column-right; }
+    Mod+CTRL+Left                       { focus-column-left; }
+    Mod+CTRL+Right                      { focus-column-right; }
 
     // ─── Workspace Switching ───
     Mod+WheelScrollRight                cooldown-ms=150 { focus-workspace-down; }
