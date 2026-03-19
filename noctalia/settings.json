@@ -84,7 +84,7 @@
                     "colorizeIcons": false,
                     "emptyColor": "none",
                     "enableScrollWheel": true,
-                    "focusedColor": "tertiary",
+                    "focusedColor": "primary",
                     "followFocusedScreen": false,
                     "fontWeight": "bold",
                     "groupedBorderOpacity": 1,
@@ -118,7 +118,7 @@
                     "showMemoryUsage": true,
                     "showNetworkStats": true,
                     "showSwapUsage": false,
-                    "textColor": "primary",
+                    "textColor": "tertiary",
                     "useMonospaceFont": true,
                     "usePadding": false
                 },
@@ -146,6 +146,8 @@
                     "hidePassive": true,
                     "id": "Tray",
                     "pinned": [
+                        "Easy Effects",
+                        "steam"
                     ]
                 },
                 {
@@ -176,7 +178,7 @@
                     "textColor": "none"
                 },
                 {
-                    "clockColor": "tertiary",
+                    "clockColor": "primary",
                     "customFont": "",
                     "formatHorizontal": "HH:mm ddd, MMM dd",
                     "formatVertical": "HH mm - dd MM",
