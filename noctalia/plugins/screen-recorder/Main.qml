@@ -99,6 +99,7 @@ Item {
     readonly property string audioSource: pluginApi?.pluginSettings?.audioSource || "default_output"
     readonly property string videoSource: pluginApi?.pluginSettings?.videoSource || "portal"
     readonly property string resolution: pluginApi?.pluginSettings?.resolution || "original"
+    readonly property bool restorePortalSession: pluginApi?.pluginSettings?.restorePortalSession ?? false
 
     // Replay settings shortcuts
     readonly property bool replayEnabled: pluginApi?.pluginSettings?.replayEnabled ?? false
@@ -279,7 +280,8 @@ Item {
 
         var actualFrameRate = (frameRate === "custom") ? customFrameRate : frameRate;
         var resolutionFlag = (resolution !== "original") ? `-s ${resolution}` : "";
-        var flags = `-w ${source} -f ${actualFrameRate} -k ${videoCodec} ${audioFlags} -q ${quality} -cursor ${showCursor ? "yes" : "no"} -cr ${colorRange} ${resolutionFlag} -restore-portal-session yes -o "${outputPath}"`;
+        var restoreFlag = restorePortalSession ? "-restore-portal-session yes" : "";
+        var flags = `-w ${source} -f ${actualFrameRate} -k ${videoCodec} ${audioFlags} -q ${quality} -cursor ${showCursor ? "yes" : "no"} -cr ${colorRange} ${resolutionFlag} ${restoreFlag} -o "${outputPath}"`;
         var primePrefix = primeRun ? "prime-run " : "";
         var command = `
     _gpuscreenrecorder_flatpak_installed() {
@@ -310,7 +312,7 @@ Item {
 
         ToastService.showNotice(pluginApi.tr("messages.stopping"), outputPath, "video");
 
-        Quickshell.execDetached(["sh", "-c", "pkill -SIGINT -f 'gpu-screen-recorder' || pkill -SIGINT -f 'com.dec05eba.gpu_screen_recorder'"]);
+        Quickshell.execDetached(["sh", "-c", "pkill -SIGINT -f '^gpu-screen-recorder' || pkill -SIGINT -f '^com.dec05eba.gpu_screen_recorder'"]);
 
         isRecording = false;
         isPending = false;
@@ -495,7 +497,7 @@ Item {
         running: false
         repeat: false
         onTriggered: {
-            Quickshell.execDetached(["sh", "-c", "pkill -9 -f 'gpu-screen-recorder' 2>/dev/null || pkill -9 -f 'com.dec05eba.gpu_screen_recorder' 2>/dev/null || true"]);
+            Quickshell.execDetached(["sh", "-c", "pkill -9 -f '^gpu-screen-recorder' 2>/dev/null || pkill -9 -f '^com.dec05eba.gpu_screen_recorder' 2>/dev/null || true"]);
         }
     }
 
@@ -554,7 +556,8 @@ Item {
                 return `-ac ${audioCodec} -a ${audioSource}`;
             })();
 
-        var flags = `-w ${source} -c mp4 -f ${actualFrameRate} -k ${videoCodec} ${audioFlags} -q ${quality} -cursor ${showCursor ? "yes" : "no"} -cr ${colorRange} ${resolutionFlag} -r ${actualDuration} -replay-storage ${replayStorage} -restore-portal-session yes -o "${videoDir}"`;
+        var restoreFlag = restorePortalSession ? "-restore-portal-session yes" : "";
+        var flags = `-w ${source} -c mp4 -f ${actualFrameRate} -k ${videoCodec} ${audioFlags} -q ${quality} -cursor ${showCursor ? "yes" : "no"} -cr ${colorRange} ${resolutionFlag} -r ${actualDuration} -replay-storage ${replayStorage} ${restoreFlag} -o "${videoDir}"`;
         var primePrefix = primeRun ? "prime-run " : "";
         var command = `
     _gpuscreenrecorder_flatpak_installed() {
@@ -579,7 +582,7 @@ Item {
         if (!isReplaying && !isReplayPending) return;
 
         // Send SIGINT to stop the replay daemon
-        Quickshell.execDetached(["sh", "-c", "pkill -SIGINT -f 'gpu-screen-recorder.*-r ' || pkill -SIGINT -f 'com.dec05eba.gpu_screen_recorder.*-r '"]);
+        Quickshell.execDetached(["sh", "-c", "pkill -SIGINT -f '^gpu-screen-recorder.*-r ' || pkill -SIGINT -f '^com.dec05eba.gpu_screen_recorder.*-r '"]);
 
         isReplaying = false;
         isReplayPending = false;
@@ -596,7 +599,7 @@ Item {
         if (!isReplaying) return;
 
         // Send SIGUSR1 to save the replay buffer
-        Quickshell.execDetached(["sh", "-c", "pkill -SIGUSR1 -f 'gpu-screen-recorder.*-r ' || pkill -SIGUSR1 -f 'com.dec05eba.gpu_screen_recorder.*-r '"]);
+        Quickshell.execDetached(["sh", "-c", "pkill -SIGUSR1 -f '^gpu-screen-recorder.*-r ' || pkill -SIGUSR1 -f '^com.dec05eba.gpu_screen_recorder.*-r '"]);
     }
 
     // Replay Process
@@ -733,7 +736,7 @@ Item {
         running: false
         repeat: false
         onTriggered: {
-            Quickshell.execDetached(["sh", "-c", "pkill -9 -f 'gpu-screen-recorder.*-r ' 2>/dev/null || pkill -9 -f 'com.dec05eba.gpu_screen_recorder.*-r ' 2>/dev/null || true"]);
+            Quickshell.execDetached(["sh", "-c", "pkill -9 -f '^gpu-screen-recorder.*-r ' 2>/dev/null || pkill -9 -f '^com.dec05eba.gpu_screen_recorder.*-r ' 2>/dev/null || true"]);
         }
     }
 
