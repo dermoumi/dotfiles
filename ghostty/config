@@ -49,6 +49,7 @@
 # resize-overlay-duration = 4s 200ms
 
 confirm-close-surface = false
+command = zsh -c "tmux new -t main || tmux new -s main"
 
 # Input
 mouse-scroll-multiplier = discrete:0.2
