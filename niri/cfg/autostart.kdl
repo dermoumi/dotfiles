@@ -3,4 +3,3 @@
 
 spawn-sh-at-startup "/usr/lib/polkit-kde-authentication-agent-1 &" // Polkit
 spawn-sh-at-startup "qs -c noctalia-shell"
-// spawn-at-startup "dotoold"

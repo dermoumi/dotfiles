@@ -35,3 +35,15 @@ window-rule {
 
   scroll-factor 0.08
 }
+
+gestures {
+  dnd-edge-view-scroll {
+    // Increase the trigger area and maximum speed.
+    trigger-width 100
+    max-speed 5000
+  }
+
+  hot-corners {
+    off
+  }
+}
