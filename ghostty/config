@@ -59,7 +59,7 @@ theme = dark:Ayu,light:Ayu Light
 window-padding-x = 12
 window-padding-y = 12
 window-padding-balance = true
-font-size = 14
+font-size = 13
 minimum-contrast = 1.1
 
 # Enable global clipboard keys
