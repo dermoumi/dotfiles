@@ -6,6 +6,7 @@ pyrightconfig.json
 *.sublime-project
 *.sublime-workspace
 *.code-workspace
+.w/
 
 # Node
 node_modules
