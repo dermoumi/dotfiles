@@ -122,18 +122,6 @@
                     "textColor": "tertiary",
                     "useMonospaceFont": true,
                     "usePadding": false
-                },
-                {
-                    "defaultSettings": {
-                        "activeColor": "primary",
-                        "enableToast": true,
-                        "hideInactive": false,
-                        "iconSpacing": 4,
-                        "inactiveColor": "none",
-                        "micFilterRegex": "",
-                        "removeMargins": false
-                    },
-                    "id": "plugin:privacy-indicator"
                 }
             ],
             "right": [
@@ -162,6 +150,12 @@
                         "updateTerminalCommand": "foot -e"
                     },
                     "id": "plugin:update-count"
+                },
+                {
+                    "displayMode": "onhover",
+                    "iconColor": "none",
+                    "id": "Bluetooth",
+                    "textColor": "none"
                 },
                 {
                     "displayMode": "onhover",
@@ -361,10 +355,10 @@
         "clockStyle": "digital",
         "compactLockScreen": true,
         "dimmerOpacity": 0,
-        "enableBlurBehind": true,
+        "enableBlurBehind": false,
         "enableLockScreenCountdown": true,
         "enableLockScreenMediaControls": false,
-        "enableShadows": true,
+        "enableShadows": false,
         "forceBlackScreenCorners": false,
         "iRadiusRatio": 0.18,
         "keybinds": {
@@ -464,8 +458,8 @@
         "bluetoothRssiPollIntervalMs": 60000,
         "bluetoothRssiPollingEnabled": false,
         "disableDiscoverability": false,
-        "networkPanelView": "ethernet",
-        "wifiDetailsViewMode": "grid"
+        "networkPanelView": "wifi",
+        "wifiDetailsViewMode": "list"
     },
     "nightLight": {
         "autoSchedule": true,
@@ -493,7 +487,8 @@
         "location": "bottom_right",
         "lowUrgencyDuration": 3,
         "monitors": [
-            "HDMI-A-1"
+            "HDMI-A-1",
+            "DP-2"
         ],
         "normalUrgencyDuration": 8,
         "overlayLayer": true,
@@ -636,7 +631,7 @@
         "fontFixedScale": 1,
         "panelBackgroundOpacity": 1,
         "panelsAttachedToBar": false,
-        "scrollbarAlwaysVisible": true,
+        "scrollbarAlwaysVisible": false,
         "settingsPanelMode": "attached",
         "settingsPanelSideBarCardStyle": true,
         "tooltipsEnabled": true,
