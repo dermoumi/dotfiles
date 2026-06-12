@@ -5,6 +5,8 @@ to-clip() {
     # And ultimately fallback to osc52 if nothing is available
     if [[ $commands[pbcopy] ]]; then
         pbcopy
+    elif [[ $commands[wl-copy] ]]; then
+        wl-copy
     elif [[ $commands[xclip] ]]; then
         xclip -selection clipboard
     else

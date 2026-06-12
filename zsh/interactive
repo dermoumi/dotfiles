@@ -47,7 +47,7 @@ alias -g DN='1>/dev/null'
 alias -g NUL='>/dev/null 2>&1'
 alias -g G='| rg -i '
 alias -g L='| less'
-alias -g C='| wl-copy'
+alias -g C='| to-clip'
 alias -g J='| jq'
 alias -g V='| nvim +'
 
@@ -90,8 +90,14 @@ elif [[ $commands[vim] ]]; then
 fi
 
 # kubectl
-if command -v kubectl >/dev/null; then
-    source <(kubectl completion zsh)
+if [[ $commands[kubectl] ]]; then
+    # cache the completion script, regenerating when kubectl is updated
+    _kcomp="${XDG_CACHE_HOME:-$HOME/.cache}/kubectl-completion.zsh"
+    if [[ ! -f "$_kcomp" || "$commands[kubectl]" -nt "$_kcomp" ]]; then
+        kubectl completion zsh > "$_kcomp"
+    fi
+    source "$_kcomp"
+    unset _kcomp
 fi
 
 if [[ -f $HOME/.kube/config ]]; then
@@ -294,12 +300,13 @@ if [[ $commands[fzf] ]]; then
     init_forgit() {
         export FORGIT_NO_ALIASES=1
 
-        set_fzf_opts() {
+        set_forgit_fzf_opts() {
             export FORGIT_FZF_DEFAULT_OPTS="--preview-window=$(preview_params)"
         }
 
-        trap set_fzf_opts SIGWINCH # call whenever the terminal resizes
-        set_fzf_opts
+        # call both fzf and forgit updates whenever the terminal resizes
+        trap 'set_fzf_opts; set_forgit_fzf_opts' SIGWINCH
+        set_forgit_fzf_opts
     }
     zinit ice wait=0 lucid depth=1 atload='path=($PWD/bin $path)' atinit=init_forgit
     zinit light wfxr/forgit

@@ -41,16 +41,16 @@ fi
 # includes path
 if [ ! "$LOCAL_INCLUDE_PATH" ] && [ -d ~/.local/include ]; then
     export LOCAL_INCLUDE_PATH=$HOME/.local/include
-    export CPATH="$LOCAL_INCLUDE_PATH:$CPATH"
-    export C_INCLUDE_PATH="$LOCAL_INCLUDE_PATH:$C_INCLUDE_PATH"
-    export CPLUS_INCLUDE_PATH="$LOCAL_INCLUDE_PATH:$CPLUS_INCLUDE_PATH"
+    export CPATH="$LOCAL_INCLUDE_PATH${CPATH:+:$CPATH}"
+    export C_INCLUDE_PATH="$LOCAL_INCLUDE_PATH${C_INCLUDE_PATH:+:$C_INCLUDE_PATH}"
+    export CPLUS_INCLUDE_PATH="$LOCAL_INCLUDE_PATH${CPLUS_INCLUDE_PATH:+:$CPLUS_INCLUDE_PATH}"
 fi
 
 # libraries path
 if [ ! "$LOCAL_LIB_PATH" ] && [ -d ~/.local/lib ]; then
     export LOCAL_LIB_PATH=$HOME/.local/lib
-    export LIBRARY_PATH="$LOCAL_LIB_PATH:$LIBRARY_PATH"
-    export LD_LIBRARY_PATH="$LOCAL_LIB_PATH:$LD_LIBRARY_PATH"
+    export LIBRARY_PATH="$LOCAL_LIB_PATH${LIBRARY_PATH:+:$LIBRARY_PATH}"
+    export LD_LIBRARY_PATH="$LOCAL_LIB_PATH${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 fi
 
 # make sure paths don't contain duplicates

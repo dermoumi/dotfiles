@@ -56,7 +56,7 @@ bindkey "^[[3~" delete-char
 bindkey "^?" backward-delete-char
 
 # ctrl+del to remove next word
-bindkey "5~" kill-word
+bindkey "^[[3;5~" kill-word
 
 # ctrl+bspace to remove previous word
 bindkey "^H" backward-kill-word

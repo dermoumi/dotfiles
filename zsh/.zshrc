@@ -13,13 +13,12 @@ fi
 # zmodload zsh/zprof
 
 # zsh options
-HISTSIZE=1000
-SAVEHIST=1000
+HISTSIZE=100000
+SAVEHIST=100000
 HISTFILE=~/.cache/zsh_history
 
 setopt hist_ignore_all_dups hist_ignore_space hist_find_no_dups append_history \
-  share_history incappendhistory auto_cd extended_glob no_match notify \
-  magic_equal_subst
+  share_history auto_cd extended_glob no_match notify magic_equal_subst
 
 # setup function autoload
 autoload -Uz "$ZDOTDIR/functions/"*
@@ -60,7 +59,7 @@ fi
 
 if [[ -d "/opt/homebrew/share/android-ndk" ]]; then
   export ANDROID_NDK_HOME="/opt/homebrew/share/android-ndk"
-  export NDK_HOME=$ANDROID_NDK
+  export NDK_HOME=$ANDROID_NDK_HOME
 fi
 
 # cargo
