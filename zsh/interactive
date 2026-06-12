@@ -29,7 +29,7 @@ if [ -d /boot ] && [ -n "$(find /boot -maxdepth 0 -empty)" ]; then
 fi
 
 # ls aliases
-alias ls="ls --color=auto"
+alias ls="ls --color=auto --group-directories-first"
 alias ll="ls -lh"
 alias la="ls -a"
 alias lla="ll -a"
@@ -58,7 +58,7 @@ fi
 
 # eza
 if [[ $commands[eza] ]]; then
-    alias ls=eza
+    alias ls="eza --icons --group-directories-first"
     alias lt="ll --tree"
 fi
 
