@@ -165,6 +165,7 @@ __make_links() {
     __mk_link .tmux.conf ~/
     __mk_link wezterm ~/.config/
     __mk_link nvim ~/.config/
+    __mk_link direnv ~/.config/
 
     # MacOS specific links
     if ((is_macos)); then

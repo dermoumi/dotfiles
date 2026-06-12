@@ -109,6 +109,11 @@ if [[ -f "$HOME/.vite-plus/env" ]]; then
     source "$HOME/.vite-plus/env"
 fi
 
+# direnv
+if [[ $commands[direnv] ]]; then
+    eval "$(direnv hook zsh)"
+fi
+
 # Enable automatic activation of virtualenvs
 if [[ $commands[pyenv] ]]; then
     source <(pyenv init --path)
