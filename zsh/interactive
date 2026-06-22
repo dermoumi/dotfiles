@@ -50,6 +50,8 @@ alias -g L='| less'
 alias -g C='| to-clip'
 alias -g J='| jq'
 alias -g V='| nvim +'
+alias -g CH='--context homelab'
+alias -g CV='--context valius'
 
 # paru to yay alias
 if [[ $commands[paru] ]] && ! [[ $commands[yay] ]]; then
@@ -98,6 +100,10 @@ if [[ $commands[kubectl] ]]; then
     fi
     source "$_kcomp"
     unset _kcomp
+fi
+
+if [[ "$KREW_ROOT" || -d "$HOME/.krew" ]]; then
+    export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 fi
 
 if [[ -f $HOME/.kube/config ]]; then
