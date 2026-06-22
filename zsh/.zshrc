@@ -18,7 +18,8 @@ SAVEHIST=100000
 HISTFILE=~/.cache/zsh_history
 
 setopt hist_ignore_all_dups hist_ignore_space hist_find_no_dups append_history \
-  share_history auto_cd extended_glob no_match notify magic_equal_subst
+  share_history auto_cd extended_glob interactive_comments no_match notify \
+  magic_equal_subst
 
 # setup function autoload
 autoload -Uz "$ZDOTDIR/functions/"*
