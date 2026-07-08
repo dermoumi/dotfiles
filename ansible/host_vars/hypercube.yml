@@ -1,0 +1,4 @@
+machine_roles:
+  - ssh
+
+ssh_port: 11967

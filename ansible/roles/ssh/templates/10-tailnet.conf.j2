@@ -1,0 +1,10 @@
+# Managed by Ansible (roles/ssh). Tailnet-only, keys-only sshd.
+Port {{ ssh_port }}
+ListenAddress {{ tailscale_ip }}
+AddressFamily inet
+PermitRootLogin no
+PubkeyAuthentication yes
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+AuthenticationMethods publickey
+X11Forwarding no

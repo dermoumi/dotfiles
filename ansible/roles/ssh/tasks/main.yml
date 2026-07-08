@@ -1,0 +1,107 @@
+- name: Configure tailnet-only sshd
+  when: ansible_facts['system'] == 'Linux'
+  block:
+    - name: Resolve the user that must keep SSH access
+      ansible.builtin.set_fact:
+        ssh_authorized_user: >-
+          {{ ssh_authorized_user
+             | default(ansible_facts['env']['SUDO_USER']
+                       | default(lookup('env', 'USER'), true), true) }}
+
+    - name: Refuse to lock out root-only hosts
+      ansible.builtin.assert:
+        that:
+          - ssh_authorized_user is truthy
+          - ssh_authorized_user != 'root'
+        fail_msg: >-
+          Could not resolve a non-root user to protect. Set `ssh_authorized_user`
+          in host_vars to the account whose authorized_keys must exist.
+
+    - name: Look up that user's home directory
+      ansible.builtin.getent:
+        database: passwd
+        key: "{{ ssh_authorized_user }}"
+
+    - name: Read the user's authorized_keys (if any)
+      ansible.builtin.slurp:
+        src: "{{ ansible_facts.getent_passwd[ssh_authorized_user][4] }}/.ssh/authorized_keys"
+      register: _authorized_keys
+      failed_when: false
+
+    - name: Refuse keys-only SSH unless a key is already present (prevents lockout)
+      ansible.builtin.assert:
+        that:
+          - _authorized_keys.content is defined
+          - >-
+            (_authorized_keys.content | b64decode).split('\n')
+              | map('trim') | reject('match', '^#') | select() | list | length > 0
+        fail_msg: >-
+          Refusing to enable keys-only SSH: '{{ ssh_authorized_user }}' has no
+          authorized_keys entry at
+          {{ ansible_facts.getent_passwd[ssh_authorized_user][4] }}/.ssh/authorized_keys.
+          Add a public key there (or set `ssh_authorized_user`) before running.
+        success_msg: "'{{ ssh_authorized_user }}' has at least one authorized_keys entry."
+
+    - name: Install openssh
+      ansible.builtin.package:
+        name: openssh
+        state: present
+
+    - name: Generate host keys if missing
+      ansible.builtin.command: ssh-keygen -A
+      args:
+        creates: /etc/ssh/ssh_host_ed25519_key
+
+    - name: Discover tailnet IPv4
+      ansible.builtin.command: tailscale ip -4
+      register: _tailscale_ip
+      changed_when: false
+      failed_when: _tailscale_ip.rc != 0 or _tailscale_ip.stdout == ''
+
+    - name: Set tailscale_ip fact
+      ansible.builtin.set_fact:
+        tailscale_ip: "{{ _tailscale_ip.stdout_lines[0] }}"
+
+    - name: Deploy sshd tailnet config
+      ansible.builtin.template:
+        src: 10-tailnet.conf.j2
+        dest: /etc/ssh/sshd_config.d/10-tailnet.conf
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Restart sshd
+
+    - name: Ensure sshd.service drop-in directory exists
+      ansible.builtin.file:
+        path: /etc/systemd/system/sshd.service.d
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Deploy sshd wait-for-tailscale drop-in
+      ansible.builtin.copy:
+        src: 10-wait-tailscale.conf
+        dest: /etc/systemd/system/sshd.service.d/10-wait-tailscale.conf
+        owner: root
+        group: root
+        mode: "0644"
+      notify:
+        - Reload systemd
+        - Restart sshd
+
+    - name: Disable socket activation (would bypass ListenAddress)
+      ansible.builtin.systemd_service:
+        name: sshd.socket
+        enabled: false
+        state: stopped
+      register: _sshd_socket
+      failed_when:
+        - _sshd_socket is failed
+        - "'Could not find' not in (_sshd_socket.msg | default(''))"
+
+    - name: Enable and start sshd.service
+      ansible.builtin.systemd_service:
+        name: sshd.service
+        enabled: true
+        state: started

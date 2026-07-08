@@ -1,0 +1,2 @@
+# Overridable per machine in host_vars/<hostname>.yml
+ssh_port: 22

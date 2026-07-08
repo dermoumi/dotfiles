@@ -1,0 +1,8 @@
+- name: System setup
+  hosts: all
+  become: true
+  tasks:
+    - name: Apply this machine's opted-in roles
+      ansible.builtin.include_role:
+        name: "{{ item }}"
+      loop: "{{ machine_roles | default([]) }}"
