@@ -1,0 +1,107 @@
+#!/bin/bash
+# restart-eth.sh — recover Intel I226-V NIC after PCIe link loss
+# Usage: sudo ./restart-eth.sh
+
+set -euo pipefail
+
+# ── Config ────────────────────────────────────────────────────────────────────
+MAC="60:cf:84:82:24:b8"
+UDEV_RULE="/etc/udev/rules.d/70-persistent-net.rules"
+PINNED_NAME="eth-igc"  # desired stable interface name — change if you prefer
+# ─────────────────────────────────────────────────────────────────────────────
+
+die() { echo "ERROR: $*" >&2; exit 1; }
+
+[[ $EUID -eq 0 ]] || die "Run with sudo"
+
+find_iface() {
+    grep -rl "$MAC" /sys/class/net/*/address 2>/dev/null \
+        | head -1 | cut -d/ -f5 || true
+}
+
+# ── Auto-detect interface and PCI address from MAC ────────────────────────────
+echo "==> Detecting NIC by MAC ($MAC)..."
+
+IFACE=$(find_iface)
+
+if [[ -z "$IFACE" ]]; then
+    echo "==> Interface not found in sysfs, will rely on PCI detection only."
+    PCI=""
+else
+    PCI=$(readlink "/sys/class/net/$IFACE/device" 2>/dev/null \
+        | grep -oP '[0-9a-f]{4}:[0-9a-f]{2}:[0-9a-f]{2}\.[0-9]' || true)
+    echo "==> Found: interface=$IFACE pci=${PCI:-unknown}"
+fi
+
+# Fallback: find PCI address by vendor/device ID
+if [[ -z "$PCI" ]]; then
+    PCI=$(lspci -n 2>/dev/null | awk '/8086:125c/ {print "0000:"$1}' | head -1 || true)
+    [[ -n "$PCI" ]] && echo "==> Found PCI address via device ID: $PCI" \
+                    || echo "WARN: Could not determine PCI address."
+fi
+
+PCI_PATH="/sys/bus/pci/devices/$PCI"
+
+# ── Install udev rule to pin interface name (idempotent) ──────────────────────
+install_udev_rule() {
+    if [[ -f "$UDEV_RULE" ]] && grep -q "$MAC" "$UDEV_RULE"; then
+        echo "==> udev pin already in place ($UDEV_RULE)."
+        return
+    fi
+    echo "==> Installing udev rule to pin interface name to '$PINNED_NAME'..."
+    echo "SUBSYSTEM==\"net\", ACTION==\"add\", ATTR{address}==\"$MAC\", NAME=\"$PINNED_NAME\"" \
+        > "$UDEV_RULE"
+    udevadm control --reload-rules
+    echo "==> udev rule installed. Interface will be named '$PINNED_NAME' after next reboot."
+}
+
+install_udev_rule
+
+# ── Step 1: simple link bounce ────────────────────────────────────────────────
+if [[ -n "$IFACE" ]]; then
+    echo "==> Step 1: attempting link bounce on $IFACE..."
+    ip link set "$IFACE" down 2>/dev/null || true
+    sleep 1
+    if ip link set "$IFACE" up 2>/dev/null; then
+        echo "==> $IFACE came back up with a simple link bounce."
+        exit 0
+    fi
+    echo "==> Link bounce failed, escalating to PCIe rescan..."
+fi
+
+# ── Step 2: PCIe remove + rescan ─────────────────────────────────────────────
+if [[ -n "$IFACE" ]]; then
+    echo "==> Bringing $IFACE down before removing PCI device..."
+    ip link set "$IFACE" down 2>/dev/null || true
+fi
+
+if [[ -n "$PCI" && -e "$PCI_PATH" ]]; then
+    echo "==> Removing detached PCI device ($PCI)..."
+    echo 1 > "$PCI_PATH/remove"
+    sleep 1
+fi
+
+echo "==> Rescanning PCIe bus..."
+echo 1 > /sys/bus/pci/rescan
+sleep 2
+
+# ── Re-detect interface name after rescan ─────────────────────────────────────
+echo "==> Waiting for interface to appear..."
+NEW_IFACE=""
+for i in {1..5}; do
+    NEW_IFACE=$(find_iface)
+    [[ -n "$NEW_IFACE" ]] && break
+    sleep 1
+done
+
+if [[ -z "$NEW_IFACE" ]]; then
+    die "Device not found after rescan — try a full power cycle."
+fi
+
+[[ "$NEW_IFACE" != "$IFACE" ]] && \
+    echo "==> Interface was renamed: $IFACE → $NEW_IFACE (udev rule will fix this on next reboot)"
+
+echo "==> Bringing $NEW_IFACE up..."
+ip link set "$NEW_IFACE" up || die "$NEW_IFACE still won't come up — check dmesg."
+
+echo "==> Done. $NEW_IFACE is back up."
