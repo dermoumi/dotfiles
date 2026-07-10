@@ -97,9 +97,18 @@ return {
       opts.defaults = {
         show_line = false,
         prompt_title = "",
+        results_title = false,
         preview_title = false,
         sorting_strategy = "ascending",
-        layout_strategy = "vertical",
+        -- Join prompt + results into one connected box (preview stays a
+        -- separate window below). Shared edge uses tee junctions.
+        -- borderchars order: { top, right, bottom, left, tl, tr, br, bl }
+        borderchars = {
+          prompt = { "─", "│", " ", "│", "╭", "╮", "│", "│" },
+          results = { "─", "│", "─", "│", "├", "┤", "╯", "╰" },
+          preview = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
+        },
+        layout_strategy = "vertical_connected",
         layout_config = {
           prompt_position = "top",
           scroll_speed = 5,
@@ -148,6 +157,27 @@ return {
       }
     end,
     config = function(_, opts)
+      -- "vertical" leaves a blank row between windows (each keeps its own
+      -- border frame). This variant overlaps the results' border onto the
+      -- prompt so the two read as one box, like center/dropdown but keeping
+      -- vertical's proportions. The preview stays a separate window below.
+      local ls = require("telescope.pickers.layout_strategies")
+      if not ls.vertical_connected then
+        local base = ls.vertical
+        ls.vertical_connected = function(self, max_columns, max_lines, override)
+          local layout = base(self, max_columns, max_lines, override)
+          local prompt, results = layout.prompt, layout.results
+          if prompt and results then
+            -- Shift the lower of the two up one row (grow to keep its bottom
+            -- edge) so its top border shares the other's border row.
+            local lower = prompt.line > results.line and prompt or results
+            lower.line = lower.line - 1
+            lower.height = lower.height + 1
+          end
+          return layout
+        end
+      end
+
       local telescope = require("telescope")
       telescope.setup(opts)
       telescope.load_extension("fzf")
