@@ -4,7 +4,8 @@ vim.g.maplocalleader = " "
 
 local opt = vim.opt
 
-opt.laststatus = 0
+opt.laststatus = 0 -- no separate statusline row; ruler shares the cmdline
+opt.ruler = true -- show line/column in the cmdline area (overridden by commands)
 opt.scrolloff = 4
 opt.pumblend = 10
 opt.pumheight = 10
@@ -13,7 +14,7 @@ opt.hidden = true
 opt.mouse = "a"
 opt.inccommand = "nosplit"
 opt.updatetime = 200
-opt.cmdheight = 0
+opt.cmdheight = 1
 opt.termguicolors = true
 opt.colorcolumn = "80"
 opt.sessionoptions = { "buffers", "curdir", "tabpages", "winsize" }
