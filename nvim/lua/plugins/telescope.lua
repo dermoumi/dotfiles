@@ -178,6 +178,46 @@ return {
         end
       end
 
+      -- Give the prompt (search bar) the same border color as the other
+      -- windows; re-linked on ColorScheme since theme/background switches reset
+      -- it back to ayu's accent.
+      local function match_prompt_border()
+        vim.api.nvim_set_hl(0, "TelescopePromptBorder", { link = "TelescopeResultsBorder" })
+      end
+      match_prompt_border()
+      vim.api.nvim_create_autocmd("ColorScheme", { callback = match_prompt_border })
+
+      -- Dim the editor behind the picker: a full-screen float below telescope
+      -- (lower zindex), torn down when the first telescope window closes.
+      vim.api.nvim_set_hl(0, "TelescopeBackdrop", { bg = "#000000", default = true })
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "TelescopeFindPre",
+        callback = function()
+          local buf = vim.api.nvim_create_buf(false, true)
+          local win = vim.api.nvim_open_win(buf, false, {
+            relative = "editor",
+            row = 0,
+            col = 0,
+            width = vim.o.columns,
+            height = vim.o.lines,
+            style = "minimal",
+            focusable = false,
+            zindex = 40,
+          })
+          vim.wo[win].winhighlight = "Normal:TelescopeBackdrop"
+          vim.wo[win].winblend = 50
+          vim.api.nvim_create_autocmd("WinClosed", {
+            once = true,
+            callback = function()
+              vim.schedule(function()
+                pcall(vim.api.nvim_win_close, win, true)
+                pcall(vim.api.nvim_buf_delete, buf, { force = true })
+              end)
+            end,
+          })
+        end,
+      })
+
       local telescope = require("telescope")
       telescope.setup(opts)
       telescope.load_extension("fzf")
