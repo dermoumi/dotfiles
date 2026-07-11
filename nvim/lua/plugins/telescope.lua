@@ -1,3 +1,35 @@
+-- Preview scroll position as a percentage: 0% at top, 100% at bottom (or when
+-- the whole buffer fits). Trailing space nudges it one cell off the corner.
+local function preview_scroll_label(win)
+  local buf = vim.api.nvim_win_get_buf(win)
+  local total = vim.api.nvim_buf_line_count(buf)
+  local top = vim.fn.line("w0", win)
+  local height = vim.api.nvim_win_get_height(win)
+  local pct = total <= height and 100 or math.floor((top - 1) / (total - height) * 100 + 0.5)
+  return string.format("%d%%", pct)
+end
+
+-- Render that label on the bottom-right of the preview's border.
+local function update_preview_scroll(picker, attempt)
+  local preview = picker and picker.layout and picker.layout.preview
+  if not preview or not preview.winid or not preview.border then
+    return
+  end
+  if not vim.api.nvim_win_is_valid(preview.winid) then
+    return
+  end
+  -- The preview buffer loads asynchronously, so on a fresh selection its line
+  -- count is still 1 when we're first called; wait until it's populated.
+  attempt = attempt or 1
+  if vim.api.nvim_buf_line_count(vim.api.nvim_win_get_buf(preview.winid)) <= 1 and attempt < 8 then
+    vim.defer_fn(function()
+      update_preview_scroll(picker, attempt + 1)
+    end, 20)
+    return
+  end
+  preview.border:change_title(preview_scroll_label(preview.winid), "SE")
+end
+
 return {
   {
     "nvim-telescope/telescope-fzf-native.nvim",
@@ -84,6 +116,16 @@ return {
     },
     opts = function(_, opts)
       local actions_layout = require("telescope.actions.layout")
+      local actions = require("telescope.actions")
+      local action_state = require("telescope.actions.state")
+
+      -- Run a preview scroll action, then refresh the border scroll indicator.
+      local scroll_preview = function(fn)
+        return function(prompt_bufnr)
+          fn(prompt_bufnr)
+          update_preview_scroll(action_state.get_current_picker(prompt_bufnr))
+        end
+      end
 
       local create_new_file = function(prompt_bufnr)
         local actions_state = require("telescope.actions.state")
@@ -106,7 +148,7 @@ return {
         borderchars = {
           prompt = { "─", "│", " ", "│", "╭", "╮", "│", "│" },
           results = { "─", "│", "─", "│", "├", "┤", "╯", "╰" },
-          preview = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
+          preview = { "╌", "╎", "╌", "╎", "╭", "╮", "╯", "╰" },
         },
         layout_strategy = "vertical_connected",
         layout_config = {
@@ -126,8 +168,8 @@ return {
           i = {
             ["<esc>"] = "close",
             ["<C-C>"] = { "<Nop>", type = "command" },
-            ["<C-u>"] = "preview_scrolling_up",
-            ["<C-d>"] = "preview_scrolling_down",
+            ["<C-u>"] = scroll_preview(actions.preview_scrolling_up),
+            ["<C-d>"] = scroll_preview(actions.preview_scrolling_down),
             ["<M-BS>"] = { "<C-W>", type = "command" },
             ["<C-BS>"] = { "<C-W>", type = "command" },
             ["<C-H>"] = { "<C-W>", type = "command" },
@@ -215,6 +257,22 @@ return {
               end)
             end,
           })
+        end,
+      })
+
+      -- Set/reset the preview scroll indicator whenever a preview loads
+      -- (opening a picker or moving the selection).
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "TelescopePreviewerLoaded",
+        callback = function()
+          vim.schedule(function()
+            local bufnrs = require("telescope.state").get_existing_prompt_bufnrs()
+            if #bufnrs == 0 then
+              return
+            end
+            local action_state = require("telescope.actions.state")
+            update_preview_scroll(action_state.get_current_picker(bufnrs[#bufnrs]))
+          end)
         end,
       })
 
