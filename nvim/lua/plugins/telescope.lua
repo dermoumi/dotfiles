@@ -150,18 +150,33 @@ return {
           results = { "─", "│", "─", "│", "├", "┤", "╯", "╰" },
           preview = { "╌", "╎", "╌", "╎", "╭", "╮", "╯", "╰" },
         },
-        layout_strategy = "vertical_connected",
+        layout_strategy = "adaptive",
         layout_config = {
-          prompt_position = "top",
           scroll_speed = 5,
-          height = 0.95,
-          width = function(_, max_columns, _)
-            return math.min(math.floor(0.8 * max_columns), 120)
+          -- fill the screen height minus a 2-cell padding, top and bottom
+          height = function(_, _, max_lines)
+            return max_lines - 4
           end,
-          preview_height = 0.4,
+          -- preview_cutoff = 1 keeps the side/below preview at any size
           vertical = {
+            prompt_position = "top",
+            preview_height = 0.4,
             mirror = true,
-          }
+            preview_cutoff = 1,
+            -- narrower cap when stacked (no side preview filling the width)
+            width = function(_, max_columns, _)
+              return math.min(math.floor(0.8 * max_columns), 120)
+            end,
+          },
+          horizontal = {
+            prompt_position = "top",
+            preview_width = 0.5,
+            preview_cutoff = 1,
+            -- full width minus 2-cell padding so the side preview has room
+            width = function(_, max_columns, _)
+              return math.min(max_columns - 4, 200)
+            end,
+          },
         },
         winblend = 0,
         mappings = {
@@ -199,24 +214,33 @@ return {
       }
     end,
     config = function(_, opts)
-      -- "vertical" leaves a blank row between windows (each keeps its own
-      -- border frame). This variant overlaps the results' border onto the
-      -- prompt so the two read as one box, like center/dropdown but keeping
-      -- vertical's proportions. The preview stays a separate window below.
+      -- "adaptive" puts the preview on the side while the editor is wider than
+      -- a ~132:60 columns:rows ratio, below it once narrower/taller. Both
+      -- orientations overlap prompt+results into one box (they stack vertically
+      -- either way); the preview stays separate. connect() removes the blank
+      -- row telescope leaves between the two border frames.
       local ls = require("telescope.pickers.layout_strategies")
-      if not ls.vertical_connected then
-        local base = ls.vertical
-        ls.vertical_connected = function(self, max_columns, max_lines, override)
-          local layout = base(self, max_columns, max_lines, override)
-          local prompt, results = layout.prompt, layout.results
-          if prompt and results then
-            -- Shift the lower of the two up one row (grow to keep its bottom
-            -- edge) so its top border shares the other's border row.
-            local lower = prompt.line > results.line and prompt or results
-            lower.line = lower.line - 1
-            lower.height = lower.height + 1
+      if not ls.adaptive then
+        local function connect(base)
+          return function(self, max_columns, max_lines, override)
+            local layout = base(self, max_columns, max_lines, override)
+            local prompt, results = layout.prompt, layout.results
+            if prompt and results then
+              local lower = prompt.line > results.line and prompt or results
+              lower.line = lower.line - 1
+              lower.height = lower.height + 1
+            end
+            return layout
           end
-          return layout
+        end
+        local v_conn = connect(ls.vertical)
+        local h_conn = connect(ls.horizontal)
+        ls.adaptive = function(self, max_columns, max_lines)
+          local lc = self.layout_config or {}
+          if max_columns * 60 > max_lines * 130 then
+            return h_conn(self, max_columns, max_lines, lc.horizontal or {})
+          end
+          return v_conn(self, max_columns, max_lines, lc.vertical or {})
         end
       end
 
@@ -248,15 +272,43 @@ return {
           })
           vim.wo[win].winhighlight = "Normal:TelescopeBackdrop"
           vim.wo[win].winblend = 50
-          vim.api.nvim_create_autocmd("WinClosed", {
-            once = true,
+          -- Keep the backdrop covering the editor when the window resizes.
+          local resize = vim.api.nvim_create_autocmd("VimResized", {
             callback = function()
-              vim.schedule(function()
-                pcall(vim.api.nvim_win_close, win, true)
-                pcall(vim.api.nvim_buf_delete, buf, { force = true })
-              end)
+              if vim.api.nvim_win_is_valid(win) then
+                vim.api.nvim_win_set_config(win, {
+                  relative = "editor",
+                  row = 0,
+                  col = 0,
+                  width = vim.o.columns,
+                  height = vim.o.lines,
+                })
+              end
             end,
           })
+          -- Tear down when the picker closes (its prompt buffer is wiped).
+          -- Keyed to the prompt buffer, not WinClosed, so a resize — which
+          -- recreates telescope's windows — doesn't kill the backdrop early.
+          vim.schedule(function()
+            local prompts = require("telescope.state").get_existing_prompt_bufnrs()
+            local prompt = prompts[#prompts]
+            local function teardown()
+              pcall(vim.api.nvim_del_autocmd, resize)
+              pcall(vim.api.nvim_win_close, win, true)
+              pcall(vim.api.nvim_buf_delete, buf, { force = true })
+            end
+            if not prompt then
+              teardown()
+              return
+            end
+            vim.api.nvim_create_autocmd({ "BufWipeout", "BufDelete" }, {
+              buffer = prompt,
+              once = true,
+              callback = function()
+                vim.schedule(teardown)
+              end,
+            })
+          end)
         end,
       })
 
