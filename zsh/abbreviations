@@ -18,11 +18,11 @@ abbr kl="kubectl logs --tail=100"
 abbr klf="kubectl logs --tail=100 -f"
 
 abbr "git aa"="git add --all"
-abbr "git am"="git commit --amend -m %"
+abbr "git am"="git commit --amend -m"
 abbr "git ap"="git commit --amend --no-edit"
 abbr "git br"="git branch"
 abbr "git c"="git commit"
-abbr "git cm"="git commit -m %"
+abbr "git cm"="git commit -m"
 abbr "git cmm"='GIT_AUTHOR_DATE="% %" GIT_COMMITTER_DATE="$GIT_AUTHOR_DATE" git commit -m %'
 abbr "git co"="git checkout"
 abbr "git d"="git diff-index --quiet HEAD -- || clear; git --no-pager diff --patch-with-stat"
