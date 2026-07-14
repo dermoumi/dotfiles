@@ -10,7 +10,7 @@ binds {
 
     // ─── Applications ───
     Mod+Return                          hotkey-overlay-title="Attach tmux" { spawn-sh "xdg-terminal-exec /home/sdrm/.dotfiles/scripts/tmux-attach"; }
-    Mod+Shift+Return                    hotkey-overlay-title="Open Terminal" { spawn "ghostty"; }
+    Mod+Shift+Return                    hotkey-overlay-title="Open Terminal" { spawn "ghostty" "-e" "/usr/bin/zsh"; }
     Mod+Space                           hotkey-overlay-title="Open App Launcher" { spawn-sh "qs -c noctalia-shell ipc call launcher toggle"; }
     Mod+B                               hotkey-overlay-title="Open Browser" { spawn "firefox"; }
     Mod+CTRL+A                          hotkey-overlay-title="Lock Screen" { spawn-sh "qs -c noctalia-shell ipc call lockScreen lock"; }
