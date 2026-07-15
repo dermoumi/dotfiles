@@ -1,0 +1,11 @@
+[Unit]
+Description=Re-enable IP forwarding after AWS VPN connect
+BindsTo=sys-subsystem-net-devices-tun0.device
+After=sys-subsystem-net-devices-tun0.device
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'for i in $(seq 1 10); do sysctl -w net.ipv4.ip_forward=1; sleep 3; done'
+
+[Install]
+WantedBy=sys-subsystem-net-devices-tun0.device

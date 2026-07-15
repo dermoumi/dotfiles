@@ -1,4 +1,5 @@
 machine_roles:
   - ssh
+  - ip-forward
 
 ssh_port: 11967
