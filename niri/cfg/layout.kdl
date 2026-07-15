@@ -25,5 +25,10 @@ layout {
   default-column-width {
     proportion 0.4
   }
+
+  struts {
+    left -1
+    right -1
+  }
 }
 
