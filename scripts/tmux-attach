@@ -3,4 +3,4 @@
 # If already inside a tmux session, attempt to switch to the 'main' session
 # If failed, attempt to create a session and attach to the 'main' window-group
 # If failed, create a new session with a new window-group 'main'
-[ $TMUX ] && tmux switch -t main || tmux new -t main || tmux new -s main
+[ $TMUX ] && tmux switch -t main || tmux -u new -t main || tmux -u new -s main

@@ -7,6 +7,6 @@ ssht() {
         rm \$sock 2>/dev/null;
         ln -s $SSH_AUTH_SOCK \$sock;
         export SSH_AUTH_SOCK=\$sock;
-        command -v tmux >/dev/null && (tmux attach 2>/dev/null || tmux new)
+        command -v tmux >/dev/null && (tmux -u attach 2>/dev/null || tmux -u new)
     "'
 }
