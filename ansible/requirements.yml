@@ -1,0 +1,4 @@
+---
+collections:
+  # homebrew / homebrew_cask / pacman modules used by the cli & desktop roles
+  - name: community.general
