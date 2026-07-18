@@ -1,0 +1,25 @@
+# Variant → roles. The variant is chosen at invocation time (curl | bash -s --
+# --workstation, or `./run workstation`) and passed to Ansible as an extra-var,
+# so provisioning a new machine needs no inventory/host_vars entry.
+#
+# OS differences (mac / linux / wsl2) are handled inside each role via
+# ansible_os_family — a variant only decides *which* roles run.
+variant_roles:
+  # Full day-to-day environment (personal machines).
+  workstation:
+    - dotfiles
+    - cli          # CLI binaries + language runtimes (node/python/uv/pnpm)
+    - neovim       # python provider + headless plugin sync
+    # - desktop    # GUI apps; self-skips on headless/WSL (planned)
+
+  # Minimal footprint for remote machines (VPS, homelab).
+  server:
+    - dotfiles
+    - cli
+
+  # Minimal set plus neovim; uv (from the cli role) self-provisions an isolated
+  # python for the provider, so no node/pnpm/system-python needed.
+  devcontainer:
+    - dotfiles
+    - cli
+    - neovim

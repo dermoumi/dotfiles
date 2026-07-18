@@ -1,4 +1,6 @@
-machine_roles:
+# hypercube runs the tailnet ssh role on top of whatever variant it's given.
+# Run ssh-only today with `./run` (no variant); later `./run workstation`.
+host_extra_roles:
   - ssh
 
 ssh_port: 11967
