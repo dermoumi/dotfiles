@@ -1,0 +1,6 @@
+# Managed by ansible (roles/cli). Edit mise_tools / mise_runtime_tools in the
+# role, not here.
+[tools]
+{% for tool, version in mise_all_tools.items() %}
+{{ tool }} = "{{ version }}"
+{% endfor %}

@@ -1,0 +1,48 @@
+---
+- name: Ensure mise config directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.config/mise"
+    state: directory
+    mode: "0755"
+
+- name: Render mise global config
+  ansible.builtin.template:
+    src: config.toml.j2
+    dest: "{{ ansible_env.HOME }}/.config/mise/config.toml"
+    mode: "0644"
+
+- name: Install mise-managed tools
+  ansible.builtin.command: "{{ mise_bin }} install"
+  register: _mise_install
+  # mise is silent when everything is already installed.
+  changed_when: (_mise_install.stdout ~ _mise_install.stderr) | trim | length > 0
+
+- name: Install native CLI packages (Linux)
+  become: true
+  ansible.builtin.package:
+    name: "{{ cli_native_packages }}"
+    state: present
+  when: ansible_os_family != 'Darwin'
+
+- name: Check for Homebrew (macOS)
+  ansible.builtin.stat:
+    path: /opt/homebrew/bin/brew
+  register: _brew
+  when: ansible_os_family == 'Darwin'
+
+# Homebrew's installer needs an interactive sudo TTY, which an ansible task can't
+# provide — so it belongs in the bootstrap, not here. Fail early with guidance.
+- name: Require Homebrew before installing native macOS packages
+  ansible.builtin.fail:
+    msg: >-
+      Homebrew is required for {{ cli_brew_packages | join(', ') }} on macOS but
+      is not installed. Install it once, then re-run:
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  when: ansible_os_family == 'Darwin' and not _brew.stat.exists
+
+- name: Install native CLI packages (macOS)
+  community.general.homebrew:
+    name: "{{ cli_brew_packages }}"
+    state: present
+    path: /opt/homebrew/bin
+  when: ansible_os_family == 'Darwin'
