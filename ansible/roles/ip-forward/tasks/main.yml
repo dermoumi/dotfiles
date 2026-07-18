@@ -1,0 +1,37 @@
+# The AWS VPN client sets net.ipv4.ip_forward=0 on connect, which breaks
+# outbound networking for Docker containers. Two defenses:
+#   1. persist the value so boot/`sysctl --system` restores it, and
+#   2. a oneshot re-asserted each time tun0 appears (fights the client directly).
+- name: Keep IP forwarding on across the AWS VPN client
+  when: ansible_facts['system'] == 'Linux'
+  block:
+    - name: Persist net.ipv4.ip_forward = 1
+      ansible.builtin.copy:
+        dest: /etc/sysctl.d/99-ip-forward.conf
+        content: "net.ipv4.ip_forward = 1\n"
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Read current ip_forward value
+      ansible.builtin.command: sysctl -n net.ipv4.ip_forward
+      register: _ip_forward
+      changed_when: false
+
+    - name: Enable ip_forward now
+      ansible.builtin.command: sysctl -w net.ipv4.ip_forward=1
+      when: _ip_forward.stdout | trim != '1'
+
+    - name: Deploy the VPN-connect IP-forward fixer unit
+      ansible.builtin.copy:
+        src: fix-ipforward.service
+        dest: /etc/systemd/system/fix-ipforward.service
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Enable the IP-forward fixer (fires when tun0 appears)
+      ansible.builtin.systemd_service:
+        name: fix-ipforward.service
+        enabled: true
+        daemon_reload: true

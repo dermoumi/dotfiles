@@ -4,12 +4,20 @@ dotfiles_root: "{{ playbook_dir | dirname }}"
 
 # Symlinks common to every machine. src is repo-relative; dest is absolute.
 dotfile_links_common:
-  - { src: zsh/.zshenv, dest: "{{ ansible_env.HOME }}/.zshenv" }
-  - { src: .gitconfig,  dest: "{{ ansible_env.HOME }}/.gitconfig" }
-  - { src: .fdignore,   dest: "{{ ansible_env.HOME }}/.fdignore" }
-  - { src: .tmux.conf,  dest: "{{ ansible_env.HOME }}/.tmux.conf" }
-  - { src: nvim,        dest: "{{ ansible_env.HOME }}/.config/nvim" }
-  - { src: direnv,      dest: "{{ ansible_env.HOME }}/.config/direnv" }
+  - src: zsh/.zshenv
+    dest: "{{ ansible_env.HOME }}/.zshenv"
+  - src: .gitconfig
+    dest: "{{ ansible_env.HOME }}/.gitconfig"
+  - src: .fdignore
+    dest: "{{ ansible_env.HOME }}/.fdignore"
+  - src: .tmux.conf
+    dest: "{{ ansible_env.HOME }}/.tmux.conf"
+  - src: nvim
+    dest: "{{ ansible_env.HOME }}/.config/nvim"
+  - src: direnv
+    dest: "{{ ansible_env.HOME }}/.config/direnv"
+  - src: yay
+    dest: "{{ ansible_env.HOME }}/.config/yay"
 
 # Per-OS additions, keyed by ansible_os_family (Darwin, Archlinux, Debian...).
 dotfile_links_by_os:
