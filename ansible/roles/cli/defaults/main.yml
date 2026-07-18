@@ -26,7 +26,15 @@ mise_runtime_tools:
 mise_all_tools: "{{ mise_tools | combine(mise_runtime_tools[variant] | default({})) }}"
 
 # Tools with real system integration stay on the native package manager.
-cli_native_packages: [zsh, git, curl, unzip, gnupg, tmux]   # Linux
-cli_brew_packages: [gnupg, tmux]                            # macOS (rest ship with the OS)
+cli_native_packages: # Linux
+  - zsh
+  - git
+  - curl
+  - unzip
+  - gnupg
+  - tmux
+cli_brew_packages: # macOS
+  - gnupg
+  - tmux
 
 mise_bin: "{{ ansible_env.HOME }}/.local/bin/mise"

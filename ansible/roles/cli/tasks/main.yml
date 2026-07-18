@@ -1,4 +1,13 @@
 ---
+- name: Check for mise
+  ansible.builtin.stat:
+    path: "{{ mise_bin }}"
+  register: _mise
+
+- name: Install mise
+  ansible.builtin.shell: curl -fsSL https://mise.run | sh
+  when: not _mise.stat.exists
+
 - name: Ensure mise config directory exists
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.config/mise"
