@@ -24,6 +24,13 @@
           No roles selected. Pass a variant (e.g. -e variant=workstation)
           or set host_extra_roles in host_vars/{{ inventory_hostname }}.yml
 
+    - name: Apply this variant's variable overrides
+      ansible.builtin.set_fact:
+        "{{ item.key }}": "{{ item.value }}"
+      loop: "{{ variant_vars[variant] | default({}) | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+
     - name: Apply roles
       ansible.builtin.include_role:
         name: "{{ item }}"

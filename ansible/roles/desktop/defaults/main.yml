@@ -1,0 +1,41 @@
+---
+# GUI apps only run when a variant opts in (workstation sets this true;
+# a WSL2/headless host overrides it back to false in host_vars).
+desktop_enabled: false
+
+# macOS Homebrew casks.
+desktop_casks:
+  - android-platform-tools
+  - battery
+  - discord
+  - docker-desktop
+  - firefox
+  - google-chrome
+  - iina
+  - jordanbaird-ice
+  - karabiner-elements
+  - keepingyouawake
+  - keka
+  - launchbar
+  - nightfall
+  - rectangle
+  - topnotch
+  - visual-studio-code
+  - windscribe
+  - insync
+  - font-jetbrains-mono-nerd-font
+  - monitorcontrol
+  - prismlauncher
+  - cyberduck
+  - alt-tab
+  - unnaturalscrollwheels
+
+# Arch AUR packages (installed via yay).
+desktop_aur:
+  - firefox
+  - insync
+  - discord
+  - windscribe-v2-bin
+  - visual-studio-code-bin
+  - ttf-jetbrains-mono-nerd
+  - prismlauncher

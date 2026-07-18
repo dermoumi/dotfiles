@@ -8,14 +8,15 @@ variant_roles:
   # Full day-to-day environment (personal machines).
   workstation:
     - dotfiles
-    - cli          # CLI binaries + language runtimes (node/python/uv/pnpm)
+    - cli          # CLI binaries + language runtimes (node/pnpm/uv)
     - neovim       # python provider + headless plugin sync
-    # - desktop    # GUI apps; self-skips on headless/WSL (planned)
+    - desktop      # GUI apps; gated on desktop_enabled (see variant_vars)
 
   # Minimal footprint for remote machines (VPS, homelab).
   server:
     - dotfiles
     - cli
+    - neovim
 
   # Minimal set plus neovim; uv (from the cli role) self-provisions an isolated
   # python for the provider, so no node/pnpm/system-python needed.
@@ -23,3 +24,9 @@ variant_roles:
     - dotfiles
     - cli
     - neovim
+
+# Per-variant variable overrides, applied in site.yml. A host can still override
+# any of these in its host_vars (e.g. a WSL2 workstation sets desktop_enabled: false).
+variant_vars:
+  workstation:
+    desktop_enabled: true

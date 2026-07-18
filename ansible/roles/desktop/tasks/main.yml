@@ -1,0 +1,58 @@
+---
+- name: Install desktop applications
+  when: desktop_enabled | default(false)
+  block:
+    # --- macOS: Homebrew casks ---
+    - name: Check for Homebrew (macOS)
+      ansible.builtin.stat:
+        path: /opt/homebrew/bin/brew
+      register: _brew
+      when: ansible_os_family == 'Darwin'
+
+    - name: Require Homebrew before installing desktop casks
+      ansible.builtin.fail:
+        msg: >-
+          Homebrew is required for desktop casks on macOS but is not installed.
+          Install it once, then re-run:
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      when: ansible_os_family == 'Darwin' and not _brew.stat.exists
+
+    - name: Install desktop casks (macOS)
+      community.general.homebrew_cask:
+        name: "{{ desktop_casks }}"
+        state: present
+        path: /opt/homebrew/bin
+      when: ansible_os_family == 'Darwin'
+
+    - name: Check whether Windscribe is set up (macOS)
+      ansible.builtin.stat:
+        path: "{{ ansible_env.HOME }}/Library/Application Support/Windscribe"
+      register: _windscribe
+      when: ansible_os_family == 'Darwin'
+
+    # The cask only stages the app; its bundled installer must run once.
+    - name: Launch the Windscribe installer (macOS, first run)
+      ansible.builtin.shell: open /opt/homebrew/Caskroom/windscribe/*/WindscribeInstaller.app
+      changed_when: true
+      when: ansible_os_family == 'Darwin' and not _windscribe.stat.exists
+
+    # --- Arch: AUR via yay (refuses root, so no become) ---
+    - name: Check for yay (Arch)
+      ansible.builtin.stat:
+        path: /usr/bin/yay
+      register: _yay
+      when: ansible_os_family == 'Archlinux'
+
+    - name: Require yay before installing desktop AUR packages
+      ansible.builtin.fail:
+        msg: >-
+          yay is required for desktop packages on Arch but is not installed.
+          Install an AUR helper (yay) once, then re-run.
+      when: ansible_os_family == 'Archlinux' and not _yay.stat.exists
+
+    - name: Install desktop AUR packages (Arch)
+      ansible.builtin.command:
+        cmd: "yay -S --noconfirm {{ desktop_aur | join(' ') }}"
+      register: _yay_install
+      changed_when: "'there is nothing to do' not in (_yay_install.stdout | lower)"
+      when: ansible_os_family == 'Archlinux'
