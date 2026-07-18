@@ -1,0 +1,25 @@
+---
+- name: Configure macOS system defaults
+  when: ansible_os_family == 'Darwin'
+  block:
+    - name: Set keyboard repeat rate
+      community.general.osx_defaults:
+        domain: NSGlobalDomain
+        key: KeyRepeat
+        type: int
+        value: "{{ macos_key_repeat }}"
+
+    - name: Set initial keyboard repeat delay
+      community.general.osx_defaults:
+        domain: NSGlobalDomain
+        key: InitialKeyRepeat
+        type: int
+        value: "{{ macos_initial_key_repeat }}"
+
+    - name: Disable press-and-hold for specific apps
+      community.general.osx_defaults:
+        domain: "{{ item }}"
+        key: ApplePressAndHoldEnabled
+        type: bool
+        value: false
+      loop: "{{ macos_press_and_hold_disabled }}"

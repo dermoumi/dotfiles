@@ -1,0 +1,7 @@
+---
+macos_key_repeat: 2
+macos_initial_key_repeat: 15
+
+# Bundle IDs that should repeat a held key instead of showing the accent popup.
+macos_press_and_hold_disabled:
+  - com.microsoft.VSCode
