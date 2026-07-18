@@ -16,13 +16,15 @@ dotfile_links_common:
     dest: "{{ ansible_env.HOME }}/.config/nvim"
   - src: direnv
     dest: "{{ ansible_env.HOME }}/.config/direnv"
-  - src: yay
-    dest: "{{ ansible_env.HOME }}/.config/yay"
 
 # Per-OS additions, keyed by ansible_os_family (Darwin, Archlinux, Debian...).
 dotfile_links_by_os:
   Darwin:
-    - { src: karabiner, dest: "{{ ansible_env.HOME }}/.config/karabiner" }
+    - src: karabiner
+      dest: "{{ ansible_env.HOME }}/.config/karabiner"
+  Archlinux:
+    - src: yay
+      dest: "{{ ansible_env.HOME }}/.config/yay"
 
 dotfile_links: >-
   {{ dotfile_links_common + (dotfile_links_by_os[ansible_os_family] | default([])) }}
