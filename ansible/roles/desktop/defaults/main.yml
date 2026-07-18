@@ -9,8 +9,6 @@ desktop_casks:
   - battery
   - discord
   - docker-desktop
-  - firefox
-  - google-chrome
   - iina
   - jordanbaird-ice
   - karabiner-elements
@@ -29,13 +27,17 @@ desktop_casks:
   - cyberduck
   - alt-tab
   - unnaturalscrollwheels
+  - brave-browser
+  - kitty
+  - bitwarden
 
 # Arch AUR packages (installed via yay).
 desktop_aur:
-  - firefox
   - insync
   - discord
   - windscribe-v2-bin
   - visual-studio-code-bin
   - ttf-jetbrains-mono-nerd
   - prismlauncher
+  - brave-bin
+  - kitty
