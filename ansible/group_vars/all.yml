@@ -1,6 +1,6 @@
-# Variant → roles. The variant is chosen at invocation time (curl | bash -s --
-# --workstation, or `./run workstation`) and passed to Ansible as an extra-var,
-# so provisioning a new machine needs no inventory/host_vars entry.
+# Variant → roles. The variant is chosen at invocation time (`./setup.sh
+# workstation`) and passed to Ansible as an extra-var, so provisioning a new
+# machine needs no inventory/host_vars entry.
 #
 # OS differences (mac / linux / wsl2) are handled inside each role via
 # ansible_os_family — a variant only decides *which* roles run.

@@ -38,6 +38,12 @@ if  [ ! "$LOCAL_BIN_DIR" ] && [ -d ~/.local/bin ]; then
     path=($LOCAL_BIN_DIR $path)
 fi
 
+# ansible venv
+if [ ! "$ANSIBLE_VENV_DIR" ] && [ -d ~/.local/share/venvs/ansible-venv/bin ]; then
+    export ANSIBLE_VENV_DIR=$HOME/.local/share/venvs/ansible-venv
+    path=($ANSIBLE_VENV_DIR/bin $path)
+fi
+
 # includes path
 if [ ! "$LOCAL_INCLUDE_PATH" ] && [ -d ~/.local/include ]; then
     export LOCAL_INCLUDE_PATH=$HOME/.local/include

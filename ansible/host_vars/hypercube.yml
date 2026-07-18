@@ -1,5 +1,5 @@
 # hypercube runs the tailnet ssh role on top of whatever variant it's given.
-# Run ssh-only today with `./run` (no variant); later `./run workstation`.
+# Run ssh-only today with `./setup.sh` (no variant); later `./setup.sh workstation`.
 host_extra_roles:
   - ssh
 
