@@ -55,3 +55,14 @@
     state: present
     path: /opt/homebrew/bin
   when: ansible_os_family == 'Darwin'
+
+- name: Locate zsh
+  ansible.builtin.shell: command -v zsh
+  register: _zsh
+  changed_when: false
+
+- name: Make zsh the default shell
+  become: true
+  ansible.builtin.user:
+    name: "{{ ansible_user_id }}"
+    shell: "{{ _zsh.stdout }}"
