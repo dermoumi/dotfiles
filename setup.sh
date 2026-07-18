@@ -163,14 +163,12 @@ __make_links() {
     __mk_link .gitconfig ~/
     __mk_link .fdignore ~/
     __mk_link .tmux.conf ~/
-    __mk_link wezterm ~/.config/
     __mk_link nvim ~/.config/
     __mk_link direnv ~/.config/
 
     # MacOS specific links
     if ((is_macos)); then
         __mk_link karabiner ~/.config/
-        __mk_link yabai ~/.config/
     else
         __mk_link systemd ~/.config/
         __mk_link hypr ~/.config/
@@ -245,7 +243,7 @@ __install_utilities_macos() {
             mise use --global python@latest uv@latest
         fi
 
-        __pip install -U pip
+        __pip_install -U pip
     fi
 
     # Setup nvim python provider
@@ -712,9 +710,9 @@ __install_desktop_apps_macos() {
     __ensure_homebrew_installed
 
     brew install --cask android-platform-tools battery chatgpt discord docker \
-        zen-browser google-chrome iina jordanbaird-ice karabiner-elements \
+        firefox google-chrome iina jordanbaird-ice karabiner-elements \
         keepingyouawake keka launchbar nightfall rectangle topnotch \
-        transmission visual-studio-code wezterm windscribe insync \
+        visual-studio-code windscribe insync \
         font-jetbrains-mono-nerd-font monitorcontrol prismlauncher \
         cyberduck alt-tab
 
@@ -727,7 +725,7 @@ __install_desktop_apps_macos() {
 __install_desktop_apps_pacman() {
     __pacman_setup
 
-    yay -S --noconfirm zen-browser-bin insync discord windscribe-v2-bin \
+    yay -S --noconfirm firefox insync discord windscribe-v2-bin \
         visual-studio-code-bin ttf-jetbrains-mono-nerd prismlauncher
 
     __pacman_cleanup
