@@ -19,7 +19,8 @@ fi
 
 if [ ! -d "$ansible_venv" ]; then
     echo "Creating ansible venv..."
-    "$uv_bin" venv "$ansible_venv"
+    # Pin a modern python; macOS's system 3.9 caps ansible-core at 2.15.
+    "$uv_bin" venv --python 3.14 "$ansible_venv"
 fi
 # Upgrade every run so ansible-core stays current with the galaxy collections.
 "$uv_bin" pip install --python "$ansible_venv/bin/python" --upgrade ansible
