@@ -2,12 +2,24 @@
 - name: Install desktop applications
   when: desktop_enabled | default(false)
   block:
+    - name: Stat the desktop upgrade stamp
+      ansible.builtin.stat:
+        path: "{{ upgrade_stamp_dir }}/desktop"
+      register: _desktop_stamp
+
+    - name: Decide whether a desktop upgrade is due
+      ansible.builtin.set_fact:
+        _desktop_upgrade_due: >-
+          {{ (not _desktop_stamp.stat.exists)
+             or ((ansible_facts.date_time.epoch | int) - (_desktop_stamp.stat.mtime | int)
+                 > upgrade_cache_seconds) }}
+
     # --- macOS: Homebrew casks ---
     - name: Check for Homebrew (macOS)
       ansible.builtin.stat:
         path: /opt/homebrew/bin/brew
       register: _brew
-      when: ansible_os_family == 'Darwin'
+      when: ansible_facts.os_family == 'Darwin'
 
     - name: Require Homebrew before installing desktop casks
       ansible.builtin.fail:
@@ -15,44 +27,63 @@
           Homebrew is required for desktop casks on macOS but is not installed.
           Install it once, then re-run:
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-      when: ansible_os_family == 'Darwin' and not _brew.stat.exists
+      when: ansible_facts.os_family == 'Darwin' and not _brew.stat.exists
 
     - name: Install desktop casks (macOS)
       community.general.homebrew_cask:
         name: "{{ desktop_casks }}"
-        state: present
+        state: "{{ 'latest' if _desktop_upgrade_due else 'present' }}"
+        update_homebrew: "{{ _desktop_upgrade_due }}"
         path: /opt/homebrew/bin
-      when: ansible_os_family == 'Darwin'
+      when: ansible_facts.os_family == 'Darwin'
 
     - name: Check whether Windscribe is set up (macOS)
       ansible.builtin.stat:
-        path: "{{ ansible_env.HOME }}/Library/Application Support/Windscribe"
+        path: "{{ ansible_facts.env.HOME }}/Library/Application Support/Windscribe"
       register: _windscribe
-      when: ansible_os_family == 'Darwin'
+      when: ansible_facts.os_family == 'Darwin'
 
     # The cask only stages the app; its bundled installer must run once.
     - name: Launch the Windscribe installer (macOS, first run)
       ansible.builtin.shell: open /opt/homebrew/Caskroom/windscribe/*/WindscribeInstaller.app
       changed_when: true
-      when: ansible_os_family == 'Darwin' and not _windscribe.stat.exists
+      when: ansible_facts.os_family == 'Darwin' and not _windscribe.stat.exists
 
     # --- Arch: AUR via yay (refuses root, so no become) ---
     - name: Check for yay (Arch)
       ansible.builtin.stat:
         path: /usr/bin/yay
       register: _yay
-      when: ansible_os_family == 'Archlinux'
+      when: ansible_facts.os_family == 'Archlinux'
 
     - name: Require yay before installing desktop AUR packages
       ansible.builtin.fail:
         msg: >-
           yay is required for desktop packages on Arch but is not installed.
           Install an AUR helper (yay) once, then re-run.
-      when: ansible_os_family == 'Archlinux' and not _yay.stat.exists
+      when: ansible_facts.os_family == 'Archlinux' and not _yay.stat.exists
 
-    - name: Install desktop AUR packages (Arch)
+    # yay -S always pulls the newest AUR build, so it's gated on the daily stamp;
+    # a newly-added package therefore lands on the next due run (or delete the
+    # stamp to force it).
+    - name: Install/upgrade desktop AUR packages (Arch, throttled)
       ansible.builtin.command:
-        cmd: "yay -S --noconfirm {{ desktop_aur | join(' ') }}"
+        cmd: "yay -S --needed --noconfirm {{ desktop_aur | join(' ') }}"
       register: _yay_install
       changed_when: "'there is nothing to do' not in (_yay_install.stdout | lower)"
-      when: ansible_os_family == 'Archlinux'
+      when: ansible_facts.os_family == 'Archlinux' and _desktop_upgrade_due
+
+    # Stamp last so a failed upgrade above isn't cached — it retries next run.
+    - name: Ensure the upgrade stamp directory exists
+      ansible.builtin.file:
+        path: "{{ upgrade_stamp_dir }}"
+        state: directory
+        mode: "0755"
+      when: _desktop_upgrade_due
+
+    - name: Record the desktop upgrade timestamp
+      ansible.builtin.file:
+        path: "{{ upgrade_stamp_dir }}/desktop"
+        state: touch
+        mode: "0644"
+      when: _desktop_upgrade_due

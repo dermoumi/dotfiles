@@ -3,7 +3,7 @@
 # machine needs no inventory/host_vars entry.
 #
 # OS differences (mac / linux / wsl2) are handled inside each role via
-# ansible_os_family — a variant only decides *which* roles run.
+# ansible_facts.os_family — a variant only decides *which* roles run.
 variant_roles:
   # Full day-to-day environment (personal machines).
   workstation:
@@ -31,3 +31,8 @@ variant_roles:
 variant_vars:
   workstation:
     desktop_enabled: true
+
+# Upgrade throttling: install-missing runs every time, but "pull latest" for
+# tools/casks is attempted at most once per this window (a per-op stamp file).
+upgrade_cache_seconds: 86400          # 1 day
+upgrade_stamp_dir: "{{ ansible_facts.env.HOME }}/.cache/dotfiles"

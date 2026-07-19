@@ -5,9 +5,10 @@ mise_tools:
   fd: latest
   ripgrep: latest
   bat: latest
-  eza: latest
   zoxide: latest
   neovim: latest
+  # eza is a native package below — it has no prebuilt binary mise can fetch on
+  # macOS arm64 (aqua=cargo type, no GitHub release asset).
 
 # Language toolchains, added to the same mise config per variant. Keeping them
 # here (rather than a separate role) means one role owns config.toml, so nothing
@@ -33,8 +34,10 @@ cli_native_packages: # Linux
   - unzip
   - gnupg
   - tmux
+  - eza
 cli_brew_packages: # macOS
   - gnupg
   - tmux
+  - eza
 
-mise_bin: "{{ ansible_env.HOME }}/.local/bin/mise"
+mise_bin: "{{ ansible_facts.env.HOME }}/.local/bin/mise"

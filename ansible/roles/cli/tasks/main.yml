@@ -1,4 +1,16 @@
 ---
+- name: Stat the cli upgrade stamp
+  ansible.builtin.stat:
+    path: "{{ upgrade_stamp_dir }}/cli"
+  register: _cli_stamp
+
+- name: Decide whether a cli upgrade is due
+  ansible.builtin.set_fact:
+    _cli_upgrade_due: >-
+      {{ (not _cli_stamp.stat.exists)
+         or ((ansible_facts.date_time.epoch | int) - (_cli_stamp.stat.mtime | int)
+             > upgrade_cache_seconds) }}
+
 - name: Check for mise
   ansible.builtin.stat:
     path: "{{ mise_bin }}"
@@ -10,34 +22,44 @@
 
 - name: Ensure mise config directory exists
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.config/mise"
+    path: "{{ ansible_facts.env.HOME }}/.config/mise"
     state: directory
     mode: "0755"
 
 - name: Render mise global config
   ansible.builtin.template:
     src: config.toml.j2
-    dest: "{{ ansible_env.HOME }}/.config/mise/config.toml"
+    dest: "{{ ansible_facts.env.HOME }}/.config/mise/config.toml"
     mode: "0644"
+
+- name: Check for missing mise tools
+  ansible.builtin.command: "{{ mise_bin }} ls --missing"
+  register: _mise_missing
+  changed_when: false
 
 - name: Install mise-managed tools
   ansible.builtin.command: "{{ mise_bin }} install"
-  register: _mise_install
-  # mise is silent when everything is already installed.
-  changed_when: (_mise_install.stdout ~ _mise_install.stderr) | trim | length > 0
+  when: _mise_missing.stdout | trim | length > 0
+  changed_when: true
+
+- name: Upgrade mise-managed tools (throttled)
+  ansible.builtin.command: "{{ mise_bin }} upgrade"
+  when: _cli_upgrade_due
+  register: _mise_upgrade
+  changed_when: "'installed' in (_mise_upgrade.stderr | default(''))"
 
 - name: Install native CLI packages (Linux)
   become: true
   ansible.builtin.package:
     name: "{{ cli_native_packages }}"
     state: present
-  when: ansible_os_family != 'Darwin'
+  when: ansible_facts.os_family != 'Darwin'
 
 - name: Check for Homebrew (macOS)
   ansible.builtin.stat:
     path: /opt/homebrew/bin/brew
   register: _brew
-  when: ansible_os_family == 'Darwin'
+  when: ansible_facts.os_family == 'Darwin'
 
 # Homebrew's installer needs an interactive sudo TTY, which an ansible task can't
 # provide — so it belongs in the bootstrap, not here. Fail early with guidance.
@@ -47,14 +69,15 @@
       Homebrew is required for {{ cli_brew_packages | join(', ') }} on macOS but
       is not installed. Install it once, then re-run:
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  when: ansible_os_family == 'Darwin' and not _brew.stat.exists
+  when: ansible_facts.os_family == 'Darwin' and not _brew.stat.exists
 
 - name: Install native CLI packages (macOS)
   community.general.homebrew:
     name: "{{ cli_brew_packages }}"
-    state: present
+    state: "{{ 'latest' if _cli_upgrade_due else 'present' }}"
+    update_homebrew: "{{ _cli_upgrade_due }}"
     path: /opt/homebrew/bin
-  when: ansible_os_family == 'Darwin'
+  when: ansible_facts.os_family == 'Darwin'
 
 - name: Locate zsh
   ansible.builtin.shell: command -v zsh
@@ -64,5 +87,20 @@
 - name: Make zsh the default shell
   become: true
   ansible.builtin.user:
-    name: "{{ ansible_user_id }}"
+    name: "{{ ansible_facts.user_id }}"
     shell: "{{ _zsh.stdout }}"
+
+# Stamp last so a failed upgrade above isn't cached — it retries next run.
+- name: Ensure the upgrade stamp directory exists
+  ansible.builtin.file:
+    path: "{{ upgrade_stamp_dir }}"
+    state: directory
+    mode: "0755"
+  when: _cli_upgrade_due
+
+- name: Record the cli upgrade timestamp
+  ansible.builtin.file:
+    path: "{{ upgrade_stamp_dir }}/cli"
+    state: touch
+    mode: "0644"
+  when: _cli_upgrade_due
