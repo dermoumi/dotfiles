@@ -16,6 +16,8 @@ dotfile_links_common:
     dest: "{{ ansible_facts.env.HOME }}/.config/nvim"
   - src: direnv
     dest: "{{ ansible_facts.env.HOME }}/.config/direnv"
+  - src: kitty
+    dest: "{{ ansible_facts.env.HOME }}/.config/kitty"
 
 # Per-OS additions, keyed by ansible_facts.os_family (Darwin, Archlinux, Debian...).
 dotfile_links_by_os:
