@@ -27,7 +27,7 @@ desktop_casks:
   - cyberduck
   - alt-tab
   - unnaturalscrollwheels
-  - brave-browser
+  - vivaldi
   - kitty
   - bitwarden
 
@@ -39,5 +39,5 @@ desktop_aur:
   - visual-studio-code-bin
   - ttf-jetbrains-mono-nerd
   - prismlauncher
-  - brave-bin
+  - vivaldi
   - kitty
