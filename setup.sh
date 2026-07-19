@@ -17,11 +17,12 @@ if [ ! -x "$uv_bin" ]; then
     curl -LsSf https://astral.sh/uv/install.sh | INSTALLER_NO_MODIFY_PATH=1 sh
 fi
 
-if [ ! -x "$ansible_venv/bin/ansible-playbook" ]; then
+if [ ! -d "$ansible_venv" ]; then
     echo "Creating ansible venv..."
     "$uv_bin" venv "$ansible_venv"
-    "$uv_bin" pip install --python "$ansible_venv/bin/python" ansible
 fi
+# Upgrade every run so ansible-core stays current with the galaxy collections.
+"$uv_bin" pip install --python "$ansible_venv/bin/python" --upgrade ansible
 
 # Homebrew (macOS): its installer needs an interactive sudo TTY, so it lives
 # here in the bootstrap rather than an ansible task.
