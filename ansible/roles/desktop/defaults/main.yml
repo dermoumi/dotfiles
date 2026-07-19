@@ -7,7 +7,6 @@ desktop_enabled: false
 desktop_casks:
   - android-platform-tools
   - battery
-  - discord
   - docker-desktop
   - iina
   - jordanbaird-ice
@@ -17,7 +16,6 @@ desktop_casks:
   - launchbar
   - nightfall
   - rectangle
-  - topnotch
   - visual-studio-code
   - windscribe
   - insync
@@ -31,6 +29,8 @@ desktop_casks:
   - kitty
   - bitwarden
   - tailscale-app
+  - firefox
+  - vesktop
   # aws-vpn-client is installed by hand: its .pkg needs sudo, which brew can't
   # run unattended under ansible.
 
