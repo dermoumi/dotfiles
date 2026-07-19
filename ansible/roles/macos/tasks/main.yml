@@ -1,20 +1,17 @@
 ---
 - name: Configure macOS system defaults
-  when: ansible_os_family == 'Darwin'
+  when: ansible_facts.os_family == 'Darwin'
   block:
-    - name: Set keyboard repeat rate
+    - name: Set keyboard repeat rates
+      # float matches how macOS/System Settings stores these, so no type clash.
       community.general.osx_defaults:
         domain: NSGlobalDomain
-        key: KeyRepeat
-        type: int
-        value: "{{ macos_key_repeat }}"
-
-    - name: Set initial keyboard repeat delay
-      community.general.osx_defaults:
-        domain: NSGlobalDomain
-        key: InitialKeyRepeat
-        type: int
-        value: "{{ macos_initial_key_repeat }}"
+        key: "{{ item.key }}"
+        type: float
+        value: "{{ item.value }}"
+      loop: "{{ macos_repeat_keys }}"
+      loop_control:
+        label: "{{ item.key }}"
 
     - name: Disable press-and-hold for specific apps
       community.general.osx_defaults:
@@ -23,3 +20,16 @@
         type: bool
         value: false
       loop: "{{ macos_press_and_hold_disabled }}"
+
+    - name: Ensure LaunchAgents directory exists
+      ansible.builtin.file:
+        path: "{{ ansible_facts.env.HOME }}/Library/LaunchAgents"
+        state: directory
+        mode: "0755"
+
+    - name: Install the session-env LaunchAgent
+      ansible.builtin.template:
+        src: session-env.plist.j2
+        dest: "{{ ansible_facts.env.HOME }}/Library/LaunchAgents/{{ macos_session_env_label }}.plist"
+        mode: "0644"
+      notify: Reload session-env launch agent

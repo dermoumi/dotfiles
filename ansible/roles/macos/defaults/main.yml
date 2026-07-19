@@ -2,6 +2,16 @@
 macos_key_repeat: 2
 macos_initial_key_repeat: 15
 
+macos_repeat_keys:
+  - { key: KeyRepeat, value: "{{ macos_key_repeat }}" }
+  - { key: InitialKeyRepeat, value: "{{ macos_initial_key_repeat }}" }
+
 # Bundle IDs that should repeat a held key instead of showing the accent popup.
 macos_press_and_hold_disabled:
   - com.microsoft.VSCode
+
+# Aqua-session env vars exported via a RunAtLoad LaunchAgent (so GUI apps see
+# them). launchctl/plists don't expand $HOME, so values must be absolute paths.
+macos_session_env_label: com.dermoumi.session-env
+macos_session_env:
+  SSH_AUTH_SOCK: "{{ ansible_facts.env.HOME }}/.bitwarden-ssh-agent.sock"

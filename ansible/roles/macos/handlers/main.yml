@@ -1,0 +1,9 @@
+---
+# Reload so the change applies to the running Aqua session without a re-login.
+# The plist itself guarantees it loads at next login, so a failed immediate
+# bootstrap (e.g. run over SSH with no GUI session) is non-fatal.
+- name: Reload session-env launch agent
+  ansible.builtin.shell: |
+    plist="{{ ansible_facts.env.HOME }}/Library/LaunchAgents/{{ macos_session_env_label }}.plist"
+    launchctl bootout "gui/$(id -u)/{{ macos_session_env_label }}" 2>/dev/null || true
+    launchctl bootstrap "gui/$(id -u)" "$plist" || true
