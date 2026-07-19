@@ -31,22 +31,39 @@ export PATH="$ansible_venv/bin:$PATH"
 export ANSIBLE_CONFIG="ansible/ansible.cfg"
 ansible-galaxy collection install -r ansible/requirements.yml
 
-# Optional first positional is the variant; a leading '-' means an ansible flag.
+# First bare word is the variant; --hostname NAME renames the host and targets
+# its host_vars; anything else passes through to ansible-playbook.
 variant=""
-if [ $# -gt 0 ] && [[ "$1" != -* ]]; then
-    variant="$1"
-    shift
-fi
+target_hostname=""
+passthru=()
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --hostname)
+            target_hostname="${2:-}"
+            [ -n "$target_hostname" ] || { echo "--hostname requires a value" >&2; exit 1; }
+            shift 2 ;;
+        --hostname=*) target_hostname="${1#*=}"; shift ;;
+        -*) passthru+=("$1"); shift ;;
+        *) [ -n "$variant" ] && passthru+=("$1") || variant="$1"; shift ;;
+    esac
+done
 
-# Inline inventory keyed by hostname so host_vars/<hostname>.yml still loads.
-# Prompt for a sudo password only when we're not already root.
+# Inline inventory keyed by the target (or current) hostname so
+# host_vars/<hostname>.yml loads. Prompt for sudo only when not already root.
+host="${target_hostname:-$(hostname -s)}"
+
 become_args=()
 [ "$(id -u)" -ne 0 ] && become_args+=(--ask-become-pass)
 
+extra_vars=()
+[ -n "$variant" ] && extra_vars+=(--extra-vars "variant=$variant")
+[ -n "$target_hostname" ] && extra_vars+=(--extra-vars "target_hostname=$target_hostname")
+
 ansible-playbook \
-    -i "$(hostname -s)," -c local \
+    -i "$host," -c local \
     ${become_args[@]+"${become_args[@]}"} \
-    ${variant:+--extra-vars variant=$variant} \
-    ansible/site.yml "$@"
+    ${extra_vars[@]+"${extra_vars[@]}"} \
+    ${passthru[@]+"${passthru[@]}"} \
+    ansible/site.yml
 
 exec zsh

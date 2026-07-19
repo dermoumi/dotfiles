@@ -3,7 +3,14 @@
   become: false                     # user-space by default; roles opt into become
   vars:
     variant: ""                     # override with -e variant=workstation
+    target_hostname: ""             # override with -e target_hostname=NAME
   tasks:
+    - name: Set the system hostname
+      become: true
+      ansible.builtin.hostname:
+        name: "{{ target_hostname }}"
+      when: target_hostname | length > 0
+
     - name: Validate variant
       ansible.builtin.assert:
         that: variant == "" or variant in variant_roles
