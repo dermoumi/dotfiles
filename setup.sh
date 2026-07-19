@@ -26,8 +26,10 @@ fi
 # Expose the venv for this run; zsh picks it up in future shells via .zshenv.
 export PATH="$ansible_venv/bin:$PATH"
 
-cd ansible
-ansible-galaxy collection install -r requirements.yml
+# Run ansible from the repo root (ansible.cfg via env) so we don't leave the
+# final `exec zsh` sitting in the ansible/ subdirectory.
+export ANSIBLE_CONFIG="ansible/ansible.cfg"
+ansible-galaxy collection install -r ansible/requirements.yml
 
 # Optional first positional is the variant; a leading '-' means an ansible flag.
 variant=""
@@ -45,6 +47,6 @@ ansible-playbook \
     -i "$(hostname -s)," -c local \
     ${become_args[@]+"${become_args[@]}"} \
     ${variant:+--extra-vars variant=$variant} \
-    site.yml "$@"
+    ansible/site.yml "$@"
 
 exec zsh
