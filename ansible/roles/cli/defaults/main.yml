@@ -10,24 +10,26 @@ mise_tools:
   # eza is a native package below — it has no prebuilt binary mise can fetch on
   # macOS arm64 (aqua=cargo type, no GitHub release asset).
 
-# Language toolchains, added to the same mise config per variant. Keeping them
-# here (rather than a separate role) means one role owns config.toml, so nothing
-# clobbers it. Servers get none. No variant installs a standalone python — uv
-# self-provisions an isolated python per venv (incl. the neovim provider), so
-# workstations add node/pnpm and containers add nothing else.
-mise_runtime_tools:
+# Extra mise tools per variant (servers get none). uv self-provisions an
+# isolated python per venv, so no variant installs a standalone python.
+mise_variant_tools:
   workstation:
     node: lts
     pnpm: latest
     uv: latest
+    kubectl: latest
+    argocd: latest
+    aws-cli: latest
+    opentofu: latest
+    sops: latest
   devcontainer:
     uv: latest
 
 # Effective set rendered into config.toml.
-mise_all_tools: "{{ mise_tools | combine(mise_runtime_tools[variant] | default({})) }}"
+mise_all_tools: "{{ mise_tools | combine(mise_variant_tools[variant] | default({})) }}"
 
 # Tools with real system integration stay on the native package manager.
-cli_native_packages: # Linux
+cli_native_packages: # Linux, every variant
   - zsh
   - git
   - curl
@@ -35,6 +37,10 @@ cli_native_packages: # Linux
   - gnupg
   - tmux
   - eza
+cli_native_variant_packages: # Linux, per variant
+  workstation:
+    - tailscale
+cli_native_all_packages: "{{ cli_native_packages + (cli_native_variant_packages[variant] | default([])) }}"
 cli_brew_packages: # macOS
   - gnupg
   - tmux
