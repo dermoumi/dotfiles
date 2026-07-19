@@ -23,6 +23,14 @@ if [ ! -x "$ansible_venv/bin/ansible-playbook" ]; then
     "$uv_bin" pip install --python "$ansible_venv/bin/python" ansible
 fi
 
+# Homebrew (macOS): its installer needs an interactive sudo TTY, so it lives
+# here in the bootstrap rather than an ansible task.
+if [ "$(uname)" = "Darwin" ] && [ ! -x /opt/homebrew/bin/brew ]; then
+    echo "Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+[ -x /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
+
 # Expose the venv for this run; zsh picks it up in future shells via .zshenv.
 export PATH="$ansible_venv/bin:$PATH"
 
