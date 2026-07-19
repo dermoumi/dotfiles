@@ -21,6 +21,14 @@
         value: false
       loop: "{{ macos_press_and_hold_disabled }}"
 
+    # Move any window with ctrl+cmd+drag (needed with hidden titlebars).
+    - name: Enable drag-to-move anywhere
+      community.general.osx_defaults:
+        domain: NSGlobalDomain
+        key: NSWindowShouldDragOnGesture
+        type: bool
+        value: true
+
     - name: Ensure LaunchAgents directory exists
       ansible.builtin.file:
         path: "{{ ansible_facts.env.HOME }}/Library/LaunchAgents"
