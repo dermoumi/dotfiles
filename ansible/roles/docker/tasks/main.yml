@@ -1,0 +1,35 @@
+---
+- name: Check whether docker is installed
+  ansible.builtin.command: docker --version
+  register: _docker_check
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Ensure the docker config directory exists
+  become: "{{ docker_needs_root }}"
+  ansible.builtin.file:
+    path: "{{ docker_daemon_json | dirname }}"
+    state: directory
+    mode: "0755"
+
+- name: Read existing daemon.json
+  become: "{{ docker_needs_root }}"
+  ansible.builtin.slurp:
+    src: "{{ docker_daemon_json }}"
+  register: _daemon_raw
+  failed_when: false
+
+- name: Write merged daemon.json
+  become: "{{ docker_needs_root }}"
+  ansible.builtin.copy:
+    dest: "{{ docker_daemon_json }}"
+    content: "{{ existing | combine(docker_daemon_config) | to_nice_json }}\n"
+    mode: "0644"
+  vars:
+    existing: >-
+      {{ (_daemon_raw.content | b64decode | from_json)
+         if (_daemon_raw.content is defined
+             and (_daemon_raw.content | b64decode | trim | length > 0))
+         else {} }}
+  notify: Restart docker

@@ -1,0 +1,16 @@
+---
+docker_daemon_config:
+  default-address-pools:
+    - base: "192.168.64.0/18"
+      size: 24
+  dns:
+    - "192.168.10.1"
+    - "1.1.1.1"
+
+# Linux: system-wide. macOS: Docker Desktop's engine config (Settings > Docker Engine).
+docker_daemon_json: >-
+  {{ (ansible_facts.env.HOME ~ '/.docker/daemon.json')
+     if ansible_facts.os_family == 'Darwin'
+     else '/etc/docker/daemon.json' }}
+
+docker_needs_root: "{{ ansible_facts.os_family != 'Darwin' }}"

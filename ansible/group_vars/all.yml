@@ -11,6 +11,7 @@ variant_roles:
     - cli          # CLI binaries + language runtimes (node/pnpm/uv)
     - neovim       # python provider + headless plugin sync
     - desktop      # GUI apps; gated on desktop_enabled (see variant_vars)
+    - docker       # daemon.json (address pools, dns)
     - macos        # system defaults
 
   # Minimal footprint for remote machines (VPS, homelab).
