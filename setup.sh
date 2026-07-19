@@ -37,7 +37,7 @@ export PATH="$ansible_venv/bin:$PATH"
 # Run ansible from the repo root (ansible.cfg via env) so we don't leave the
 # final `exec zsh` sitting in the ansible/ subdirectory.
 export ANSIBLE_CONFIG="ansible/ansible.cfg"
-ansible-galaxy collection install -r ansible/requirements.yml
+ansible-galaxy collection install --upgrade -r ansible/requirements.yml
 
 # First bare word is the variant; --hostname NAME renames the host and targets
 # its host_vars; anything else passes through to ansible-playbook.

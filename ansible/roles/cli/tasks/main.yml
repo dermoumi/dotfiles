@@ -84,18 +84,10 @@
 - name: Install native CLI packages (macOS)
   community.general.homebrew:
     name: "{{ cli_brew_packages }}"
-    state: present
+    state: "{{ 'latest' if _cli_upgrade_due else 'present' }}"
     update_homebrew: "{{ _cli_upgrade_due }}"
     path: /opt/homebrew/bin
   when: ansible_facts.os_family == 'Darwin'
-
-# brew exits non-zero on `install` of an up-to-date formula, which trips the
-# module's state=latest; use a plain upgrade instead (no-op when current).
-- name: Upgrade native CLI packages (macOS, throttled)
-  ansible.builtin.command: "/opt/homebrew/bin/brew upgrade {{ cli_brew_packages | join(' ') }}"
-  register: _brew_upgrade
-  changed_when: "'Upgrading' in (_brew_upgrade.stdout | default(''))"
-  when: ansible_facts.os_family == 'Darwin' and _cli_upgrade_due
 
 - name: Locate zsh
   ansible.builtin.shell: command -v zsh
