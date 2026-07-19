@@ -30,8 +30,9 @@ desktop_casks:
   - vivaldi
   - kitty
   - bitwarden
-  - aws-vpn-client
   - tailscale-app
+  # aws-vpn-client is installed by hand: its .pkg needs sudo, which brew can't
+  # run unattended under ansible.
 
 # Arch packages, official repos or AUR (installed via yay).
 desktop_aur:
