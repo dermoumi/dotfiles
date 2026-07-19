@@ -1,6 +1,6 @@
 ---
-mise_bin: "{{ ansible_env.HOME }}/.local/bin/mise"
+mise_bin: "{{ ansible_facts.env.HOME }}/.local/bin/mise"
 
 # Path the nvim config expects for its python3 provider
 # (nvim/lua/core/options.lua).
-nvim_venv: "{{ ansible_env.HOME }}/.local/share/venvs/nvim-venv"
+nvim_venv: "{{ ansible_facts.env.HOME }}/.local/share/venvs/nvim-venv"

@@ -33,5 +33,7 @@
 
     - name: Apply roles
       ansible.builtin.include_role:
-        name: "{{ item }}"
+        name: "{{ role_item }}"
       loop: "{{ _machine_roles }}"
+      loop_control:
+        loop_var: role_item
