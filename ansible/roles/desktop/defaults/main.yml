@@ -30,8 +30,10 @@ desktop_casks:
   - vivaldi
   - kitty
   - bitwarden
+  - aws-vpn-client
+  - tailscale-app
 
-# Arch AUR packages (installed via yay).
+# Arch packages, official repos or AUR (installed via yay).
 desktop_aur:
   - insync
   - discord
@@ -41,3 +43,4 @@ desktop_aur:
   - prismlauncher
   - vivaldi
   - kitty
+  - awsvpnclient
