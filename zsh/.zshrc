@@ -24,9 +24,6 @@ setopt hist_ignore_all_dups hist_ignore_space hist_find_no_dups append_history \
 # setup function autoload
 autoload -Uz "$ZDOTDIR/functions/"*
 
-# setup sshagent
-# sshagent-init --auto
-
 # disable marking untracked files on git as dirty.
 # makes git status much faster on large repositories
 export DISABLE_UNTRACKED_FILES_DIRTY="true"
