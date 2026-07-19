@@ -17,3 +17,9 @@ WSL2 (Ubuntu/Debian):
 sudo apt update && sudo apt install -y git curl
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/dermoumi/dotfiles/HEAD/setup.sh)" -- workstation
 ```
+
+Add `--hostname NAME` to rename the machine and apply its `host_vars/NAME.yml`:
+
+```bash
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/dermoumi/dotfiles/HEAD/setup.sh)" -- workstation --hostname powerslate
+```
