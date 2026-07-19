@@ -37,6 +37,7 @@ cli_native_packages: # Linux, every variant
   - gnupg
   - tmux
   - eza
+  - socat
 cli_native_variant_packages: # Linux, per variant
   workstation:
     - tailscale
@@ -45,5 +46,7 @@ cli_brew_packages: # macOS
   - gnupg
   - tmux
   - eza
+  - socat
+  - zsh
 
 mise_bin: "{{ ansible_facts.env.HOME }}/.local/bin/mise"
