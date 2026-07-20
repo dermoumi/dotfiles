@@ -34,7 +34,7 @@ fi
 if [ ! -d "$dotfiles_dir" ]; then
     echo "Cloning dotfiles..."
     git clone https://github.com/dermoumi/dotfiles.git "$dotfiles_dir"
-    git -C "$dotfiles_dir" remote set-url origin git@github.com:dermoumi/dotfiles.git
+    git -C "$dotfiles_dir" remote set-url origin git@forge.home.dermoumi.com:sdrm/dotfiles
 fi
 cd "$dotfiles_dir"
 
