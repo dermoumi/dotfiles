@@ -5,6 +5,32 @@ dotfiles_dir="$HOME/.dotfiles"
 uv_bin="$HOME/.local/bin/uv"
 ansible_venv="$HOME/.local/share/venvs/ansible-venv"
 
+# git clones the repo below and curl fetches uv — both run before ansible can
+# install anything, so a bare Linux box needs them bootstrapped here.
+if [ "$(uname)" = "Linux" ]; then
+    missing=()
+    for cmd in git curl; do
+        command -v "$cmd" >/dev/null 2>&1 || missing+=("$cmd")
+    done
+
+    if [ ${#missing[@]} -gt 0 ]; then
+        echo "Installing ${missing[*]}..."
+        sudo_cmd=()
+        [ "$(id -u)" -ne 0 ] && sudo_cmd=(sudo)
+
+        if command -v pacman >/dev/null 2>&1; then
+            ${sudo_cmd[@]+"${sudo_cmd[@]}"} pacman -Sy --needed --noconfirm "${missing[@]}"
+        elif command -v apt-get >/dev/null 2>&1; then
+            ${sudo_cmd[@]+"${sudo_cmd[@]}"} apt-get update
+            ${sudo_cmd[@]+"${sudo_cmd[@]}"} apt-get install -y "${missing[@]}"
+        else
+            echo "No supported package manager found (pacman, apt-get)." >&2
+            echo "Install ${missing[*]} manually, then re-run." >&2
+            exit 1
+        fi
+    fi
+fi
+
 if [ ! -d "$dotfiles_dir" ]; then
     echo "Cloning dotfiles..."
     git clone https://github.com/dermoumi/dotfiles.git "$dotfiles_dir"
