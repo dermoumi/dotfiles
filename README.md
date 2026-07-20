@@ -1,38 +1,25 @@
 ## Install
 
-Macos instructions:
+Pipe `setup.sh` into bash with a variant (`workstation`, `server`, or
+`devcontainer`). It clones the repo to `~/.dotfiles`, bootstraps Ansible, and
+applies that variant's roles.
+
+macOS:
 
 ```bash
-git --version  # Will prompt you to install development tools
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/dermoumi/dotfiles/HEAD/setup.sh)" -- --init-desktop
+git --version  # prompts to install the Command Line Tools (needed to clone)
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/dermoumi/dotfiles/HEAD/setup.sh)" -- workstation
 ```
 
-WSL instructions:
+WSL2 (Ubuntu/Debian):
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/dermoumi/dotfiles/HEAD/setup.sh)" -- --init-cli
+sudo apt update && sudo apt install -y git curl
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/dermoumi/dotfiles/HEAD/setup.sh)" -- workstation
 ```
 
-## System setup (Ansible)
-
-`setup.sh` handles user-level dotfiles and tooling. Privileged, root-level host
-setup (e.g. SSH) lives in `ansible/` as idempotent playbooks you run **locally**
-on each machine — no SSH access needed, tasks execute directly with `sudo`.
+Add `--hostname NAME` to rename the machine and apply its `host_vars/NAME.yml`:
 
 ```bash
-sudo pacman -S ansible        # prereq (Arch)
-cd ~/.dotfiles/ansible
-./run --check                 # dry run
-./run                         # apply
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/dermoumi/dotfiles/HEAD/setup.sh)" -- workstation --hostname powerslate
 ```
-
-`run` limits execution to the current host (`hostname -s`), so a machine absent
-from `inventory.ini` is inert. Each machine opts into roles via
-`machine_roles` in `host_vars/<hostname>.yml`; per-machine parameters (e.g.
-`ssh_port`) also live there. Safe to re-run. Pass `-K` if `sudo` needs a password.
-
-The `ssh` role refuses to enable keys-only SSH unless a non-root user already has
-an `authorized_keys` entry (override the protected account with
-`ssh_authorized_user`). Note this guards only against *key* lockout — the role
-also binds sshd to the tailnet address (`ListenAddress`), which drops public-IP
-SSH. On a remote box, confirm you can reach it over the tailnet before running.

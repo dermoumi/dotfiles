@@ -1,0 +1,46 @@
+---
+# GUI apps only run when a variant opts in (workstation sets this true;
+# a WSL2/headless host overrides it back to false in host_vars).
+desktop_enabled: false
+
+# macOS Homebrew casks.
+desktop_casks:
+  - android-platform-tools
+  - battery
+  - docker-desktop
+  - iina
+  - jordanbaird-ice
+  - karabiner-elements
+  - keepingyouawake
+  - keka
+  - launchbar
+  - nightfall
+  - rectangle
+  - visual-studio-code
+  - windscribe
+  - insync
+  - font-jetbrains-mono-nerd-font
+  - monitorcontrol
+  - prismlauncher
+  - cyberduck
+  - alt-tab
+  - unnaturalscrollwheels
+  - kitty
+  - bitwarden
+  - tailscale-app
+  - firefox
+  - vesktop
+  # aws-vpn-client is installed by hand: its .pkg needs sudo, which brew can't
+  # run unattended under ansible.
+
+# Arch packages, official repos or AUR (installed via yay).
+desktop_aur:
+  - insync
+  - discord
+  - windscribe-v2-bin
+  - visual-studio-code-bin
+  - ttf-jetbrains-mono-nerd
+  - prismlauncher
+  - vivaldi
+  - kitty
+  - awsvpnclient

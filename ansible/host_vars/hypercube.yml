@@ -1,4 +1,6 @@
-machine_roles:
+# hypercube runs the tailnet ssh role on top of whatever variant it's given.
+# Run ssh-only today with `./setup.sh` (no variant); later `./setup.sh workstation`.
+host_extra_roles:
   - ssh
   - ip-forward
 

@@ -3,6 +3,7 @@
 # Attaches tmux session immediately after ssh'ing into a remote
 ssht() {
     ssh -t "$@" 'sh -c "
+        export TERM=xterm-256color;
         sock=/tmp/ssock.`id -u`;
         rm \$sock 2>/dev/null;
         ln -s $SSH_AUTH_SOCK \$sock;

@@ -26,6 +26,9 @@ if [[ -d /opt/homebrew/sbin ]]; then
     path=(/opt/homebrew/sbin $path)
 fi
 
+# docker
+export DOCKER_CLI_HINTS=false
+
 # local scripts directory
 if [ ! "$SCRIPTS_DIR" ] && [ -d ~/.dotfiles/scripts/ ]; then
     export SCRIPTS_DIR=$HOME/.dotfiles/scripts/
@@ -36,6 +39,12 @@ fi
 if  [ ! "$LOCAL_BIN_DIR" ] && [ -d ~/.local/bin ]; then
     export LOCAL_BIN_DIR=$HOME/.local/bin
     path=($LOCAL_BIN_DIR $path)
+fi
+
+# ansible venv
+if [ ! "$ANSIBLE_VENV_DIR" ] && [ -d ~/.local/share/venvs/ansible-venv/bin ]; then
+    export ANSIBLE_VENV_DIR=$HOME/.local/share/venvs/ansible-venv
+    path=($ANSIBLE_VENV_DIR/bin $path)
 fi
 
 # includes path

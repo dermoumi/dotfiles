@@ -1,0 +1,25 @@
+---
+# uv and neovim come from the cli role's mise tools; run them via `mise exec`
+# so we don't depend on mise shims being on PATH.
+- name: Create neovim python provider venv
+  ansible.builtin.command:
+    cmd: "{{ mise_bin }} exec -- uv venv {{ nvim_venv }}"
+    creates: "{{ nvim_venv }}/bin/python"
+
+- name: Install pynvim into the provider venv
+  ansible.builtin.command:
+    cmd: "{{ mise_bin }} exec -- uv pip install --python {{ nvim_venv }}/bin/python neovim"
+  register: _pynvim
+  changed_when: "'Installed' in (_pynvim.stderr | default(''))"
+
+- name: Install neovim-remote (nvr) as a uv tool
+  ansible.builtin.command:
+    cmd: "{{ mise_bin }} exec -- uv tool install neovim-remote"
+  register: _nvr
+  changed_when: "'Installed' in (_nvr.stderr | default(''))"
+  failed_when: _nvr.rc != 0 and 'already installed' not in (_nvr.stderr | default(''))
+
+- name: Sync neovim plugins (headless)
+  ansible.builtin.command:
+    cmd: "{{ mise_bin }} exec -- nvim --headless +Lazy! sync +qa"
+  changed_when: false                 # informational; Lazy manages its own state

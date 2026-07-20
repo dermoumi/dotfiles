@@ -1,0 +1,32 @@
+---
+# Repo root (playbook lives in ansible/, so its parent is the repo).
+dotfiles_root: "{{ playbook_dir | dirname }}"
+
+# Symlinks common to every machine. src is repo-relative; dest is absolute.
+dotfile_links_common:
+  - src: zsh/.zshenv
+    dest: "{{ ansible_facts.env.HOME }}/.zshenv"
+  - src: .gitconfig
+    dest: "{{ ansible_facts.env.HOME }}/.gitconfig"
+  - src: .fdignore
+    dest: "{{ ansible_facts.env.HOME }}/.fdignore"
+  - src: .tmux.conf
+    dest: "{{ ansible_facts.env.HOME }}/.tmux.conf"
+  - src: nvim
+    dest: "{{ ansible_facts.env.HOME }}/.config/nvim"
+  - src: direnv
+    dest: "{{ ansible_facts.env.HOME }}/.config/direnv"
+  - src: kitty
+    dest: "{{ ansible_facts.env.HOME }}/.config/kitty"
+
+# Per-OS additions, keyed by ansible_facts.os_family (Darwin, Archlinux, Debian...).
+dotfile_links_by_os:
+  Darwin:
+    - src: karabiner
+      dest: "{{ ansible_facts.env.HOME }}/.config/karabiner"
+  Archlinux:
+    - src: yay
+      dest: "{{ ansible_facts.env.HOME }}/.config/yay"
+
+dotfile_links: >-
+  {{ dotfile_links_common + (dotfile_links_by_os[ansible_facts.os_family] | default([])) }}

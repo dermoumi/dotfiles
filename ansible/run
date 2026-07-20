@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-set -euo pipefail
-cd "$(dirname "$0")"
-exec ansible-playbook -i inventory.ini -l "$(hostname -s)" --ask-become-pass site.yml "$@"

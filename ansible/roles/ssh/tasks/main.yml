@@ -1,4 +1,5 @@
 - name: Configure tailnet-only sshd
+  become: true                      # system-level; play default is now become:false
   when: ansible_facts['system'] == 'Linux'
   block:
     - name: Resolve the user that must keep SSH access
