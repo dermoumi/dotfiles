@@ -2,7 +2,8 @@
 set -euo pipefail
 
 dotfiles_dir="$HOME/.dotfiles"
-uv_bin="$HOME/.local/bin/uv"
+# Reuse an existing uv on PATH; else the bootstrap install location below.
+uv_bin="$(command -v uv || echo "$HOME/.local/bin/uv")"
 ansible_venv="$HOME/.local/share/venvs/ansible-venv"
 
 # git clones the repo below and curl fetches uv — both run before ansible can
