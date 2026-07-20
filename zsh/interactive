@@ -126,6 +126,13 @@ if [[ $commands[direnv] ]]; then
     eval "$(direnv hook zsh)"
 fi
 
+# vscode inside containers
+if [[ -n "$VSCODE_IPC_HOOK_CLI" && ! -S "$VSCODE_IPC_HOOK_CLI" ]]; then
+    socks=(/tmp/vscode-ipc-*.sock(om[1]N))
+    (( $#socks )) && export VSCODE_IPC_HOOK_CLI="$socks[1]"
+    unset socks
+fi
+
 # Enable automatic activation of virtualenvs
 if [[ $commands[pyenv] ]]; then
     source <(pyenv init --path)
