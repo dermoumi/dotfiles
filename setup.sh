@@ -92,7 +92,7 @@ host="${target_hostname:-$(hostname -s)}"
 become_args=()
 [ "$(id -u)" -ne 0 ] && become_args+=(--ask-become-pass)
 
-extra_vars=()
+extra_vars=(--extra-vars "uv_bin=$uv_bin")
 [ -n "$variant" ] && extra_vars+=(--extra-vars "variant=$variant")
 [ -n "$target_hostname" ] && extra_vars+=(--extra-vars "target_hostname=$target_hostname")
 
