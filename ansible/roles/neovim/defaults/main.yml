@@ -1,6 +1,9 @@
 ---
 mise_bin: "{{ ansible_facts.env.HOME }}/.local/bin/mise"
 
+# Installed by setup.sh to bootstrap the ansible venv, so it predates this role.
+uv_bin: "{{ ansible_facts.env.HOME }}/.local/bin/uv"
+
 # Path the nvim config expects for its python3 provider
 # (nvim/lua/core/options.lua).
 nvim_venv: "{{ ansible_facts.env.HOME }}/.local/share/venvs/nvim-venv"

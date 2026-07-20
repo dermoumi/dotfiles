@@ -10,20 +10,16 @@ mise_tools:
   # eza is a native package below — it has no prebuilt binary mise can fetch on
   # macOS arm64 (aqua=cargo type, no GitHub release asset).
 
-# Extra mise tools per variant (servers get none). uv self-provisions an
-# isolated python per venv, so no variant installs a standalone python.
+# Extra mise tools per variant (server and devcontainer get none).
 mise_variant_tools:
   workstation:
     node: lts
     pnpm: latest
-    uv: latest
     kubectl: latest
     argocd: latest
     aws-cli: latest
     opentofu: latest
     sops: latest
-  devcontainer:
-    uv: latest
 
 # Effective set rendered into config.toml.
 mise_all_tools: "{{ mise_tools | combine(mise_variant_tools[variant] | default({})) }}"
