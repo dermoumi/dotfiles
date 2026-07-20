@@ -1,0 +1,3 @@
+# devbox runs the docker role on top of whatever variant it's given.
+host_extra_roles:
+  - docker

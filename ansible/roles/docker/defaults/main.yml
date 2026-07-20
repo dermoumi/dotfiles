@@ -14,3 +14,27 @@ docker_daemon_json: >-
      else '/etc/docker/daemon.json' }}
 
 docker_needs_root: "{{ ansible_facts.os_family != 'Darwin' }}"
+
+# macOS gets the engine from the desktop role's docker-desktop cask.
+docker_install: "{{ ansible_facts.os_family != 'Darwin' }}"
+
+# Debian/Ubuntu: from Docker's own repo — the distro's docker.io lags badly and
+# ships no compose/buildx plugins.
+docker_apt_packages:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - docker-buildx-plugin
+  - docker-compose-plugin
+
+docker_pacman_packages:
+  - docker
+  - docker-buildx
+  - docker-compose
+
+# Docker publishes separate repos per distro, and apt wants dpkg arch names
+# rather than the uname ones ansible reports.
+docker_apt_distro: "{{ ansible_facts.distribution | lower }}"
+docker_apt_arch: >-
+  {{ {'x86_64': 'amd64', 'aarch64': 'arm64', 'armv7l': 'armhf'}
+     .get(ansible_facts.architecture, ansible_facts.architecture) }}
