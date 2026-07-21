@@ -2,8 +2,17 @@
 
 # Attaches tmux session immediately after ssh'ing into a remote
 ssht() {
-    ssh -t "$@" 'sh -c "
-        export TERM=xterm-256color;
+    # kitten ssh ships our terminfo over; without it, downgrade TERM on remotes
+    # that can't resolve it, or zle miscalculates and doubles the prompt.
+    local -a ssh_cmd=(ssh)
+    local prelude='infocmp \$TERM >/dev/null 2>&1 || export TERM=xterm-256color;'
+
+    if [[ $TERM == xterm-kitty ]] && (( $+commands[kitten] )); then
+        ssh_cmd=(kitten ssh)
+        prelude=
+    fi
+
+    "${ssh_cmd[@]}" -t "$@" 'sh -c "'"$prelude"'
         sock=/tmp/ssock.`id -u`;
         rm \$sock 2>/dev/null;
         ln -s $SSH_AUTH_SOCK \$sock;
