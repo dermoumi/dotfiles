@@ -1,0 +1,6 @@
+---
+# macOS gets the GUI client from the desktop role's tailscale-app cask.
+tailscale_install: "{{ ansible_facts.os_family != 'Darwin' }}"
+
+# Debian/Ubuntu ship no tailscale package, so it comes from Tailscale's repo.
+tailscale_apt_distro: "{{ ansible_facts.distribution | lower }}"

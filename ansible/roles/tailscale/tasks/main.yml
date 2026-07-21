@@ -1,0 +1,63 @@
+---
+- name: Install tailscale (Linux)
+  when: tailscale_install
+  become: true
+  block:
+    - name: Ensure the apt keyring directory exists (Debian)
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: "0755"
+      when: ansible_facts.os_family == 'Debian'
+
+    - name: Install Tailscale's apt signing key (Debian)
+      ansible.builtin.get_url:
+        url: >-
+          https://pkgs.tailscale.com/stable/{{ tailscale_apt_distro }}/{{
+          ansible_facts.distribution_release }}.noarmor.gpg
+        dest: /etc/apt/keyrings/tailscale.gpg
+        mode: "0644"
+      when: ansible_facts.os_family == 'Debian'
+
+    - name: Add Tailscale's apt repository (Debian)
+      ansible.builtin.deb822_repository:
+        name: tailscale
+        types: [deb]
+        uris: "https://pkgs.tailscale.com/stable/{{ tailscale_apt_distro }}"
+        suites: ["{{ ansible_facts.distribution_release }}"]
+        components: [main]
+        signed_by: /etc/apt/keyrings/tailscale.gpg
+        state: present
+        enabled: true
+      when: ansible_facts.os_family == 'Debian'
+
+    - name: Install the tailscale package (Debian)
+      ansible.builtin.apt:
+        name: tailscale
+        state: present
+        update_cache: true
+      when: ansible_facts.os_family == 'Debian'
+
+    - name: Install the tailscale package (Arch)
+      ansible.builtin.package:
+        name: tailscale
+        state: present
+      when: ansible_facts.os_family == 'Archlinux'
+
+    - name: Enable tailscaled
+      ansible.builtin.systemd_service:
+        name: tailscaled
+        enabled: true
+        state: started
+
+    - name: Check whether this node is on the tailnet
+      ansible.builtin.command: tailscale ip -4
+      register: _tailscale_up
+      changed_when: false
+      failed_when: false
+
+    # Auth needs an interactive browser login, so it stays a manual step.
+    - name: Remind to authenticate
+      ansible.builtin.debug:
+        msg: "tailscaled is running but not logged in — run `sudo tailscale up`."
+      when: _tailscale_up.rc != 0

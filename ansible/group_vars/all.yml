@@ -12,6 +12,7 @@ variant_roles:
     - neovim       # python provider + headless plugin sync
     - desktop      # GUI apps; gated on desktop_enabled (see variant_vars)
     - docker       # daemon.json (address pools, dns)
+    - tailscale    # tailscaled (Linux only; macOS gets the cask from desktop)
     - macos        # system defaults
 
   # Minimal footprint for remote machines (VPS, homelab).
@@ -19,6 +20,7 @@ variant_roles:
     - dotfiles
     - cli
     - neovim
+    - tailscale    # the ssh role's tailnet-only sshd depends on this
 
   # Minimal set plus neovim; uv (from the cli role) self-provisions an isolated
   # python for the provider, so no node/pnpm/system-python needed.

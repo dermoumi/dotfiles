@@ -55,16 +55,6 @@
     state: present
   when: ansible_facts.os_family != 'Darwin'
 
-- name: Enable tailscaled (Linux)
-  become: true
-  ansible.builtin.systemd_service:
-    name: tailscaled
-    enabled: true
-    state: started
-  when:
-    - ansible_facts.os_family != 'Darwin'
-    - "'tailscale' in cli_native_all_packages"
-
 - name: Check for Homebrew (macOS)
   ansible.builtin.stat:
     path: /opt/homebrew/bin/brew

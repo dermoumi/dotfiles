@@ -34,9 +34,7 @@ cli_native_packages: # Linux, every variant
   - tmux
   - eza
   - socat
-cli_native_variant_packages: # Linux, per variant
-  workstation:
-    - tailscale
+cli_native_variant_packages: {} # Linux, per variant
 cli_native_all_packages: "{{ cli_native_packages + (cli_native_variant_packages[variant] | default([])) }}"
 cli_brew_packages: # macOS
   - gnupg
