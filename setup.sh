@@ -2,7 +2,8 @@
 set -euo pipefail
 
 dotfiles_dir="$HOME/.dotfiles"
-uv_bin="$HOME/.local/bin/uv"
+# Reuse an existing uv on PATH; else the bootstrap install location below.
+uv_bin="$(command -v uv || echo "$HOME/.local/bin/uv")"
 ansible_venv="$HOME/.local/share/venvs/ansible-venv"
 
 # git clones the repo below and curl fetches uv — both run before ansible can
@@ -91,7 +92,7 @@ host="${target_hostname:-$(hostname -s)}"
 become_args=()
 [ "$(id -u)" -ne 0 ] && become_args+=(--ask-become-pass)
 
-extra_vars=()
+extra_vars=(--extra-vars "uv_bin=$uv_bin")
 [ -n "$variant" ] && extra_vars+=(--extra-vars "variant=$variant")
 [ -n "$target_hostname" ] && extra_vars+=(--extra-vars "target_hostname=$target_hostname")
 
