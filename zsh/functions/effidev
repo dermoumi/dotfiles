@@ -19,7 +19,15 @@ effidev() {
     fi
 
     if [[ -n "$branch" ]]; then
-        (cd "$dir" && vibe "w:$branch")
+        local current
+        current=$(git -C "$dir" symbolic-ref --quiet --short HEAD 2>/dev/null)
+        if [[ "$branch" == "$current" ]]; then
+            (cd "$dir" && vibe)
+        else
+            # refresh remote branches so vibe can base the new worktree on them
+            git -C "$dir" fetch --quiet 2>/dev/null
+            (cd "$dir" && vibe "w:$branch")
+        fi
     else
         (cd "$dir" && vibe)
     fi
