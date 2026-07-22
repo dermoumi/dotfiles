@@ -18,7 +18,12 @@ _effidev() {
             local dir="$root/${line[1]}"
             if [[ -d "$dir/.git" || -f "$dir/.git" ]]; then
                 local -a branches
-                branches=(${(f)"$(git -C "$dir" for-each-ref --format='%(refname:short)' refs/heads 2>/dev/null)"})
+                # local heads plus remote branches with their remote prefix stripped
+                branches=(
+                    ${(f)"$(git -C "$dir" for-each-ref --format='%(refname:short)' refs/heads 2>/dev/null)"}
+                    ${(f)"$(git -C "$dir" for-each-ref --format='%(refname:strip=3)' refs/remotes 2>/dev/null)"}
+                )
+                branches=(${(u)branches:#HEAD})
                 _describe -t branches 'branch' branches
             fi
             ;;
