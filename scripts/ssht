@@ -10,8 +10,8 @@ if [[ $TERM == xterm-kitty ]] && command -v kitten >/dev/null 2>&1; then
     prelude=
 fi
 
-# gpg has no SSH_AUTH_SOCK equivalent, so the forwarded socket must land at the
-# remote's own agent-socket path, which we can't know locally: relink it there.
+# gpg has no SSH_AUTH_SOCK equivalent: land the forwarded socket at the remote's
+# extra-socket path (where socket-mounting tools look) and relink main to it.
 gpg_fwd=()
 gpg_relink=
 local_gpg=$(gpgconf --list-dirs agent-extra-socket 2>/dev/null)
@@ -19,7 +19,7 @@ if [[ -S $local_gpg ]]; then
     remote_gpg="/tmp/S.gpg-agent-fwd.$(id -u)"
     gpg_fwd=(-R "$remote_gpg:$local_gpg")
     gpg_relink="
-        [ -S $remote_gpg ] && { gpgconf --kill gpg-agent >/dev/null 2>&1; mkdir -p \`gpgconf --list-dirs socketdir 2>/dev/null\` 2>/dev/null; ln -sf $remote_gpg \`gpgconf --list-dirs agent-socket 2>/dev/null\` 2>/dev/null; };"
+        [ -S $remote_gpg ] && { gpgconf --kill gpg-agent >/dev/null 2>&1; mkdir -p \`gpgconf --list-dirs socketdir 2>/dev/null\` 2>/dev/null; ln -sf $remote_gpg \`gpgconf --list-dirs agent-extra-socket 2>/dev/null\` 2>/dev/null; ln -sf \`gpgconf --list-dirs agent-extra-socket 2>/dev/null\` \`gpgconf --list-dirs agent-socket 2>/dev/null\` 2>/dev/null; };"
 fi
 
 "${ssh_cmd[@]}" "${gpg_fwd[@]}" -t "$@" 'sh -c "'"$prelude"'
