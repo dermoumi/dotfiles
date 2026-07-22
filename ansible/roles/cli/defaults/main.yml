@@ -20,6 +20,8 @@ mise_variant_tools:
     aws-cli: latest
     opentofu: latest
     sops: latest
+  server:
+    node: lts
 
 # Effective set rendered into config.toml.
 mise_all_tools: "{{ mise_tools | combine(mise_variant_tools[variant] | default({})) }}"
