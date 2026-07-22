@@ -1,0 +1,34 @@
+#!/bin/zsh
+
+effidev() {
+    # Open vibe on a project under $EFFIDEV_ROOT (default ~/work/efficity).
+    # A second argument runs that project as a git worktree branch.
+    local root="${EFFIDEV_ROOT:-$HOME/work/efficity}"
+    local project="$1"
+    local branch="$2"
+
+    if [[ -z "$project" ]]; then
+        print -u2 "usage: effidev <project> [branch]"
+        return 1
+    fi
+
+    local dir="$root/$project"
+    if [[ ! -d "$dir" ]]; then
+        print -u2 "effidev: no such project: $project (in $root)"
+        return 1
+    fi
+
+    if [[ -n "$branch" ]]; then
+        local current
+        current=$(git -C "$dir" symbolic-ref --quiet --short HEAD 2>/dev/null)
+        if [[ "$branch" == "$current" ]]; then
+            (cd "$dir" && vibe)
+        else
+            # refresh remote branches so vibe can base the new worktree on them
+            git -C "$dir" fetch --quiet 2>/dev/null
+            (cd "$dir" && vibe "w:$branch")
+        fi
+    else
+        (cd "$dir" && vibe)
+    fi
+}
