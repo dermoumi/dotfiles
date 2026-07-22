@@ -524,6 +524,15 @@
                                         "name": "wm",
                                         "type": "variable_if",
                                         "value": 0
+                                    },
+                                    {
+                                        "identifiers": [
+                                            {
+                                                "product_id": 481,
+                                                "vendor_id": 13364
+                                            }
+                                        ],
+                                        "type": "device_unless"
                                     }
                                 ],
                                 "from": {
@@ -544,6 +553,15 @@
                                         "name": "wm",
                                         "type": "variable_if",
                                         "value": 0
+                                    },
+                                    {
+                                        "identifiers": [
+                                            {
+                                                "product_id": 481,
+                                                "vendor_id": 13364
+                                            }
+                                        ],
+                                        "type": "device_unless"
                                     }
                                 ],
                                 "from": {
@@ -564,6 +582,15 @@
                                         "name": "wm",
                                         "type": "variable_if",
                                         "value": 0
+                                    },
+                                    {
+                                        "identifiers": [
+                                            {
+                                                "product_id": 481,
+                                                "vendor_id": 13364
+                                            }
+                                        ],
+                                        "type": "device_unless"
                                     }
                                 ],
                                 "from": {
@@ -584,6 +611,15 @@
                                         "name": "wm",
                                         "type": "variable_if",
                                         "value": 0
+                                    },
+                                    {
+                                        "identifiers": [
+                                            {
+                                                "product_id": 481,
+                                                "vendor_id": 13364
+                                            }
+                                        ],
+                                        "type": "device_unless"
                                     }
                                 ],
                                 "from": {
@@ -604,6 +640,15 @@
                                         "name": "wm",
                                         "type": "variable_if",
                                         "value": 0
+                                    },
+                                    {
+                                        "identifiers": [
+                                            {
+                                                "product_id": 481,
+                                                "vendor_id": 13364
+                                            }
+                                        ],
+                                        "type": "device_unless"
                                     }
                                 ],
                                 "from": {
@@ -624,6 +669,15 @@
                                         "name": "wm",
                                         "type": "variable_if",
                                         "value": 0
+                                    },
+                                    {
+                                        "identifiers": [
+                                            {
+                                                "product_id": 481,
+                                                "vendor_id": 13364
+                                            }
+                                        ],
+                                        "type": "device_unless"
                                     }
                                 ],
                                 "from": {
@@ -644,6 +698,15 @@
                                         "name": "wm",
                                         "type": "variable_if",
                                         "value": 0
+                                    },
+                                    {
+                                        "identifiers": [
+                                            {
+                                                "product_id": 481,
+                                                "vendor_id": 13364
+                                            }
+                                        ],
+                                        "type": "device_unless"
                                     }
                                 ],
                                 "from": {
@@ -664,6 +727,15 @@
                                         "name": "wm",
                                         "type": "variable_if",
                                         "value": 0
+                                    },
+                                    {
+                                        "identifiers": [
+                                            {
+                                                "product_id": 481,
+                                                "vendor_id": 13364
+                                            }
+                                        ],
+                                        "type": "device_unless"
                                     }
                                 ],
                                 "from": {
@@ -684,6 +756,15 @@
                                         "name": "wm",
                                         "type": "variable_if",
                                         "value": 0
+                                    },
+                                    {
+                                        "identifiers": [
+                                            {
+                                                "product_id": 481,
+                                                "vendor_id": 13364
+                                            }
+                                        ],
+                                        "type": "device_unless"
                                     }
                                 ],
                                 "from": {
