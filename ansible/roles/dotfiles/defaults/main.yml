@@ -32,6 +32,9 @@ dotfile_links_by_variant:
   workstation:
     - src: kitty
       dest: "{{ ansible_facts.env.HOME }}/.config/kitty"
+    - src: gnupg/gpg-agent.conf
+      dest: "{{ ansible_facts.env.HOME }}/.gnupg/gpg-agent.conf"
+      dir_mode: "0700"              # gpg refuses a world-readable homedir
 
 dotfile_links: >-
   {{ dotfile_links_common

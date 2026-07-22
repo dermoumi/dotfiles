@@ -1,0 +1,31 @@
+#!/bin/bash
+
+ssh_cmd=(ssh)
+# kitten ssh ships our terminfo over; without it, downgrade TERM on remotes
+# that can't resolve it, or zle miscalculates and doubles the prompt.
+prelude='infocmp \$TERM >/dev/null 2>&1 || export TERM=xterm-256color;'
+
+if [[ $TERM == xterm-kitty ]] && command -v kitten >/dev/null 2>&1; then
+    ssh_cmd=(kitten ssh)
+    prelude=
+fi
+
+# gpg has no SSH_AUTH_SOCK equivalent, so the forwarded socket must land at the
+# remote's own agent-socket path, which we can't know locally: relink it there.
+gpg_fwd=()
+gpg_relink=
+local_gpg=$(gpgconf --list-dirs agent-extra-socket 2>/dev/null)
+if [[ -S $local_gpg ]]; then
+    remote_gpg="/tmp/S.gpg-agent-fwd.$(id -u)"
+    gpg_fwd=(-R "$remote_gpg:$local_gpg")
+    gpg_relink="
+        [ -S $remote_gpg ] && { gpgconf --kill gpg-agent >/dev/null 2>&1; mkdir -p \`gpgconf --list-dirs socketdir 2>/dev/null\` 2>/dev/null; ln -sf $remote_gpg \`gpgconf --list-dirs agent-socket 2>/dev/null\` 2>/dev/null; };"
+fi
+
+"${ssh_cmd[@]}" "${gpg_fwd[@]}" -t "$@" 'sh -c "'"$prelude"'
+    sock=/tmp/ssock.`id -u`;
+    rm \$sock 2>/dev/null;
+    ln -s $SSH_AUTH_SOCK \$sock;
+    export SSH_AUTH_SOCK=\$sock;'"$gpg_relink"'
+    command -v tmux >/dev/null && (tmux -u attach 2>/dev/null || tmux -u new)
+"'
