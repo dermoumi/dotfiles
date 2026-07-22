@@ -1,0 +1,28 @@
+#compdef effidev
+
+_effidev() {
+    local root="${EFFIDEV_ROOT:-$HOME/work/efficity}"
+    local state line
+
+    _arguments \
+        '1:project:->project' \
+        '2:branch:->branch'
+
+    case "$state" in
+        project)
+            local -a projects
+            projects=(${root}/*(/N:t))
+            _describe -t projects 'project' projects
+            ;;
+        branch)
+            local dir="$root/${line[1]}"
+            if [[ -d "$dir/.git" || -f "$dir/.git" ]]; then
+                local -a branches
+                branches=(${(f)"$(git -C "$dir" for-each-ref --format='%(refname:short)' refs/heads 2>/dev/null)"})
+                _describe -t branches 'branch' branches
+            fi
+            ;;
+    esac
+}
+
+_effidev "$@"
