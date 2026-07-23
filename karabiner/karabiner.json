@@ -24,7 +24,7 @@
                                 ],
                                 "from": {
                                     "key_code": "x",
-                                    "modifiers": { "mandatory": ["right_control", "left_command"] }
+                                    "modifiers": { "mandatory": ["right_command", "left_command"] }
                                 },
                                 "to": [
                                     {
@@ -48,7 +48,7 @@
                                 ],
                                 "from": {
                                     "key_code": "insert",
-                                    "modifiers": { "mandatory": ["right_control", "left_command"] }
+                                    "modifiers": { "mandatory": ["right_command", "left_command"] }
                                 },
                                 "to": [
                                     {
@@ -2273,6 +2273,10 @@
                         {
                             "from": { "key_code": "non_us_backslash" },
                             "to": [{ "key_code": "grave_accent_and_tilde" }]
+                        },
+                        {
+                            "from": { "key_code": "right_control" },
+                            "to": [{ "key_code": "right_command" }]
                         }
                     ]
                 },
