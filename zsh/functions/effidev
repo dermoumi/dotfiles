@@ -24,8 +24,8 @@ effidev() {
         if [[ "$branch" == "$current" ]]; then
             (cd "$dir" && vibe)
         else
-            # refresh remote branches so vibe can base the new worktree on them
-            git -C "$dir" fetch --quiet 2>/dev/null
+            # pull the latest state of the root branch so vibe bases the new worktree on it
+            git -C "$dir" pull --ff-only || return
             (cd "$dir" && vibe "w:$branch")
         fi
     else
