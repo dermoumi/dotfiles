@@ -1,0 +1,48 @@
+---
+# niri routes ScreenCast to xdg-desktop-portal-gnome (it implements Mutter's
+# ScreenCast D-Bus API); the trimmed gnome.portal keeps that while leaving
+# Settings to gtk alone, so Electron apps get one dark/light signal, not two.
+- name: Configure niri screencast portals
+  when:
+    - desktop_enabled | default(false)
+    - ansible_facts.os_family == 'Archlinux'
+  block:
+    - name: Install portal + pipewire packages
+      become: true
+      ansible.builtin.package:
+        name: "{{ portals_packages }}"
+        state: present
+
+    - name: Ensure the portal config directory exists
+      ansible.builtin.file:
+        path: "{{ portals_config_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Route niri portal interfaces (ScreenCast/Screenshot to gnome, rest to gtk)
+      ansible.builtin.copy:
+        src: niri-portals.conf
+        dest: "{{ portals_config_dir }}/niri-portals.conf"
+        mode: "0644"
+      notify: Restart user portal services
+
+    - name: Ensure the portal backends directory exists
+      ansible.builtin.file:
+        path: "{{ portals_backends_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Restrict the gnome backend to ScreenCast/Screenshot
+      ansible.builtin.copy:
+        src: gnome.portal
+        dest: "{{ portals_backends_dir }}/gnome.portal"
+        mode: "0644"
+      notify: Restart user portal services
+
+    - name: Unmask the gnome portal backend (user)
+      ansible.builtin.systemd_service:
+        name: xdg-desktop-portal-gnome.service
+        masked: false
+        daemon_reload: true
+        scope: user
+      notify: Restart user portal services

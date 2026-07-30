@@ -1,0 +1,11 @@
+---
+# xdg-desktop-portal + PipeWire stack that niri's screencast needs.
+portals_packages:
+  - xdg-desktop-portal
+  - xdg-desktop-portal-gnome
+  - xdg-desktop-portal-gtk
+  - pipewire
+  - wireplumber
+
+portals_config_dir: "{{ ansible_facts.env.HOME }}/.config/xdg-desktop-portal"
+portals_backends_dir: "{{ ansible_facts.env.HOME }}/.local/share/xdg-desktop-portal/portals"

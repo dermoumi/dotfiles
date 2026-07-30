@@ -1,0 +1,6 @@
+# Overrides the packaged gnome.portal: advertise ScreenCast/Screenshot only, so
+# gnome never becomes a Settings backend and can't double-fire the dark/light signal.
+[portal]
+DBusName=org.freedesktop.impl.portal.desktop.gnome
+Interfaces=org.freedesktop.impl.portal.ScreenCast;org.freedesktop.impl.portal.Screenshot;
+UseIn=gnome

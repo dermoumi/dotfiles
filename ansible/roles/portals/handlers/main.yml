@@ -1,0 +1,11 @@
+---
+# Restart the frontend + gtk backend so the config and .portal override reload;
+# the gnome backend is D-Bus-activated on the next screencast request.
+- name: Restart user portal services
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    state: restarted
+    scope: user
+  loop:
+    - xdg-desktop-portal.service
+    - xdg-desktop-portal-gtk.service

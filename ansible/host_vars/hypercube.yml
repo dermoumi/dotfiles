@@ -3,5 +3,6 @@
 host_extra_roles:
   - ssh
   - ip-forward
+  - portals        # niri screencast fix; self-gates on desktop_enabled + Arch
 
 ssh_port: 11967
