@@ -82,33 +82,33 @@ binds {
     Mod+CTRL+Shift+WheelScrollDown      { move-column-to-workspace-down; }
     Mod+CTRL+Shift+WheelScrollUp        { move-column-to-workspace-up; }
 
-    Mod+1                               { focus-workspace "d1"; }
-    Mod+2                               { focus-workspace "d2"; }
-    Mod+3                               { focus-workspace 3; }
-    Mod+4                               { focus-workspace 4; }
-    Mod+5                               { focus-workspace 5; }
-    Mod+6                               { focus-workspace 6; }
-    Mod+7                               { focus-workspace 7; }
-    Mod+8                               { focus-workspace 8; }
-    Mod+9                               { focus-workspace 9; }
-    Mod+0                               { focus-workspace "d0"; }
+    Mod+Ctrl+Alt+1                      { focus-workspace "d1"; }
+    Mod+Ctrl+Alt+2                      { focus-workspace "d2"; }
+    Mod+Ctrl+Alt+3                      { focus-workspace 3; }
+    Mod+Ctrl+Alt+4                      { focus-workspace 4; }
+    Mod+Ctrl+Alt+5                      { focus-workspace 5; }
+    Mod+Ctrl+Alt+6                      { focus-workspace 6; }
+    Mod+Ctrl+Alt+7                      { focus-workspace 7; }
+    Mod+Ctrl+Alt+8                      { focus-workspace 8; }
+    Mod+Ctrl+Alt+9                      { focus-workspace 9; }
+    Mod+Ctrl+Alt+0                      { focus-workspace "d0"; }
 
-    Mod+Shift+1                         { move-column-to-workspace "d1"; }
-    Mod+Shift+2                         { move-column-to-workspace "d2"; }
-    Mod+Shift+3                         { move-column-to-workspace 3; }
-    Mod+Shift+4                         { move-column-to-workspace 4; }
-    Mod+Shift+5                         { move-column-to-workspace 5; }
-    Mod+Shift+6                         { move-column-to-workspace 6; }
-    Mod+Shift+7                         { move-column-to-workspace 7; }
-    Mod+Shift+8                         { move-column-to-workspace 8; }
-    Mod+Shift+9                         { move-column-to-workspace 9; }
-    Mod+Shift+0                         { move-column-to-workspace "d0"; }
+    Mod+Ctrl+Alt+Shift+1                { move-column-to-workspace "d1"; }
+    Mod+Ctrl+Alt+Shift+2                { move-column-to-workspace "d2"; }
+    Mod+Ctrl+Alt+Shift+3                { move-column-to-workspace 3; }
+    Mod+Ctrl+Alt+Shift+4                { move-column-to-workspace 4; }
+    Mod+Ctrl+Alt+Shift+5                { move-column-to-workspace 5; }
+    Mod+Ctrl+Alt+Shift+6                { move-column-to-workspace 6; }
+    Mod+Ctrl+Alt+Shift+7                { move-column-to-workspace 7; }
+    Mod+Ctrl+Alt+Shift+8                { move-column-to-workspace 8; }
+    Mod+Ctrl+Alt+Shift+9                { move-column-to-workspace 9; }
+    Mod+Ctrl+Alt+Shift+0                { move-column-to-workspace "d0"; }
 
     Mod+TAB                             { focus-workspace-previous; }
 
     // ─── Layout Controls ───
     Mod+O                               { switch-preset-column-width; }
-    Mod+Shift+O                         { set-column-width "100%"; }
+    Mod+Ctrl+Shift+Return               { set-column-width "100%"; }
     Mod+Ctrl+O                          { expand-column-to-available-width; }
     Mod+CTRL+T                          { center-column; }
     Mod+CTRL+H                          { set-column-width "-10%"; }
