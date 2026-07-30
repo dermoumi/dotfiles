@@ -14,18 +14,29 @@ fi
 # extra-socket path (where socket-mounting tools look) and relink main to it.
 gpg_fwd=()
 gpg_relink=
+gpg_import=
 local_gpg=$(gpgconf --list-dirs agent-extra-socket 2>/dev/null)
 if [[ -S $local_gpg ]]; then
     remote_gpg="/tmp/S.gpg-agent-fwd.$(id -u)"
     gpg_fwd=(-R "$remote_gpg:$local_gpg")
     gpg_relink="
         [ -S $remote_gpg ] && { gpgconf --kill gpg-agent >/dev/null 2>&1; mkdir -p \`gpgconf --list-dirs socketdir 2>/dev/null\` 2>/dev/null; ln -sf $remote_gpg \`gpgconf --list-dirs agent-extra-socket 2>/dev/null\` 2>/dev/null; ln -sf \`gpgconf --list-dirs agent-extra-socket 2>/dev/null\` \`gpgconf --list-dirs agent-socket 2>/dev/null\` 2>/dev/null; };"
+
+    # The forwarded agent supplies secret ops, but the remote also needs the
+    # public key to know which subkey to sign with. Ship our own keys (the ones
+    # we hold secret for) and import on first connect only; public, so no risk.
+    my_fprs=$(gpg --list-secret-keys --with-colons 2>/dev/null | awk -F: '/^sec/{s=1;next} /^fpr/&&s{print $10;s=0}')
+    if [[ -n $my_fprs ]]; then
+        pub_b64=$(gpg --export $my_fprs 2>/dev/null | base64 | tr -d '\n')
+        gpg_import="
+        gpg --list-keys ${my_fprs%%$'\n'*} >/dev/null 2>&1 || printf %s '$pub_b64' | { base64 -d 2>/dev/null || base64 -D; } | gpg --import >/dev/null 2>&1;"
+    fi
 fi
 
 "${ssh_cmd[@]}" "${gpg_fwd[@]}" -t "$@" 'sh -c "'"$prelude"'
     sock=/tmp/ssock.`id -u`;
     rm \$sock 2>/dev/null;
     ln -s $SSH_AUTH_SOCK \$sock;
-    export SSH_AUTH_SOCK=\$sock;'"$gpg_relink"'
+    export SSH_AUTH_SOCK=\$sock;'"$gpg_relink"''"$gpg_import"'
     command -v tmux >/dev/null && (tmux -u attach 2>/dev/null || tmux -u new)
 "'
