@@ -88,11 +88,30 @@
     # a newly-added package therefore lands on the next due run (or delete the
     # stamp to force it).
     - name: Install/upgrade desktop AUR packages (Arch, throttled)
-      ansible.builtin.command:
-        cmd: "yay -S --needed --noconfirm {{ desktop_aur | join(' ') }}"
-      register: _yay_install
-      changed_when: "'there is nothing to do' not in (_yay_install.stdout | lower)"
       when: ansible_facts.os_family == 'Archlinux' and _desktop_upgrade_due
+      block:
+        # yay shells out to `sudo pacman` with no TTY under ansible, so grant
+        # this user passwordless sudo just for the run, revoked in always below.
+        - name: Grant temporary passwordless sudo for AUR installs
+          ansible.builtin.copy:
+            dest: /etc/sudoers.d/dotfiles-yay
+            content: "{{ ansible_facts.env.USER }} ALL=(ALL) NOPASSWD: SETENV: ALL\n"
+            mode: "0440"
+            validate: visudo -cf %s
+          become: true
+
+        - name: Install/upgrade AUR packages
+          ansible.builtin.command:
+            cmd: "yay -S --needed --noconfirm {{ desktop_aur | join(' ') }}"
+          register: _yay_install
+          changed_when: "'there is nothing to do' not in (_yay_install.stdout | lower)"
+      always:
+        - name: Revoke the temporary passwordless sudo
+          ansible.builtin.file:
+            path: /etc/sudoers.d/dotfiles-yay
+            state: absent
+          become: true
+          when: ansible_facts.os_family == 'Archlinux'
 
     # Stamp last so a failed upgrade above isn't cached — it retries next run.
     - name: Ensure the upgrade stamp directory exists
