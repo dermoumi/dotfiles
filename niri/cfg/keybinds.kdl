@@ -17,6 +17,7 @@ binds {
     Mod+CTRL+A                          hotkey-overlay-title="Lock Screen" { spawn-sh "noctalia msg session lock"; }
     Mod+Shift+Q                         hotkey-overlay-title="Session Menu" { spawn-sh "noctalia msg panel-toggle session"; }
     Mod+E                               hotkey-overlay-title="File Manager" { spawn "nautilus"; }
+    Mod+Shift+B                         hotkey-overlay-title="File Manager" { spawn-sh "noctalia msg panel-toggle dunarand/bookmarks:panel"; }
 
     // ─── Media Controls ───
     XF86AudioRaiseVolume                allow-when-locked=true { spawn-sh "noctalia msg volume-up"; }
