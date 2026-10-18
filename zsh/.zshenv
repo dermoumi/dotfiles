@@ -31,7 +31,7 @@ export DOCKER_CLI_HINTS=false
 
 # local scripts directory
 if [ ! "$SCRIPTS_DIR" ] && [ -d ~/.dotfiles/scripts/ ]; then
-    export SCRIPTS_DIR=$HOME/.dotfiles/scripts/
+    export SCRIPTS_DIR=$HOME/.dotfiles/scripts
     path=($SCRIPTS_DIR $path)
 fi
 
