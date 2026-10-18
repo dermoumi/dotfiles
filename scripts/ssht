@@ -20,7 +20,13 @@ if [[ -S $local_gpg ]]; then
     remote_gpg="/tmp/S.gpg-agent-fwd.$(id -u)"
     gpg_fwd=(-R "$remote_gpg:$local_gpg")
     gpg_relink="
-        [ -S $remote_gpg ] && { gpgconf --kill gpg-agent >/dev/null 2>&1; mkdir -p \`gpgconf --list-dirs socketdir 2>/dev/null\` 2>/dev/null; ln -sf $remote_gpg \`gpgconf --list-dirs agent-extra-socket 2>/dev/null\` 2>/dev/null; ln -sf \`gpgconf --list-dirs agent-extra-socket 2>/dev/null\` \`gpgconf --list-dirs agent-socket 2>/dev/null\` 2>/dev/null; };"
+        [ -S $remote_gpg ] && {
+          grep -qxF no-autostart \"\$HOME/.gnupg/gpg.conf\" 2>/dev/null || { mkdir -p \"\$HOME/.gnupg\"; chmod 700 \"\$HOME/.gnupg\"; echo no-autostart >> \"\$HOME/.gnupg/gpg.conf\"; };
+          gpgconf --kill gpg-agent >/dev/null 2>&1;
+          mkdir -p \`gpgconf --list-dirs socketdir 2>/dev/null\` 2>/dev/null;
+          ln -sf $remote_gpg \`gpgconf --list-dirs agent-extra-socket 2>/dev/null\` 2>/dev/null;
+          ln -sf \`gpgconf --list-dirs agent-extra-socket 2>/dev/null\` \`gpgconf --list-dirs agent-socket 2>/dev/null\` 2>/dev/null;
+        };"
 
     # The forwarded agent supplies secret ops, but the remote also needs the
     # public key to know which subkey to sign with. Ship our own keys (the ones
