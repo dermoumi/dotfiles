@@ -1,5 +1,5 @@
 window-rule {
-  geometry-corner-radius 3 // Set every window radius to 20
+  geometry-corner-radius 8 // Set every window radius to 20
   clip-to-geometry true
 }
 
@@ -38,8 +38,19 @@ window-rule {
 window-rule {
   match app-id="^Raspberry Flavoured .+$"
 
-  open-on-workspace "D2"
+  open-on-workspace "d3"
   variable-refresh-rate true
   open-maximized true
+  default-column-width { proportion 1.0; }
+}
+
+// Project Zomboid
+window-rule {
+  match app-id="^steam_app_.+"
+
+  open-on-workspace "d3"
+  variable-refresh-rate true
+  open-maximized true
+  open-fullscreen false
   default-column-width { proportion 1.0; }
 }
