@@ -21,8 +21,9 @@
     - name: Resolve this machine's roles
       ansible.builtin.set_fact:
         _machine_roles: >-
-          {{ (variant_roles[variant] | default([]))
-             + (host_extra_roles | default([])) }}
+          {{ ((variant_roles[variant] | default([]))
+              + (host_extra_roles | default([])))
+             | difference(['neovim'] if (skip_neovim | default(false)) else []) }}
 
     - name: Require at least one role
       ansible.builtin.assert:

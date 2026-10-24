@@ -72,6 +72,8 @@ ansible-galaxy collection install --upgrade -r ansible/requirements.yml
 # its host_vars; anything else passes through to ansible-playbook.
 variant=""
 target_hostname=""
+skip_neovim=""
+skip_node=""
 passthru=()
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -80,6 +82,8 @@ while [ $# -gt 0 ]; do
             [ -n "$target_hostname" ] || { echo "--hostname requires a value" >&2; exit 1; }
             shift 2 ;;
         --hostname=*) target_hostname="${1#*=}"; shift ;;
+        --no-neovim) skip_neovim=1; shift ;;
+        --no-node) skip_node=1; shift ;;
         -*) passthru+=("$1"); shift ;;
         *) [ -n "$variant" ] && passthru+=("$1") || variant="$1"; shift ;;
     esac
@@ -95,6 +99,8 @@ become_args=()
 extra_vars=(--extra-vars "uv_bin=$uv_bin")
 [ -n "$variant" ] && extra_vars+=(--extra-vars "variant=$variant")
 [ -n "$target_hostname" ] && extra_vars+=(--extra-vars "target_hostname=$target_hostname")
+[ -n "$skip_neovim" ] && extra_vars+=(--extra-vars "skip_neovim=true")
+[ -n "$skip_node" ] && extra_vars+=(--extra-vars "skip_node=true")
 
 ansible-playbook \
     -i "$host," -c local \

@@ -23,8 +23,13 @@ mise_variant_tools:
   server:
     node: lts
 
-# Effective set rendered into config.toml.
-mise_all_tools: "{{ mise_tools | combine(mise_variant_tools[variant] | default({})) }}"
+# Rendered into config.toml; setup.sh --no-* flags drop tools (pnpm needs node).
+_skip_mise_tools: >-
+  {{ (['neovim'] if skip_neovim | default(false) else [])
+     + (['node', 'pnpm'] if skip_node | default(false) else []) }}
+mise_all_tools: >-
+  {{ mise_tools | combine(mise_variant_tools[variant] | default({}))
+     | dict2items | rejectattr('key', 'in', _skip_mise_tools) | items2dict }}
 
 # Tools with real system integration stay on the native package manager.
 cli_native_packages: # Linux, every variant
