@@ -17,7 +17,10 @@ binds {
     Mod+CTRL+A                          hotkey-overlay-title="Lock Screen" { spawn-sh "noctalia msg session lock"; }
     Mod+Shift+Q                         hotkey-overlay-title="Session Menu" { spawn-sh "noctalia msg panel-toggle session"; }
     Mod+E                               hotkey-overlay-title="File Manager" { spawn "nautilus"; }
-    Mod+Shift+B                         hotkey-overlay-title="File Manager" { spawn-sh "noctalia msg panel-toggle dunarand/bookmarks:panel"; }
+
+    Mod+Shift+B                         hotkey-overlay-title="Bookmarks" { spawn-sh "noctalia msg panel-toggle dunarand/bookmarks:panel"; }
+    Ctrl+Shift+Insert                   hotkey-overlay-title="Clipboard History" { spawn-sh "noctalia msg panel-toggle clipboard"; }
+    Mod+Ctrl+V                          hotkey-overlay-title="Clipboard History" { spawn-sh "noctalia msg panel-toggle clipboard"; }
 
     // ─── Media Controls ───
     XF86AudioRaiseVolume                allow-when-locked=true { spawn-sh "noctalia msg volume-up"; }
@@ -37,7 +40,7 @@ binds {
     Ctrl+Alt+Super+Next                 allow-when-locked=true { spawn-sh "noctalia msg brightness-down"; }
 
     // ─── Window Movement and Focus ───
-    Mod+Q                               { close-window; }
+    Mod+Apostrophe                      { close-window; }
 
     Mod+H                               { focus-column-left; }
     Mod+L                               { focus-column-right; }
