@@ -47,6 +47,7 @@ window-rule {
 // Project Zomboid
 window-rule {
   match app-id="^steam_app_.+"
+  match app-id="^Project Zomboid$"
 
   open-on-workspace "d3"
   variable-refresh-rate true
