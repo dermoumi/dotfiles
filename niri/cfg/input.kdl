@@ -32,12 +32,6 @@ input {
   focus-follows-mouse max-scroll-amount="30%"
 }
 
-window-rule {
-  match app-id="com.mitchellh.ghostty"
-
-  scroll-factor 0.08
-}
-
 gestures {
   dnd-edge-view-scroll {
     // Increase the trigger area and maximum speed.
