@@ -1,0 +1,9 @@
+{
+  "settings": {
+    "notify_on_copy": {
+      "description": "Mostra una notifica quando una kaomoji viene copiata negli appunti",
+      "label": "Notifica dopo la copia"
+    }
+  },
+  "title": "Kaomoji"
+}

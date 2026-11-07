@@ -44,3 +44,4 @@ desktop_aur:
   - vivaldi
   - kitty
   - awsvpnclient
+  - wtype # noctalia kaomoji plugin types the kaomoji into the focused window
