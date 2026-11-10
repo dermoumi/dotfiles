@@ -3,12 +3,14 @@
 // You will have to remove "/-" and edit it before it takes effect.
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Outputs
 
+// Main
 output "Huawei Technologies Co., Inc. ZQE-CAA 0xC080F622" {
-    mode "3560x1440@165.0"
+    mode "3440x1440@165.0"
     position x=0 y=1080
     scale 1
 }
 
+// Secondary
 output "LG Electronics LG ULTRAWIDE 0x000256D7" {
     mode "2560x1080@60.0"
     position x=440 y=0
