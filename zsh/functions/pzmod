@@ -3,5 +3,6 @@
 pzmod() {
     vibe -P ~/.local/share/Steam/steamapps/workshop/content/108600/ \
          -P ~/.local/share/Steam/steamapps/common/ProjectZomboid/ \
-         -P ~/Work/komodo/ "w:$1"
+         -P ~/Work/komodo/ \
+         -S scratchpad/ "w:$1"
 }
