@@ -1,10 +1,11 @@
 #!/bin/zsh
 
 pzmod() {
-    local target=$1
-    shift
     vibe -P ~/.local/share/Steam/steamapps/workshop/content/108600/ \
          -P ~/.local/share/Steam/steamapps/common/ProjectZomboid/ \
          -P ~/Work/komodo/ \
-         -S scratchpad/ "$@" "w:$target"
+         -S snapshots/ \
+         -S scratchpad/ \
+         -L .claude/skills/ \
+         "$@"
 }
