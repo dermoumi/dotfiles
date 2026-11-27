@@ -7,5 +7,6 @@ pzmod() {
          -S snapshots/ \
          -S scratchpad/ \
          -L .claude/skills/ \
+         -e UV_PROJECT_ENVIRONMENT=/home/dev/.cache/softies-venv \
          "$@"
 }
